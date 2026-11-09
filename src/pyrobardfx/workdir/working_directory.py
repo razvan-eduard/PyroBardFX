@@ -6,6 +6,9 @@ from pathlib import Path
 import structlog
 from structlog.typing import FilteringBoundLogger
 
+from pyrobardfx.events.constants import PERCENT_DONE
+from pyrobardfx.refusal.constants import RefusalReason
+from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.workdir.constants import (
     APP_FOLDER_NAME,
     DOCUMENTS_FOLDER_NAME,
@@ -15,11 +18,8 @@ from pyrobardfx.workdir.constants import (
     HOME_OVERRIDE_ENV,
     LAYOUT,
     LOGGER_NAME,
-    PERCENT_DONE,
-    REFUSED_MESSAGE,
     STAGE_NAME,
     TEMP_ENV_VARS,
-    RefusalReason,
 )
 from pyrobardfx.workdir.host import HostFacts
 
@@ -29,16 +29,6 @@ class WorkingDirectory:
     """The one folder that holds every story, sound, model and setting."""
 
     root: Path
-
-
-class WorkingDirectoryRefusedError(Exception):
-    """A start refused the chosen working directory; `detail` says what stood in its way."""
-
-    def __init__(self, reason: RefusalReason, path: Path, detail: str) -> None:
-        super().__init__(REFUSED_MESSAGE.format(reason=reason, path=path, detail=detail))
-        self.reason = reason
-        self.path = path
-        self.detail = detail
 
 
 class TempRoots:
@@ -76,11 +66,11 @@ class WorkingDirectoryService:
         self._log: FilteringBoundLogger = structlog.get_logger(LOGGER_NAME)
 
     def open(self, override: Path | None) -> WorkingDirectory:
-        """Return the laid-out working directory or raise `WorkingDirectoryRefusedError`."""
+        """Return the laid-out working directory or raise `RefusedError`."""
         root = self._chosen_root(override).absolute()
         temp_root = TempRoots.containing(self._host, root)
         if temp_root is not None:
-            raise WorkingDirectoryRefusedError(RefusalReason.IN_TEMP, root, str(temp_root))
+            raise RefusedError(RefusalReason.IN_TEMP, root, str(temp_root))
         event = EVENT_OPENED if root.exists() else EVENT_CREATED
         self._lay_out(root)
         self._log.info(event, stage=STAGE_NAME, percent=PERCENT_DONE, path=str(root))
@@ -93,7 +83,7 @@ class WorkingDirectoryService:
                 (root / name).mkdir(parents=True, exist_ok=True)
         except OSError as error:
             detail = error.strerror or type(error).__name__
-            raise WorkingDirectoryRefusedError(RefusalReason.CANNOT_CREATE, root, detail) from error
+            raise RefusedError(RefusalReason.CANNOT_CREATE, root, detail) from error
 
     def _chosen_root(self, override: Path | None) -> Path:
         if override is not None:

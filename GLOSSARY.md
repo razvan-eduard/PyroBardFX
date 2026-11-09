@@ -44,6 +44,22 @@ _Avoid_: job (that is the worker's unit, a Run is one kind of job), build (as a 
 The folder of one Run holding every file the Run wrote: its snapshot, tags, cues, scenes, final script, mix and Videos.
 _Avoid_: output folder, workspace
 
+**Run id**:
+The name of a Run and of its Run folder: the UTC time the Run started plus four random hex characters (`20261109T153000Z-a1b2`), so run ids sort by start time.
+_Avoid_: run number, job id
+
+**Run snapshot**:
+The frozen set of values one Run reads, built once at Run start and handed to every Stage; its copy in the Run folder is a record no Stage reads back (ADR 0002).
+_Avoid_: run config, run context, run settings
+
+**Stage**:
+One step of a Run, in the fixed order every Run passes; each holds the Run snapshot from its start.
+_Avoid_: step (that is a progress callback inside a Stage), node, phase
+
+**Latest pointer**:
+The file in a Story's folder that names the run id of its newest Run.
+_Avoid_: current run, symlink
+
 **Review**:
 The stop before rendering where a Run waits for the user when a sound tag is red, the narration match is low, or a visual's model is missing; the user resumes or cancels.
 _Avoid_: pre-flight, check, approval

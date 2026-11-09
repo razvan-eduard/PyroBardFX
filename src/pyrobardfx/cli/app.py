@@ -9,37 +9,64 @@ import typer
 
 from pyrobardfx.cli.constants import (
     APP_NAME,
+    NO_WORKING_DIRECTORY_MESSAGE,
     REFUSED_EXIT_CODE,
+    RUN_COMMAND,
+    RUN_HELP,
+    STORY_HELP,
     WORKING_DIR_HELP,
     WORKING_DIR_OPTION,
 )
 from pyrobardfx.cli.printer import CliPrinter
+from pyrobardfx.clock.base import Clock
+from pyrobardfx.clock.system import SystemClock
+from pyrobardfx.refusal.error import RefusedError
+from pyrobardfx.run.service import RunService
+from pyrobardfx.run.tokens import SecretsTokenSource, TokenSource
 from pyrobardfx.workdir.host import HostFacts
-from pyrobardfx.workdir.working_directory import (
-    WorkingDirectoryRefusedError,
-    WorkingDirectoryService,
-)
+from pyrobardfx.workdir.working_directory import WorkingDirectory, WorkingDirectoryService
 
 
 class CliApp:
     """Builds the typer app over the services for one host."""
 
     @staticmethod
-    def build(host: HostFacts) -> typer.Typer:
+    def build(
+        host: HostFacts, clock: Clock | None = None, tokens: TokenSource | None = None
+    ) -> typer.Typer:
+        """Build the app; `clock` and `tokens` default to the system's own."""
         app = typer.Typer(name=APP_NAME, add_completion=False)
         service = WorkingDirectoryService(host)
+        run_clock = clock or SystemClock()
+        run_tokens = tokens or SecretsTokenSource()
 
         @app.callback(invoke_without_command=True)
         def start(
+            ctx: typer.Context,
             working_dir: Annotated[
                 Path | None, typer.Option(WORKING_DIR_OPTION, help=WORKING_DIR_HELP)
             ] = None,
         ) -> None:
             try:
-                service.open(working_dir)
-            except WorkingDirectoryRefusedError as error:
+                ctx.obj = service.open(working_dir)
+            except RefusedError as error:
                 CliPrinter.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
+
+        @app.command(RUN_COMMAND, help=RUN_HELP)
+        def run(
+            ctx: typer.Context,
+            story: Annotated[str, typer.Argument(help=STORY_HELP)],
+        ) -> None:
+            working = ctx.find_object(WorkingDirectory)
+            if working is None:
+                raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
+            try:
+                folder = RunService(working, run_clock, run_tokens).start(story)
+            except RefusedError as error:
+                CliPrinter.refused(error)
+                raise typer.Exit(code=REFUSED_EXIT_CODE) from error
+            CliPrinter.run_finished(folder)
 
         return app
 
@@ -51,4 +78,4 @@ class CliApp:
 
 def main() -> None:
     CliApp.configure_logging()
-    CliApp.build(HostFacts.from_host())()
+    CliApp.build(HostFacts.from_host(), SystemClock(), SecretsTokenSource())()

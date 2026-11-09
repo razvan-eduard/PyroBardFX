@@ -1,0 +1,187 @@
+import json
+from datetime import UTC, datetime, timedelta, timezone
+from pathlib import Path
+
+import pytest
+from typer.testing import CliRunner, Result
+
+from pyrobardfx.cli.app import CliApp
+from tests.builders.host_facts import HostFactsBuilder
+from tests.builders.working_directory import WorkingDirectoryBuilder
+from tests.fakes.clock import FakeClock
+from tests.fakes.tokens import FixedTokenSource
+
+STORY = "the-lighthouse"
+RUN_ID = "20261109T153000Z-a1b2"
+START = datetime(2026, 11, 9, 15, 30, 0, tzinfo=UTC)
+
+
+def run_story(
+    sandbox: Path,
+    clock: FakeClock,
+    story: str = STORY,
+    working: WorkingDirectoryBuilder | None = None,
+    tokens: FixedTokenSource | None = None,
+) -> Result:
+    root = (working or WorkingDirectoryBuilder(sandbox / "work")).story(STORY).build()
+    app = CliApp.build(HostFactsBuilder(sandbox).build(), clock, tokens or FixedTokenSource("a1b2"))
+    return CliRunner().invoke(app, ["--working-dir", str(root), "run", story])
+
+
+def log_of(sandbox: Path) -> list[dict[str, object]]:
+    lines = (runs_of(sandbox) / RUN_ID / "run.log").read_text().splitlines()
+    return [json.loads(line) for line in lines]
+
+
+def runs_of(sandbox: Path) -> Path:
+    return sandbox / "work" / "stories" / STORY / "runs"
+
+
+def test_a_run_writes_a_run_folder_named_by_its_utc_time_and_token(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    assert [folder.name for folder in runs_of(tmp_path).iterdir()] == ["20261109T153000Z-a1b2"]
+
+
+def test_a_run_id_is_stamped_in_utc_when_the_clock_reports_another_zone(tmp_path: Path) -> None:
+    bucharest = timezone(timedelta(hours=2))
+    run_story(tmp_path, FakeClock(datetime(2026, 11, 9, 17, 30, 0, tzinfo=bucharest)))
+
+    assert [folder.name for folder in runs_of(tmp_path).iterdir()] == ["20261109T153000Z-a1b2"]
+
+
+def test_a_run_folder_holds_the_snapshot_the_run_started_with(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    snapshot = json.loads((runs_of(tmp_path) / RUN_ID / "snapshot.json").read_text())
+    assert (snapshot["story"], snapshot["run_id"], snapshot["runs_to_keep"]) == (STORY, RUN_ID, 5)
+
+
+def test_a_run_takes_its_story_through_every_stage_in_the_harness_order(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    finished = [event["stage"] for event in log_of(tmp_path) if event["event"] == "stage_finished"]
+    assert finished == [
+        "working_directory_open",
+        "settings",
+        "tagging_or_reconcile",
+        "snapshot",
+        "voice_and_alignment",
+        "sound_design_and_mix",
+        "scenes_and_look",
+        "final_script_and_review",
+        "render_in_chunks",
+        "audio_reactive_fx",
+        "upscale",
+        "mux_and_subtitles",
+        "export_per_video",
+    ]
+
+
+def test_the_story_latest_pointer_names_the_newest_run(tmp_path: Path) -> None:
+    clock = FakeClock(START)
+    run_story(tmp_path, clock)
+    clock.advance(60)
+    run_story(tmp_path, clock)
+
+    latest = json.loads((tmp_path / "work" / "stories" / STORY / "latest.json").read_text())
+    assert latest == {"run_id": "20261109T153100Z-a1b2"}
+
+
+def run_six_times(sandbox: Path, working: WorkingDirectoryBuilder) -> None:
+    clock = FakeClock(START)
+    for _ in range(6):
+        run_story(sandbox, clock, working=working)
+        clock.advance(60)
+
+
+def test_a_run_start_prunes_the_oldest_runs_down_to_the_keep_count_of_five(
+    tmp_path: Path,
+) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work"))
+
+    assert sorted(folder.name for folder in runs_of(tmp_path).iterdir()) == [
+        "20261109T153100Z-a1b2",
+        "20261109T153200Z-a1b2",
+        "20261109T153300Z-a1b2",
+        "20261109T153400Z-a1b2",
+        "20261109T153500Z-a1b2",
+    ]
+
+
+def test_a_folder_in_runs_that_is_not_a_run_folder_is_never_pruned(tmp_path: Path) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work").run_folder(STORY, "0-draft"))
+
+    assert (runs_of(tmp_path) / "0-draft").is_dir()
+
+
+def test_a_folder_that_is_not_a_run_folder_never_takes_the_place_of_a_kept_run(
+    tmp_path: Path,
+) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work").run_folder(STORY, "notes"))
+
+    assert len([name for name in runs_of(tmp_path).iterdir() if name.name != "notes"]) == 5
+
+
+def test_a_run_of_a_story_that_does_not_exist_is_refused_with_its_reason(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START), story="the-lost-ship")
+
+    assert "no Story named the-lost-ship" in result.output
+
+
+def test_a_refused_run_exits_with_a_failure_code(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START), story="the-lost-ship")
+
+    assert result.exit_code == 1
+
+
+def test_a_refused_run_creates_no_story_folder(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START), story="the-lost-ship")
+
+    assert not (tmp_path / "work" / "stories" / "the-lost-ship").exists()
+
+
+@pytest.mark.parametrize("name", ["..", ".", "the-lighthouse/runs"])
+def test_a_story_name_that_is_not_one_folder_under_stories_is_refused(
+    tmp_path: Path, name: str
+) -> None:
+    result = run_story(tmp_path, FakeClock(START), story=name)
+
+    assert result.exit_code == 1
+
+
+def test_a_finished_run_prints_where_its_run_folder_is(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START))
+
+    assert str(runs_of(tmp_path) / RUN_ID) in result.stdout
+
+
+def test_a_run_whose_id_is_already_taken_deletes_no_earlier_run(tmp_path: Path) -> None:
+    clock = FakeClock(START)
+    for _ in range(5):
+        clock.advance(60)
+        run_story(tmp_path, clock)
+
+    run_story(tmp_path, clock)
+
+    assert len(list(runs_of(tmp_path).iterdir())) == 5
+
+
+def test_a_run_whose_drawn_id_is_taken_draws_new_tokens_up_to_three_times(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    run_story(tmp_path, FakeClock(START), tokens=FixedTokenSource("a1b2", "a1b2", "c3d4"))
+
+    assert (runs_of(tmp_path) / "20261109T153000Z-c3d4").is_dir()
+
+
+def test_a_run_whose_three_drawn_ids_are_all_taken_is_refused_with_its_reason(
+    tmp_path: Path,
+) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    result = run_story(
+        tmp_path, FakeClock(START), tokens=FixedTokenSource("a1b2", "a1b2", "a1b2", "c3d4")
+    )
+
+    assert "already has a Run folder" in result.output
