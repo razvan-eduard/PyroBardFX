@@ -171,3 +171,13 @@ _Avoid_: episode split, export mode
 **Bookends**:
 The intro and outro added to every Video.
 _Avoid_: intro/outro (as two terms), jingle
+
+### Files
+
+**Working directory**:
+The one folder the app owns, holding every Story, the Sound library, the models, the settings and the caches. Created on first start in the platform's default place or where the user points it, and never inside a temporary folder.
+_Avoid_: workspace, project folder, data dir
+
+**Store**:
+A hand-readable JSON file behind a pydantic model with one writer, replaced whole on every write and read from memory; the settings and the library index are stores.
+_Avoid_: database, cache (that is data the app can make again)

@@ -1,0 +1,46 @@
+[project]
+name = "pyrobardfx"
+version = "0.1.0"
+description = "Turns a narrated story into audio-reactive videos with narration, sound design and generated visuals."
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+dependencies = [
+    "pydantic>=2,<3",
+    "structlog>=26.1.0",
+    "typer>=0.29.0",
+]
+
+[project.scripts]
+pyrobardfx = "pyrobardfx.cli.app:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+    "ty>=0.0.100",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = ["--import-mode=importlib", "--strict-markers"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "."]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "RUF", "PTH", "T20", "ANN", "DTZ"]
+# The store standard names `os.replace` as the atomic swap (ADR 0006).
+ignore = ["PTH105"]
+
+[tool.ty.environment]
+root = ["./src", "."]
+
+[tool.ty.terminal]
+error-on-warning = true
