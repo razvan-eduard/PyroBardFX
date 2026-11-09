@@ -23,6 +23,8 @@ from pyrobardfx.clock.system import SystemClock
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.service import RunService
 from pyrobardfx.run.tokens import SecretsTokenSource, TokenSource
+from pyrobardfx.trash.base import Trash
+from pyrobardfx.trash.system import Send2TrashTrash
 from pyrobardfx.workdir.host import HostFacts
 from pyrobardfx.workdir.working_directory import WorkingDirectory, WorkingDirectoryService
 
@@ -32,13 +34,17 @@ class CliApp:
 
     @staticmethod
     def build(
-        host: HostFacts, clock: Clock | None = None, tokens: TokenSource | None = None
+        host: HostFacts,
+        clock: Clock | None = None,
+        tokens: TokenSource | None = None,
+        trash: Trash | None = None,
     ) -> typer.Typer:
-        """Build the app; `clock` and `tokens` default to the system's own."""
+        """Build the app; `clock`, `tokens` and `trash` default to the system's own."""
         app = typer.Typer(name=APP_NAME, add_completion=False)
         service = WorkingDirectoryService(host)
         run_clock = clock or SystemClock()
         run_tokens = tokens or SecretsTokenSource()
+        run_trash = trash or Send2TrashTrash(run_clock)
 
         @app.callback(invoke_without_command=True)
         def start(
@@ -62,7 +68,7 @@ class CliApp:
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
             try:
-                folder = RunService(working, run_clock, run_tokens).start(story)
+                folder = RunService(working, run_clock, run_tokens, run_trash).start(story)
             except RefusedError as error:
                 CliPrinter.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
@@ -78,4 +84,5 @@ class CliApp:
 
 def main() -> None:
     CliApp.configure_logging()
-    CliApp.build(HostFacts.from_host(), SystemClock(), SecretsTokenSource())()
+    clock = SystemClock()
+    CliApp.build(HostFacts.from_host(), clock, SecretsTokenSource(), Send2TrashTrash(clock))()

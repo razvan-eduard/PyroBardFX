@@ -6,6 +6,8 @@ requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
 dependencies = [
     "pydantic>=2,<3",
+    "send2trash>=2.1.0",
+    "pyobjc-framework-cocoa>=12 ; sys_platform == 'darwin'",
     "structlog>=26.1.0",
     "typer>=0.29.0",
 ]

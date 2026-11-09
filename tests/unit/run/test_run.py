@@ -1,3 +1,4 @@
+import errno
 import json
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
@@ -10,6 +11,7 @@ from tests.builders.host_facts import HostFactsBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.clock import FakeClock
 from tests.fakes.tokens import FixedTokenSource
+from tests.fakes.trash import FakeTrash
 
 STORY = "the-lighthouse"
 RUN_ID = "20261109T153000Z-a1b2"
@@ -22,9 +24,15 @@ def run_story(
     story: str = STORY,
     working: WorkingDirectoryBuilder | None = None,
     tokens: FixedTokenSource | None = None,
+    trash: FakeTrash | None = None,
 ) -> Result:
     root = (working or WorkingDirectoryBuilder(sandbox / "work")).story(STORY).build()
-    app = CliApp.build(HostFactsBuilder(sandbox).build(), clock, tokens or FixedTokenSource("a1b2"))
+    app = CliApp.build(
+        HostFactsBuilder(sandbox).build(),
+        clock,
+        tokens or FixedTokenSource("a1b2"),
+        trash or FakeTrash(clock, sandbox / "trash"),
+    )
     return CliRunner().invoke(app, ["--working-dir", str(root), "run", story])
 
 
@@ -88,11 +96,14 @@ def test_the_story_latest_pointer_names_the_newest_run(tmp_path: Path) -> None:
     assert latest == {"run_id": "20261109T153100Z-a1b2"}
 
 
-def run_six_times(sandbox: Path, working: WorkingDirectoryBuilder) -> None:
+def run_six_times(
+    sandbox: Path, working: WorkingDirectoryBuilder, trash: FakeTrash | None = None
+) -> Result:
     clock = FakeClock(START)
-    for _ in range(6):
-        run_story(sandbox, clock, working=working)
+    for _ in range(5):
+        run_story(sandbox, clock, working=working, trash=trash)
         clock.advance(60)
+    return run_story(sandbox, clock, working=working, trash=trash)
 
 
 def test_a_run_start_prunes_the_oldest_runs_down_to_the_keep_count_of_five(
@@ -107,6 +118,35 @@ def test_a_run_start_prunes_the_oldest_runs_down_to_the_keep_count_of_five(
         "20261109T153400Z-a1b2",
         "20261109T153500Z-a1b2",
     ]
+
+
+def test_a_pruned_run_folder_goes_to_the_trash_instead_of_being_deleted(tmp_path: Path) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work"))
+
+    assert [folder.name for folder in (tmp_path / "trash").iterdir()] == ["20261109T153000Z-a1b2"]
+
+
+def refusing_trash(sandbox: Path) -> FakeTrash:
+    trash = FakeTrash(FakeClock(START), sandbox / "trash")
+    trash.refuse(
+        runs_of(sandbox) / RUN_ID,
+        PermissionError(errno.EACCES, "Permission denied", str(runs_of(sandbox) / RUN_ID)),
+    )
+    return trash
+
+
+def test_an_old_run_the_trash_refuses_stays_in_runs(tmp_path: Path) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work"), refusing_trash(tmp_path))
+
+    assert (runs_of(tmp_path) / RUN_ID).is_dir()
+
+
+def test_a_run_still_starts_when_the_trash_refuses_an_old_run(tmp_path: Path) -> None:
+    result = run_six_times(
+        tmp_path, WorkingDirectoryBuilder(tmp_path / "work"), refusing_trash(tmp_path)
+    )
+
+    assert (result.exit_code, (runs_of(tmp_path) / "20261109T153500Z-a1b2").is_dir()) == (0, True)
 
 
 def test_a_folder_in_runs_that_is_not_a_run_folder_is_never_pruned(tmp_path: Path) -> None:

@@ -12,6 +12,7 @@ from pyrobardfx.run.run_id import RunId
 from pyrobardfx.run.snapshot import RunSnapshot, RunSnapshotBuilder
 from pyrobardfx.run.tokens import TokenSource
 from pyrobardfx.store.json_store import JsonStore
+from pyrobardfx.trash.base import Trash
 from pyrobardfx.workdir.run_folders import RunFolder, RunFolders, RunFolderTakenError
 from pyrobardfx.workdir.working_directory import WorkingDirectory
 
@@ -19,8 +20,10 @@ from pyrobardfx.workdir.working_directory import WorkingDirectory
 class RunService:
     """Starts Runs in one working directory."""
 
-    def __init__(self, working: WorkingDirectory, clock: Clock, tokens: TokenSource) -> None:
-        self._folders = RunFolders(working, RunId.matches)
+    def __init__(
+        self, working: WorkingDirectory, clock: Clock, tokens: TokenSource, trash: Trash
+    ) -> None:
+        self._folders = RunFolders(working, RunId.matches, trash)
         self._clock = clock
         self._tokens = tokens
 

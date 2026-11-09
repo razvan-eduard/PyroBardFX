@@ -1,6 +1,5 @@
 """The Run folders of the Stories in one working directory."""
 
-import shutil
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -13,6 +12,7 @@ from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.store.constants import ENCODING, EXTRA_FORBID
 from pyrobardfx.store.json_store import JsonStore
+from pyrobardfx.trash.base import Trash
 from pyrobardfx.workdir.constants import (
     APPEND_MODE,
     LATEST_POINTER_FILE,
@@ -53,10 +53,16 @@ class LatestPointer(BaseModel):
 class RunFolders:
     """Creates the Run folders of the Stories in one working directory and points to the newest."""
 
-    def __init__(self, working: WorkingDirectory, is_run_name: Callable[[str], bool]) -> None:
-        """`is_run_name` tells a Run folder's name from other names kept in `runs/`."""
+    def __init__(
+        self, working: WorkingDirectory, is_run_name: Callable[[str], bool], trash: Trash
+    ) -> None:
+        """`is_run_name` tells a Run folder's name from other names kept in `runs/`.
+
+        Pruned Run folders go to `trash`, so a pruned Run can be restored.
+        """
         self._stories = working.root / STORIES_FOLDER
         self._is_run_name = is_run_name
+        self._trash = trash
 
     def create(self, story: str, run_id: str, runs_to_keep: int) -> RunFolder:
         """Create the Run folder, prune old runs so `runs_to_keep` remain, point `latest` at it.
@@ -87,10 +93,10 @@ class RunFolders:
     def _prune(self, runs: Path, keep: int) -> None:
         old = sorted((folder for folder in runs.iterdir() if self._is_run(folder)), reverse=True)
         for folder in old[keep:]:
-            shutil.rmtree(folder)
+            self._trash.trash(folder)
 
     def _is_run(self, folder: Path) -> bool:
-        """Tell a Run folder from other things kept in `runs/`; pruning deletes only Run folders."""
+        """Tell a Run folder from other things kept in `runs/`; pruning trashes only Run folders."""
         return folder.is_dir() and self._is_run_name(folder.name)
 
     @staticmethod
