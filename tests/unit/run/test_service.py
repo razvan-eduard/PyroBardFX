@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from pyrobardfx.adapters.constants import DeviceChoice
+from pyrobardfx.adapters.devices import DeviceResolver
 from pyrobardfx.run.service import RunService
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SettingsService
@@ -9,6 +11,7 @@ from tests.builders.fan_out import FanOutBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import START, FakeClock
+from tests.fakes.devices import FakeDeviceProbe
 from tests.fakes.events import RecordingSink
 from tests.fakes.tokens import FixedTokenSource
 from tests.fakes.trash import FakeTrash
@@ -37,6 +40,8 @@ def test_a_settings_edit_during_a_run_leaves_that_run_on_its_start_settings(
         FanOutBuilder.over(clock, (sink,)),
         FakeCancelToken(),
         settings,
+        DeviceResolver(FakeDeviceProbe()),
+        DeviceChoice.AUTO,
     )
 
     outcome = runs.start(STORY)

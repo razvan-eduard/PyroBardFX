@@ -1,4 +1,8 @@
 {
+  "adapters.refused.backend_unsupported": "Modell abgelehnt ({detail}): Es läuft auf keinem dieser Backends, das beste zuerst. Wähle ein anderes Gerät mit --device oder in der Geräteeinstellung.",
+  "adapters.refused.cpu": "{detail} auf der CPU abgelehnt: Es braucht MPS, MLX oder CUDA und würde hier viele Stunden dauern. Transkription, Stimme, Tagging und Mischung laufen weiter auf der CPU.",
+  "adapters.refused.device_unavailable": "Gerät {detail} abgelehnt: Dieser Rechner bietet es nicht. Wähle auto oder ein anderes Gerät mit --device oder in der Geräteeinstellung.",
+  "cli.device.help": "Die Modelle auf diesem Backend ausführen: auto, mps, mlx, cuda oder cpu. Hat Vorrang vor der Geräteeinstellung.",
   "cli.run.help": "Führt eine Geschichte durch jede Stufe in einen neuen Lauf-Ordner.",
   "cli.run.story.help": "Der Name des Ordners der Geschichte unter stories/ im Arbeitsverzeichnis.",
   "cli.working_dir.help": "Diesen Ordner statt des Standardorts als Arbeitsverzeichnis verwenden.",
@@ -9,6 +13,8 @@
   "run.progress_field": " {key}={value}",
   "run.refused.no_story": "Lauf abgelehnt: In {path} gibt es keine Geschichte namens {detail}.",
   "run.refused.run_id_taken": "Lauf abgelehnt: Jede gezogene Lauf-ID, zuletzt {detail}, hat bereits einen Lauf-Ordner in {path}.",
+  "settings.device.help": "Wo die Modelle laufen: auto wählt Apple Silicon (MLX oder MPS), dann CUDA, dann die CPU; ein hier genanntes Backend ist das einzige, das vor der CPU versucht wird. Die Option --device hat Vorrang vor dieser Einstellung.",
+  "settings.device.label": "Gerät",
   "settings.quality_preset.help": "Die Qualitätsvorgabe, aus der ein Lauf seine Render-Einstellungen bezieht: fast, balanced oder best.",
   "settings.quality_preset.label": "Qualitätsvorgabe",
   "settings.refused.preset_name_taken": "Einrichtungsvorgabe {detail} abgelehnt: {path} enthält bereits eine Einrichtungsvorgabe dieses Namens.",

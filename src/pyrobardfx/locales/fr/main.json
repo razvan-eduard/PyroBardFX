@@ -1,4 +1,8 @@
 {
+  "adapters.refused.backend_unsupported": "Modèle refusé ({detail}) : il ne tourne sur aucun de ces backends, du meilleur au moins bon. Choisissez un autre appareil avec --device ou le réglage de l'appareil.",
+  "adapters.refused.cpu": "{detail} refusé sur le processeur : il lui faut MPS, MLX ou CUDA et il prendrait ici de nombreuses heures. La transcription, la voix, le balisage et le mixage tournent toujours sur le processeur.",
+  "adapters.refused.device_unavailable": "Appareil {detail} refusé : cette machine ne le propose pas. Choisissez auto ou un autre appareil avec --device ou le réglage de l'appareil.",
+  "cli.device.help": "Exécuter les modèles sur ce backend : auto, mps, mlx, cuda ou cpu. Prime sur le réglage de l'appareil.",
   "cli.run.help": "Fait passer une Histoire par chaque étape dans un nouveau dossier d'Exécution.",
   "cli.run.story.help": "Le nom du dossier de l'Histoire sous stories/ dans le répertoire de travail.",
   "cli.working_dir.help": "Utiliser ce dossier comme répertoire de travail au lieu de l'emplacement par défaut.",
@@ -9,6 +13,8 @@
   "run.progress_field": " {key}={value}",
   "run.refused.no_story": "Exécution refusée : aucune Histoire nommée {detail} dans {path}.",
   "run.refused.run_id_taken": "Exécution refusée : chaque identifiant d'exécution tiré, le dernier {detail}, a déjà un dossier d'Exécution dans {path}.",
+  "settings.device.help": "Où les modèles s'exécutent : auto choisit Apple Silicon (MLX ou MPS), puis CUDA, puis le processeur ; un backend nommé ici est le seul essayé avant le processeur. L'option --device prime sur ce réglage.",
+  "settings.device.label": "Appareil",
   "settings.quality_preset.help": "Le préréglage de qualité dont une Exécution tire ses réglages de rendu : fast, balanced ou best.",
   "settings.quality_preset.label": "Préréglage de qualité",
   "settings.refused.preset_name_taken": "Préréglage de configuration {detail} refusé : {path} contient déjà un préréglage de configuration de ce nom.",

@@ -3,10 +3,13 @@
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
+from pyrobardfx.adapters.constants import DeviceChoice
 from pyrobardfx.locales.constants import Language
 from pyrobardfx.settings.constants import (
     DEFAULT_LANGUAGE,
     DEFAULT_RUNS_TO_KEEP,
+    DEVICE_HELP,
+    DEVICE_LABEL,
     GROUP_KEY,
     HELP_KEY,
     LABEL_KEY,
@@ -60,4 +63,8 @@ class Settings(BaseModel):
         json_schema_extra=SettingMeta.of(
             STORY_LANGUAGE_LABEL, STORY_LANGUAGE_HELP, SettingGroup.LANGUAGE
         ),
+    )
+    device: DeviceChoice = Field(
+        default=DeviceChoice.AUTO,
+        json_schema_extra=SettingMeta.of(DEVICE_LABEL, DEVICE_HELP, SettingGroup.DEVICE),
     )

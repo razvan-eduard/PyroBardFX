@@ -1,4 +1,8 @@
 {
+  "adapters.refused.backend_unsupported": "Modelo rechazado ({detail}): no se ejecuta en ninguno de estos backends, del mejor al peor. Elige otro dispositivo con --device o en el ajuste del dispositivo.",
+  "adapters.refused.cpu": "{detail} rechazado en la CPU: necesita MPS, MLX o CUDA y aquí tardaría muchas horas. La transcripción, la voz, el etiquetado y la mezcla siguen funcionando en la CPU.",
+  "adapters.refused.device_unavailable": "Dispositivo {detail} rechazado: este equipo no lo ofrece. Elige auto u otro dispositivo con --device o en el ajuste del dispositivo.",
+  "cli.device.help": "Ejecutar los modelos en este backend: auto, mps, mlx, cuda o cpu. Tiene prioridad sobre el ajuste del dispositivo.",
   "cli.run.help": "Lleva una Historia por cada etapa hasta una nueva carpeta de Ejecución.",
   "cli.run.story.help": "El nombre de la carpeta de la Historia bajo stories/ en el directorio de trabajo.",
   "cli.working_dir.help": "Usar esta carpeta como directorio de trabajo en lugar del lugar predeterminado.",
@@ -9,6 +13,8 @@
   "run.progress_field": " {key}={value}",
   "run.refused.no_story": "Ejecución rechazada: no hay ninguna Historia llamada {detail} en {path}.",
   "run.refused.run_id_taken": "Ejecución rechazada: cada id de ejecución sorteado, el último {detail}, ya tiene una carpeta de Ejecución en {path}.",
+  "settings.device.help": "Dónde se ejecutan los modelos: auto elige Apple Silicon (MLX o MPS), luego CUDA y luego la CPU; un backend indicado aquí es el único que se prueba antes de la CPU. La opción --device tiene prioridad sobre este ajuste.",
+  "settings.device.label": "Dispositivo",
   "settings.quality_preset.help": "El preajuste de calidad del que una Ejecución toma sus ajustes de render: fast, balanced o best.",
   "settings.quality_preset.label": "Preajuste de calidad",
   "settings.refused.preset_name_taken": "Preajuste de configuración {detail} rechazado: {path} ya contiene un preajuste de configuración con ese nombre.",

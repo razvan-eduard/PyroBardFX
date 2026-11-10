@@ -1,4 +1,8 @@
 {
+  "adapters.refused.backend_unsupported": "Refused a model ({detail}): its runtime runs on none of these backends, listed best first. Choose another device with --device or the device setting.",
+  "adapters.refused.cpu": "Refused {detail} on the CPU: it needs MPS, MLX or CUDA and would take many hours here. Transcription, voice, tagging and mixing still run on the CPU.",
+  "adapters.refused.device_unavailable": "Refused device {detail}: this machine does not offer it. Choose auto or another device with --device or the device setting.",
+  "cli.device.help": "Run the models on this backend: auto, mps, mlx, cuda or cpu. It wins over the device setting.",
   "cli.run.help": "Take a Story through every stage into a new Run folder.",
   "cli.run.story.help": "The name of the Story's folder under stories/ in the working directory.",
   "cli.working_dir.help": "Use this folder as the working directory instead of the default place.",
@@ -9,6 +13,8 @@
   "run.progress_field": " {key}={value}",
   "run.refused.no_story": "Refused run: there is no Story named {detail} in {path}.",
   "run.refused.run_id_taken": "Refused run: every run id drawn, the last {detail}, already has a Run folder in {path}.",
+  "settings.device.help": "Where the models run: auto picks Apple Silicon (MLX or MPS), then CUDA, then the CPU; a backend named here is the only one tried before the CPU. The --device flag wins over this setting.",
+  "settings.device.label": "Device",
   "settings.quality_preset.help": "The Quality preset a Run fills its render settings from: fast, balanced or best.",
   "settings.quality_preset.label": "Quality preset",
   "settings.refused.preset_name_taken": "Refused setup preset {detail}: {path} already holds a setup preset of that name.",

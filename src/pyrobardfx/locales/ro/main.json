@@ -1,4 +1,8 @@
 {
+  "adapters.refused.backend_unsupported": "Model refuzat ({detail}): nu rulează pe niciunul dintre aceste backend-uri, listate de la cel mai bun. Alege alt dispozitiv cu --device sau din setarea dispozitivului.",
+  "adapters.refused.cpu": "Refuzat {detail} pe procesor: are nevoie de MPS, MLX sau CUDA și aici ar dura multe ore. Transcrierea, vocea, etichetarea și mixajul rulează în continuare pe procesor.",
+  "adapters.refused.device_unavailable": "Dispozitiv refuzat {detail}: acest calculator nu îl oferă. Alege auto sau alt dispozitiv cu --device sau din setarea dispozitivului.",
+  "cli.device.help": "Rulează modelele pe acest backend: auto, mps, mlx, cuda sau cpu. Are prioritate față de setarea dispozitivului.",
   "cli.run.help": "Trece o Poveste prin fiecare etapă într-un nou dosar de Rulare.",
   "cli.run.story.help": "Numele dosarului Poveștii din stories/ în directorul de lucru.",
   "cli.working_dir.help": "Folosește acest dosar ca director de lucru în locul celui implicit.",
@@ -9,6 +13,8 @@
   "run.progress_field": " {key}={value}",
   "run.refused.no_story": "Rulare refuzată: nu există nicio Poveste numită {detail} în {path}.",
   "run.refused.run_id_taken": "Rulare refuzată: fiecare id de rulare tras, ultimul {detail}, are deja un dosar de Rulare în {path}.",
+  "settings.device.help": "Unde rulează modelele: auto alege Apple Silicon (MLX sau MPS), apoi CUDA, apoi procesorul; un backend ales aici este singurul încercat înaintea procesorului. Opțiunea --device are prioritate față de această setare.",
+  "settings.device.label": "Dispozitiv",
   "settings.quality_preset.help": "Presetarea de calitate din care o Rulare își ia setările de randare: fast, balanced sau best.",
   "settings.quality_preset.label": "Presetare de calitate",
   "settings.refused.preset_name_taken": "Presetare de configurare {detail} refuzată: {path} conține deja o presetare de configurare cu acest nume.",

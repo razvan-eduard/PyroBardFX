@@ -14,3 +14,7 @@ def test_settings_that_keep_no_runs_are_refused_naming_the_keep_count() -> None:
 
 def test_each_global_setting_is_a_setting_of_the_model() -> None:
     assert Settings.model_fields.keys() >= GLOBAL_SETTINGS
+
+
+def test_the_device_is_a_global_setting_as_it_belongs_to_the_machine() -> None:
+    assert "device" in GLOBAL_SETTINGS
