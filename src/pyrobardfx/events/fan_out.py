@@ -8,7 +8,11 @@ from structlog.typing import EventDict, WrappedLogger
 
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.domain.constants import StageName
-from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_KEY, TIMESTAMP_FIELD
+from pyrobardfx.events.constants import (
+    EVENT_RECORD_KEY,
+    EVENTS_SINK_FAILED_LABEL_KEY,
+    TIMESTAMP_FIELD,
+)
 from pyrobardfx.events.event import EventValue, PipelineEvent
 from pyrobardfx.locales.labels import Labels
 from pyrobardfx.store.constants import LINE_END
@@ -47,7 +51,7 @@ class _IsolatedSink:
             self._sink.send(event_dict[EVENT_RECORD_KEY])
         except Exception as error:  # Any sink failure must leave the Run going.
             self._failed = True
-            text = self._labels.label(EVENTS_SINK_FAILED_KEY).format(
+            text = self._labels.label(EVENTS_SINK_FAILED_LABEL_KEY).format(
                 sink=type(self._sink).__name__, reason=error
             )
             self._errors.write(text + LINE_END)

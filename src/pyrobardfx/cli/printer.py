@@ -3,10 +3,10 @@
 import typer
 
 from pyrobardfx.cli.constants import (
-    RUN_CANCELLED_KEY,
-    RUN_FINISHED_KEY,
-    RUN_PROGRESS_FIELD_KEY,
-    RUN_PROGRESS_KEY,
+    RUN_CANCELLED_LABEL_KEY,
+    RUN_FINISHED_LABEL_KEY,
+    RUN_PROGRESS_FIELD_LABEL_KEY,
+    RUN_PROGRESS_LABEL_KEY,
     WORKING_DIR_OPTION,
 )
 from pyrobardfx.events.event import PipelineEvent
@@ -37,18 +37,18 @@ class CliPrinter:
         typer.echo(text, err=True, nl=False)
 
     def run_finished(self, folder: RunFolder) -> None:
-        text = self._labels.label(RUN_FINISHED_KEY)
+        text = self._labels.label(RUN_FINISHED_LABEL_KEY)
         typer.echo(text.format(run_id=folder.run_id, path=folder.path))
 
     def run_cancelled(self, folder: RunFolder) -> None:
-        text = self._labels.label(RUN_CANCELLED_KEY)
+        text = self._labels.label(RUN_CANCELLED_LABEL_KEY)
         typer.echo(text.format(run_id=folder.run_id, path=folder.path))
 
     def send(self, event: PipelineEvent) -> None:
         """Write one progress line per event to stderr, apart from the text a command prints."""
-        field = self._labels.label(RUN_PROGRESS_FIELD_KEY)
+        field = self._labels.label(RUN_PROGRESS_FIELD_LABEL_KEY)
         fields = "".join(field.format(key=key, value=value) for key, value in event.fields.items())
-        text = self._labels.label(RUN_PROGRESS_KEY).format(
+        text = self._labels.label(RUN_PROGRESS_LABEL_KEY).format(
             stage=event.stage, percent=event.percent, event=event.event, fields=fields
         )
         typer.echo(text, err=True)

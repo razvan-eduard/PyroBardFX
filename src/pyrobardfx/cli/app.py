@@ -12,9 +12,9 @@ from pyrobardfx.cli.constants import (
     NO_WORKING_DIRECTORY_MESSAGE,
     REFUSED_EXIT_CODE,
     RUN_COMMAND,
-    RUN_HELP_KEY,
-    STORY_HELP_KEY,
-    WORKING_DIR_HELP_KEY,
+    RUN_HELP_LABEL_KEY,
+    STORY_HELP_LABEL_KEY,
+    WORKING_DIR_HELP_LABEL_KEY,
     WORKING_DIR_OPTION,
 )
 from pyrobardfx.cli.interrupt import SigintCancel
@@ -64,7 +64,7 @@ class CliApp:
             ctx: typer.Context,
             working_dir: Annotated[
                 Path | None,
-                typer.Option(WORKING_DIR_OPTION, help=help_text.label(WORKING_DIR_HELP_KEY)),
+                typer.Option(WORKING_DIR_OPTION, help=help_text.label(WORKING_DIR_HELP_LABEL_KEY)),
             ] = None,
         ) -> None:
             try:
@@ -87,10 +87,10 @@ class CliApp:
         check. A second SIGINT goes to the handler from before the Run and stops the app hard.
         """
 
-        @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_KEY))
+        @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_LABEL_KEY))
         def run(
             ctx: typer.Context,
-            story: Annotated[str, typer.Argument(help=help_text.label(STORY_HELP_KEY))],
+            story: Annotated[str, typer.Argument(help=help_text.label(STORY_HELP_LABEL_KEY))],
         ) -> None:
             working = ctx.find_object(WorkingDirectory)
             if working is None:

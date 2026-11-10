@@ -12,4 +12,4 @@ EVENT_RECORD_KEY = "record"
 # The key under which the processor chain stamps the clock's UTC time on an event.
 TIMESTAMP_FIELD = "timestamp"
 # The locale key of the line that reports a failed sink.
-EVENTS_SINK_FAILED_KEY = "events.sink_failed"
+EVENTS_SINK_FAILED_LABEL_KEY = "events.sink_failed"
