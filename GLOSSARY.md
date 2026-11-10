@@ -26,6 +26,10 @@ _Avoid_: segment, block, passage
 A blank-line block of the script; the unit the autotagger reasons about. In an audio-only Story paragraphs are cut from the transcript.
 _Avoid_: segment, chunk (that is a render window)
 
+**Marker**:
+A Script line or tag that opens a Chapter or a Section or forces a Video break: a `#` or `##` heading, a `---` or `***` line, or a `[chapter: Title]`, `[section …]` or `[video]` tag. A `[chapter: …]` or `[video]` on a line with text breaks the line there.
+_Avoid_: divider, separator, heading (that is one form of Marker)
+
 **Scene**:
 A stretch of a Story with one visual, bounded by `[scene]` tags or the scene planner, never shorter than the minimum scene length.
 _Avoid_: shot, clip (that is the rendered output of a diffusion scene), cut
@@ -218,6 +222,30 @@ _Avoid_: database, cache (that is data the app can make again)
 **Setup preset**:
 A named set of settings saved as partial JSON in the working directory: it holds only the fields it sets, and loading it gives the defaults with those fields over them. One Setup preset may be the default, which a working directory without a settings file starts from.
 _Avoid_: profile, template, Quality preset (that is a render level)
+
+**Script**:
+The text of a Story: its narration in Markdown with its Markers and Tags, and its Global tags; read whole into Chapters, Sections and Paragraphs.
+_Avoid_: manuscript, transcript (that is what the recording gives), text file
+
+**Tag**:
+A bracketed note in a Script's narration, such as `[sfx: door creak]`, that places a sound, picture, text or effect after the spoken word it follows; never spoken. An empty tag such as `[sfx]` stays empty until the autotagger fills it.
+_Avoid_: annotation, markup, Marker (that is a structure line)
+
+**Global tag**:
+A Tag that stands alone on its line and applies to the whole Story, such as `[ambience-all: …]` or `[style-look: …]`; it keeps its content id. The Settings stamp is a Global tag of kind `settings`.
+_Avoid_: header tag, story tag
+
+**Tag kind**:
+What a Tag feeds: one-shot (tag word `sfx`), ambience, underscore, transition, music, visual, subject, fx or text; for a Global tag, visual-all, ambience-all, fx-all, settings or style-look. Each kind has one word in the Tag words and may have other spellings.
+_Avoid_: tag type, Layer kind (that is the mix family a Tag kind feeds)
+
+**Tag words**:
+The words a Script's Tags and Marker tags are written in, one set per tag language. English is the only tag language; neither the app language nor the Script's language picks it.
+_Avoid_: tag vocabulary, keywords (that is a Content type's keyword map)
+
+**Tags header**:
+The `[TAGS-PRESENT]` line in a Script's first 200 characters that says the Script is already tagged; the autotagger writes it. Tags are read with or without it.
+_Avoid_: tagged flag, magic line
 
 **Settings stamp**:
 The settings a script records: only the fields that differ from the defaults.
