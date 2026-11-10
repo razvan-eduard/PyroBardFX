@@ -9,10 +9,14 @@ from pyrobardfx.script.constants import (
     FADE_GROUP,
     FADE_WORD_PATTERN,
     NUMBER_PATTERN,
+    SPLIT_VALUE_KINDS,
     VALUE_PART_SEPARATOR,
     VOLUME_CAP,
     VOLUME_FLOOR,
+    WORD_ALTERNATION,
     Fade,
+    GlobalTagKind,
+    TagKind,
 )
 
 
@@ -31,7 +35,14 @@ class TagValue:
 
     NUMBER_RE = re.compile(NUMBER_PATTERN)
     CONTENT_ID_RE = re.compile(CONTENT_ID_PATTERN, re.IGNORECASE)
-    FADE_WORD_RE = re.compile(FADE_WORD_PATTERN.format(words="|".join(Fade)), re.IGNORECASE)
+    FADE_WORD_RE = re.compile(
+        FADE_WORD_PATTERN.format(words=WORD_ALTERNATION.join(Fade)), re.IGNORECASE
+    )
+
+    @classmethod
+    def of(cls, kind: TagKind | GlobalTagKind, text: str) -> SplitValue:
+        """Split `text` when `kind` is a sound kind, else keep it whole."""
+        return cls.split(text) if kind in SPLIT_VALUE_KINDS else cls.whole(text)
 
     @staticmethod
     def whole(text: str) -> SplitValue:

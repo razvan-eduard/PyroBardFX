@@ -38,6 +38,7 @@ class GlobalTag(BaseModel):
     value: str
     volume: float | None
     fade: Fade | None
+    content_id: str | None
     span: Span
 
 

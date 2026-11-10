@@ -35,3 +35,11 @@ Light.
 
 [chapter]
 Dark.
+
+[ section]
+Waves.
+
+[sectional]
+Spray.
+
+Night fell. [video] The keeper slept. [chapter: The Storm] Wind rose.

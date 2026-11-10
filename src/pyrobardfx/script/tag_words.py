@@ -1,20 +1,24 @@
 """The words a script's tags are written in, one table per tag language.
 
-English is the only tag language for now (user ruling 2026-11-10); a later tag language fills
-`TAG_WORDS` with its own table. Neither the app language nor the script language picks it.
+English is the only tag language for now (user ruling 2026-11-10); a later tag language is a
+table of its own, handed to the parser. Neither the app language nor the script language picks it.
 """
 
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import Self
 
 from pyrobardfx.script.constants import (
+    BREAKING_MARKER_KINDS,
+    BREAKING_MARKER_PATTERN,
     ENGLISH_GLOBAL_KIND_WORDS,
     ENGLISH_KIND_WORDS,
     ENGLISH_MARKER_WORDS,
     GLOBAL_TAG_PATTERN,
     INLINE_TAG_PATTERN,
     MARK_MARKER_PATTERNS,
+    WORD_ALTERNATION,
     WORD_MARKER_PATTERNS,
     GlobalTagKind,
     MarkerKind,
@@ -30,6 +34,15 @@ class TagWords:
     kinds: Mapping[str, TagKind]
     global_kinds: Mapping[str, GlobalTagKind]
     markers: Mapping[MarkerKind, str]
+
+    @classmethod
+    def english(cls) -> Self:
+        """The English tag words, the parser's tag language by default."""
+        return cls(
+            kinds=ENGLISH_KIND_WORDS,
+            global_kinds=ENGLISH_GLOBAL_KIND_WORDS,
+            markers=ENGLISH_MARKER_WORDS,
+        )
 
     def inline_pattern(self) -> re.Pattern[str]:
         """Finds an inline tag; its kind word is group `KIND_GROUP`, its text `VALUE_GROUP`."""
@@ -62,13 +75,22 @@ class TagWords:
             for kind, pattern in (*MARK_MARKER_PATTERNS, *words)
         )
 
+    def breaking_patterns(self) -> tuple[tuple[MarkerKind, re.Pattern[str]], ...]:
+        """Each chapter or video tag's pattern, to find one on a line with text; group
+        `TITLE_GROUP` is the title of the Chapter it opens."""
+        return tuple(
+            (
+                kind,
+                re.compile(
+                    BREAKING_MARKER_PATTERN.format(word=re.escape(self.markers[kind])),
+                    re.IGNORECASE,
+                ),
+            )
+            for kind in BREAKING_MARKER_KINDS
+        )
+
     @staticmethod
     def _either(words: Iterable[str]) -> str:
-        return "|".join(re.escape(word) for word in sorted(words, key=len, reverse=True))
-
-
-ENGLISH_TAG_WORDS = TagWords(
-    kinds=ENGLISH_KIND_WORDS, global_kinds=ENGLISH_GLOBAL_KIND_WORDS, markers=ENGLISH_MARKER_WORDS
-)
-# The tag language the parser reads.
-TAG_WORDS = ENGLISH_TAG_WORDS
+        return WORD_ALTERNATION.join(
+            re.escape(word) for word in sorted(words, key=len, reverse=True)
+        )

@@ -6,6 +6,7 @@
       "value": "lsd | a foggy harbour",
       "volume": null,
       "fade": null,
+      "content_id": null,
       "span": {
         "start": 31,
         "end": 65
@@ -13,12 +14,13 @@
     },
     {
       "kind": "ambience-all",
-      "value": "rain",
+      "value": "rain.wav",
       "volume": 0.3,
       "fade": "long",
+      "content_id": "3fa2c1",
       "span": {
         "start": 66,
-        "end": 102
+        "end": 114
       }
     },
     {
@@ -26,19 +28,21 @@
       "value": "grain 0.3, vignette 0.5",
       "volume": null,
       "fade": null,
+      "content_id": null,
       "span": {
-        "start": 103,
-        "end": 136
+        "start": 115,
+        "end": 148
       }
     },
     {
       "kind": "settings",
-      "value": "pictures=section",
+      "value": "quality_preset best",
       "volume": null,
       "fade": null,
+      "content_id": null,
       "span": {
-        "start": 137,
-        "end": 165
+        "start": 149,
+        "end": 180
       }
     },
     {
@@ -46,9 +50,10 @@
       "value": "noir | dark, grainy",
       "volume": null,
       "fade": null,
+      "content_id": null,
       "span": {
-        "start": 166,
-        "end": 199
+        "start": 181,
+        "end": 214
       }
     }
   ],

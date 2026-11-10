@@ -26,7 +26,7 @@ class ScriptFixtures:
 
     def expected(self, script: Path) -> str:
         """The parse of `script` as its fixture file holds it."""
-        parsed = ScriptParser.parse(script.read_text(encoding=ENCODING))
+        parsed = ScriptParser().parse(script.read_text(encoding=ENCODING))
         return parsed.model_dump_json(indent=INDENT) + "\n"
 
     def write(self) -> list[Path]:

@@ -1,4 +1,5 @@
 from pyrobardfx.script.constants import KIND_GROUP, TITLE_GROUP, GlobalTagKind, MarkerKind, TagKind
+from pyrobardfx.script.parser import ScriptParser
 from pyrobardfx.script.tag_words import TagWords
 
 # A tag language other than English, as a later one may fill the seam.
@@ -45,3 +46,14 @@ def test_a_tag_language_reads_its_own_marker_words_and_not_english_ones() -> Non
         None,
         (MarkerKind.CHAPTER, "One"),
     ]
+
+
+def test_the_parser_reads_the_tag_language_it_is_given_and_english_by_default() -> None:
+    text = "[Capitol: The Harbour]\nDoor [sunet: door] [sfx: steps]."
+
+    other, english = ScriptParser(OTHER).parse(text), ScriptParser().parse(text)
+
+    assert [(c.title, c.sections[0].paragraphs[0].text) for c in other.chapters] == [
+        ("The Harbour", "Door [sfx: steps].")
+    ]
+    assert [t.value for t in english.chapters[0].sections[0].paragraphs[0].tags] == ["steps"]

@@ -5,13 +5,13 @@ from pyrobardfx.script.parser import ScriptParser
 
 
 def only_section(text: str) -> Section:
-    (chapter,) = ScriptParser.parse(text).chapters
+    (chapter,) = ScriptParser().parse(text).chapters
     (section,) = chapter.sections
     return section
 
 
 def chapters_of(text: str) -> tuple[Chapter, ...]:
-    return ScriptParser.parse(text).chapters
+    return ScriptParser().parse(text).chapters
 
 
 def test_blank_lines_separate_paragraphs_and_a_single_line_break_does_not() -> None:
@@ -71,6 +71,8 @@ def test_the_words_of_a_marker_line_are_not_counted_as_spoken() -> None:
         ("[section]", None),
         ("[section: The Quay]", "The Quay"),
         ("[Section 2]", "2"),
+        ("[ section]", None),
+        ("[ Section : The Quay ]", "The Quay"),
     ],
 )
 def test_a_section_marker_opens_a_section_in_the_chapter(marker: str, title: str | None) -> None:
@@ -84,6 +86,13 @@ def test_a_section_marker_opens_a_section_in_the_chapter(marker: str, title: str
 
 @pytest.mark.parametrize("line", ["[sectiune 2]", "[sectiunea a doua]", "[partea 3]"])
 def test_a_section_word_of_another_language_stays_text(line: str) -> None:
+    section = only_section(f"Fog.\n\n{line}\nRang.")
+
+    assert [p.text for p in section.paragraphs] == ["Fog.", f"{line}\nRang."]
+
+
+@pytest.mark.parametrize("line", ["[sectional]", "[Sections 2]", "[section2]"])
+def test_a_word_that_only_begins_with_section_stays_text(line: str) -> None:
     section = only_section(f"Fog.\n\n{line}\nRang.")
 
     assert [p.text for p in section.paragraphs] == ["Fog.", f"{line}\nRang."]
@@ -114,18 +123,30 @@ def test_a_video_tag_right_after_a_heading_forces_a_video_break_at_that_chapter(
     assert [c.video_break for c in chapters] == [False, True]
 
 
-def test_a_tag_in_a_heading_goes_to_the_next_paragraph_and_leaves_the_title() -> None:
+def test_a_tag_in_a_heading_goes_to_the_next_paragraph() -> None:
     (chapter,) = chapters_of("# The Door [sfx: door]\nIt shut.")
 
-    (paragraph,) = chapter.sections[0].paragraphs
-    assert (chapter.title, [t.value for t in paragraph.tags]) == ("The Door", ["door"])
+    assert [t.value for t in chapter.sections[0].paragraphs[0].tags] == ["door"]
 
 
-def test_a_tag_broken_over_two_lines_opens_no_chapter_and_keeps_its_content_id() -> None:
+def test_a_tag_in_a_heading_leaves_the_title() -> None:
+    (chapter,) = chapters_of("# The Door [sfx: door]\nIt shut.")
+
+    assert chapter.title == "The Door"
+
+
+def test_a_tag_broken_over_two_lines_opens_no_chapter() -> None:
+    chapters = chapters_of("It shut [sfx: door/creak.wav\n#3fa2c1] hard.")
+
+    assert [(c.title, [p.text for p in c.sections[0].paragraphs]) for c in chapters] == [
+        (None, ["It shut hard."])
+    ]
+
+
+def test_a_tag_broken_over_two_lines_keeps_its_content_id() -> None:
     (chapter,) = chapters_of("It shut [sfx: door/creak.wav\n#3fa2c1] hard.")
 
-    (paragraph,) = chapter.sections[0].paragraphs
-    assert (paragraph.text, paragraph.tags[0].content_id) == ("It shut hard.", "3fa2c1")
+    assert chapter.sections[0].paragraphs[0].tags[0].content_id == "3fa2c1"
 
 
 def test_a_marker_span_covers_the_marker_without_the_blanks_around_it() -> None:
@@ -139,3 +160,29 @@ def test_a_tag_span_covers_the_tag_in_the_script_text() -> None:
 
     span = chapter.sections[0].paragraphs[0].tags[0].span
     assert (span.start, span.end) == (14, 26)
+
+
+def test_a_chapter_tag_on_a_line_with_text_breaks_the_line_there() -> None:
+    chapters = chapters_of("Fog came. [chapter: Two] Rang.\nGone.")
+
+    assert [(c.title, [p.text for s in c.sections for p in s.paragraphs]) for c in chapters] == [
+        (None, ["Fog came."]),
+        ("Two", ["Rang.\nGone."]),
+    ]
+
+
+def test_a_video_tag_on_a_line_with_text_ends_its_paragraph_and_breaks_at_the_next_chapter() -> (
+    None
+):
+    chapters = chapters_of("# One\nFog. [Video] More fog.\n\n# Two\nRang.")
+
+    assert [(c.video_break, [p.text for p in c.sections[0].paragraphs]) for c in chapters] == [
+        (False, ["Fog.", "More fog."]),
+        (True, ["Rang."]),
+    ]
+
+
+def test_no_word_of_a_marker_tag_on_a_line_with_text_is_spoken() -> None:
+    (_, chapter) = chapters_of("Fog [chapter: The Long Night] she ran [sfx: steps].")
+
+    assert chapter.sections[0].paragraphs[0].tags[0].word == 3

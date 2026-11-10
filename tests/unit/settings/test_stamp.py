@@ -61,7 +61,7 @@ def test_a_script_without_a_stamp_or_a_tags_header_gets_the_stamp_on_its_first_l
 def test_a_written_stamp_parses_as_the_script_settings_tag_holding_its_values() -> None:
     stamp = SettingsStamp.of(Settings(quality_preset=QualityPresetName.BEST))
 
-    tags = ScriptParser.parse(stamp.restamped("# One\n")).global_tags
+    tags = ScriptParser().parse(stamp.restamped("# One\n")).global_tags
 
     assert [(tag.kind, tag.value) for tag in tags] == [
         (GlobalTagKind.SETTINGS, "quality_preset best")

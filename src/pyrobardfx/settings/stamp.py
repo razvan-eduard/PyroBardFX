@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, JsonValue
 
 from pyrobardfx.script.constants import TAGS_HEADER, VALUE_PART_SEPARATOR
 from pyrobardfx.script.global_tags import GlobalTags
+from pyrobardfx.script.tag_words import TagWords
 from pyrobardfx.settings.constants import (
     GLOBAL_SETTINGS,
     LINE_BLANKS,
@@ -48,7 +49,7 @@ class SettingsStamp(BaseModel):
         A script with no stamp gets it on a line of its own after the tags header, or on its first
         line when it has no header.
         """
-        tags = GlobalTags.read(script).tags
+        tags = GlobalTags(TagWords.english()).read(script).tags
         span = next((tag.span for tag in tags if tag.kind == SETTINGS_KIND), None)
         if span is None:
             return self._after_header(script)

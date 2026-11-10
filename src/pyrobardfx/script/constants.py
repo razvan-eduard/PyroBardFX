@@ -44,6 +44,8 @@ ENGLISH_KIND_WORDS = {
     **{kind.value: kind for kind in TagKind},
     "scene": TagKind.VISUAL,
 }
+# Joins the words of a tag language, or the fade words, into one pattern that matches any of them.
+WORD_ALTERNATION = "|"
 INLINE_TAG_PATTERN = r"\[\s*({words})\s*(?::\s*([^\]]*))?\]"
 KIND_GROUP = 1
 VALUE_GROUP = 2
@@ -62,8 +64,18 @@ FADE_GROUP = 1
 VOLUME_FLOOR = 0.0
 VOLUME_CAP = 2.0
 
-# The kinds whose text after the colon is one value: no volume, fade word or content id is read off.
-WHOLE_VALUE_KINDS = frozenset({TagKind.VISUAL, TagKind.SUBJECT, TagKind.FX, TagKind.TEXT})
+# The sound kinds, inline and global: their text after the colon ends in a volume, a fade word and
+# a content id. Every other kind keeps its whole text as its value.
+SPLIT_VALUE_KINDS = frozenset(
+    {
+        TagKind.SFX,
+        TagKind.AMBIENCE,
+        TagKind.UNDERSCORE,
+        TagKind.TRANSITION,
+        TagKind.MUSIC,
+        GlobalTagKind.AMBIENCE_ALL,
+    }
+)
 
 # A sound's content id, written after its path in a sound tag: `door/creak.wav #3fa2c1`.
 CONTENT_ID_PATTERN = r"(?:^|\s)#([0-9a-f]{6,64})\s*$"
@@ -87,11 +99,16 @@ MARK_MARKER_PATTERNS = (
     (MarkerKind.SECTION, r"^#{2,}\s*(?P<title>.*)$"),
     (MarkerKind.SECTION, r"^(?:-{3,}|\*{3,})(?P<title>)$"),
 )
-# Each marker tag's pattern around its word; a section tag needs no colon before its title.
+# A chapter or video tag around its word. On a line with text it breaks the line there: the text
+# before ends its Paragraph and the text after starts the next (user ruling 2026-11-10).
+BREAKING_MARKER_PATTERN = r"\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]"
+BREAKING_MARKER_KINDS = (MarkerKind.CHAPTER, MarkerKind.VIDEO)
+# Each marker tag's pattern around its word; a section tag needs no colon before its title, but
+# its word ends at a word boundary.
 WORD_MARKER_PATTERNS = {
-    MarkerKind.CHAPTER: r"^\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]$",
-    MarkerKind.VIDEO: r"^\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]$",
-    MarkerKind.SECTION: r"^\[{word}\s*:?\s*(?P<title>[^\]]*)\]$",
+    MarkerKind.CHAPTER: f"^{BREAKING_MARKER_PATTERN}$",
+    MarkerKind.VIDEO: f"^{BREAKING_MARKER_PATTERN}$",
+    MarkerKind.SECTION: r"^\[\s*{word}\b\s*:?\s*(?P<title>[^\]]*)\]$",
 }
 # The English word of each marker tag.
 ENGLISH_MARKER_WORDS = {
@@ -104,13 +121,12 @@ ENGLISH_MARKER_WORDS = {
 TAGS_HEADER = "[TAGS-PRESENT]"
 TAGS_HEADER_REACH = 200
 
-# A global tag stands alone on its line; so do the globals markers.
 # The English global tag words: each global kind's own word and its other spellings.
 ENGLISH_GLOBAL_KIND_WORDS = {
     **{kind.value: kind for kind in GlobalTagKind},
     "scene-all": GlobalTagKind.VISUAL_ALL,
 }
-GLOBAL_TAG_PATTERN = r"^[ \t]*\[\s*({words})\s*:\s*([^\]]*)\][ \t]*$"
-GLOBALS_MARKER_PATTERN = r"^[ \t]*\[\s*GLOBALS-(?:START|END)\s*\][ \t]*$"
-# The global kinds whose text ends in a volume and a fade word, as a sound tag's does.
-SPLIT_GLOBAL_KINDS = frozenset({GlobalTagKind.AMBIENCE_ALL})
+# A global tag stands alone on its line; so do the globals markers. A `\r` before the line end
+# stays outside the match, so a CRLF script reads as its LF form.
+GLOBAL_TAG_PATTERN = r"^[ \t]*\[\s*({words})\s*:\s*([^\]]*)\][ \t]*(?=\r?$)"
+GLOBALS_MARKER_PATTERN = r"^[ \t]*\[\s*GLOBALS-(?:START|END)\s*\][ \t]*(?=\r?$)"

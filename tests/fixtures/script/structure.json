@@ -186,6 +186,51 @@
               "tags": []
             }
           ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 319,
+            "end": 329
+          },
+          "paragraphs": [
+            {
+              "text": "Waves.",
+              "tags": []
+            },
+            {
+              "text": "[sectional]\nSpray.",
+              "tags": []
+            },
+            {
+              "text": "Night fell.",
+              "tags": []
+            },
+            {
+              "text": "The keeper slept.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Storm",
+      "marker": {
+        "start": 396,
+        "end": 416
+      },
+      "video_break": true,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Wind rose.",
+              "tags": []
+            }
+          ]
         }
       ]
     }

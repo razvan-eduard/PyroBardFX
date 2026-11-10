@@ -3,7 +3,7 @@ from pyrobardfx.script.parser import ScriptParser
 
 
 def tags_of(text: str) -> list[Tag]:
-    script = ScriptParser.parse(text)
+    script = ScriptParser().parse(text)
     return [
         tag
         for chapter in script.chapters
@@ -72,7 +72,7 @@ def test_scene_is_read_as_visual_in_any_case() -> None:
 
 
 def test_ambiance_is_no_tag_word_and_stays_spoken_text() -> None:
-    (chapter,) = ScriptParser.parse("Rain [Ambiance: forest] fell.").chapters
+    (chapter,) = ScriptParser().parse("Rain [Ambiance: forest] fell.").chapters
 
     assert chapter.sections[0].paragraphs[0].text == "Rain [Ambiance: forest] fell."
 
@@ -84,6 +84,16 @@ def test_a_music_tag_reads_volume_and_fade_as_a_sound_tag_does() -> None:
 
 
 def test_a_bracket_of_an_unknown_kind_stays_spoken_text() -> None:
-    (chapter,) = ScriptParser.parse("He said [hello: there] twice.").chapters
+    (chapter,) = ScriptParser().parse("He said [hello: there] twice.").chapters
 
     assert chapter.sections[0].paragraphs[0].text == "He said [hello: there] twice."
+
+
+def test_an_empty_tag_stays_a_tag_with_an_empty_value_and_is_never_spoken() -> None:
+    (chapter,) = ScriptParser().parse("Door [sfx] shut [sfx: door].").chapters
+
+    (paragraph,) = chapter.sections[0].paragraphs
+    assert (paragraph.text, [(t.value, t.word) for t in paragraph.tags]) == (
+        "Door shut .",
+        [("", 1), ("door", 2)],
+    )

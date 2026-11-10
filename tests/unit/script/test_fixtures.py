@@ -13,7 +13,7 @@ def test_writing_the_fixtures_puts_the_parse_of_each_script_beside_it(tmp_path: 
     ScriptFixtures(tmp_path).write()
 
     written = (tmp_path / "harbour.json").read_text(encoding="utf-8")
-    assert ParsedScript.model_validate_json(written) == ScriptParser.parse(SCRIPT)
+    assert ParsedScript.model_validate_json(written) == ScriptParser().parse(SCRIPT)
 
 
 def test_every_shipped_fixture_holds_the_parse_of_its_script_as_the_parser_reads_it() -> None:

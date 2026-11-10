@@ -1,9 +1,9 @@
 [TAGS-PRESENT]
 [GLOBALS-START]
 [scene-all: lsd | a foggy harbour]
-[ambience-all: rain, 0.3, fade long]
+[ambience-all: rain.wav #3fa2c1, 0.3, fade long]
 [fx-all: grain 0.3, vignette 0.5]
-[settings: pictures=section]
+[settings: quality_preset best]
 [style-look: noir | dark, grainy]
 [GLOBALS-END]
 
