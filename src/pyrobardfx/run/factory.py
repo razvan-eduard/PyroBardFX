@@ -3,6 +3,8 @@
 from collections.abc import Callable, Sequence
 from typing import Protocol
 
+from pyrobardfx.adapters.constants import DeviceChoice
+from pyrobardfx.adapters.devices import BackendProbe, DeviceResolver
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.domain.constants import StageName
 from pyrobardfx.domain.tokens import TokenSource
@@ -49,7 +51,10 @@ class ReadyRun[S: RunSpeaker]:
 
 
 class RunFactory:
-    """Readies Runs over the app's adapters; each Run's events go to its speaker and `sinks`."""
+    """Readies Runs over the app's adapters; each Run's events go to its speaker and `sinks`.
+
+    `probe` is asked which backends the machine offers once per Run, at Run start.
+    """
 
     def __init__(
         self,
@@ -58,6 +63,7 @@ class RunFactory:
         trash: Trash,
         cancel: CancelToken,
         labels: Labels,
+        probe: BackendProbe,
         sinks: Sequence[EventSink] = (),
     ) -> None:
         self._clock = clock
@@ -65,15 +71,19 @@ class RunFactory:
         self._trash = trash
         self._cancel = cancel
         self._labels = labels
+        self._resolver = DeviceResolver(probe)
         self._sinks = tuple(sinks)
 
     def open[S: RunSpeaker](
-        self, working: WorkingDirectory, speaker_for: Callable[[Labels], S]
+        self,
+        working: WorkingDirectory,
+        speaker_for: Callable[[Labels], S],
+        device: DeviceChoice | None = None,
     ) -> ReadyRun[S]:
         """Open the settings of `working` and ready a Run whose speaker speaks their `ui_language`.
 
         `speaker_for` makes the speaker from the labels of that language, read from the locales
-        folder of the app's labels.
+        folder of the app's labels. A given `device`, `auto` included, wins over the device setting.
         """
         # The settings stage replays each set-aside event into the Run, which also logs it to
         # `run.log`; opening on a fan-out without sinks makes a replay the only send.
@@ -83,6 +93,14 @@ class RunFactory:
         speaker = speaker_for(speaking)
         events = EventFanOut(self._clock, (speaker, *self._sinks), speaker, speaking)
         runs = RunService(
-            working, self._clock, self._tokens, self._trash, events, self._cancel, settings
+            working,
+            self._clock,
+            self._tokens,
+            self._trash,
+            events,
+            self._cancel,
+            settings,
+            self._resolver,
+            device,
         )
         return ReadyRun(speaker, runs, settings, events.at(StageName.SETTINGS))

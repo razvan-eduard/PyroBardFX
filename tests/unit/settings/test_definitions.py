@@ -72,6 +72,22 @@ def test_the_story_language_carries_its_label_key_help_key_and_the_language_grou
     )
 
 
+def test_the_device_is_a_choice_of_auto_and_the_four_backends_defaulting_to_auto() -> None:
+    device = definition("device")
+
+    assert (device.choices, device.default) == (("auto", "mps", "mlx", "cuda", "cpu"), "auto")
+
+
+def test_the_device_carries_its_label_key_help_key_and_the_device_group() -> None:
+    device = definition("device")
+
+    assert (device.label_key, device.help_key, device.group) == (
+        "settings.device.label",
+        "settings.device.help",
+        "device",
+    )
+
+
 class _Volume(BaseModel):
     level: int = Field(
         default=3, gt=0, json_schema_extra=SettingMeta.of("l", "h", SettingGroup.RUNS)

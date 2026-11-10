@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pyrobardfx.adapters.constants import Backend
+from pyrobardfx.adapters.devices import BackendOrder
 from pyrobardfx.domain.constants import StageName
 from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.settings_stage import SettingsStage
@@ -24,6 +26,7 @@ def dependencies(sink: RecordingSink) -> StageDependencies:
         .story("the-lighthouse")
         .run_id(RUN_ID)
         .settings(Settings())
+        .backend_order(BackendOrder((Backend.CPU,)))
         .build(),
         events=FanOutBuilder.over(clock, (sink,)),
         clock=clock,

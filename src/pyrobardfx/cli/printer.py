@@ -24,11 +24,13 @@ class CliPrinter:
         self._labels = labels
 
     def refused(self, error: RefusedError) -> None:
+        labelled = {name: self._labels.label(key) for name, key in error.labelled.items()}
         text = self._labels.label(error.reason).format(
             path=error.path,
             detail=error.detail,
             option=WORKING_DIR_OPTION,
             env=HOME_OVERRIDE_ENV,
+            **labelled,
         )
         typer.echo(text, err=True)
 

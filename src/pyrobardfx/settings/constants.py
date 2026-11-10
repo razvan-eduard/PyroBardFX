@@ -15,7 +15,8 @@ EVENT_SET_ASIDE = "settings_file_set_aside"
 
 # The global settings apply to the whole working directory, not to one Run: Setup presets and the
 # Settings stamp hold only the other settings.
-GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language"})
+# The device belongs to the machine, not to a Story, so it is global too.
+GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language", "device"})
 
 DEFAULT_RUNS_TO_KEEP = 5
 MIN_RUNS_TO_KEEP = 1
@@ -58,6 +59,8 @@ UI_LANGUAGE_LABEL = "settings.ui_language.label"
 UI_LANGUAGE_HELP = "settings.ui_language.help"
 STORY_LANGUAGE_LABEL = "settings.story_language.label"
 STORY_LANGUAGE_HELP = "settings.story_language.help"
+DEVICE_LABEL = "settings.device.label"
+DEVICE_HELP = "settings.device.help"
 
 # The language a fresh working directory speaks and tells its Stories in.
 DEFAULT_LANGUAGE = Language.EN
@@ -69,6 +72,7 @@ class SettingGroup(StrEnum):
     RUNS = "runs"
     RENDER = "render"
     LANGUAGE = "language"
+    DEVICE = "device"
 
 
 class QualityPresetName(StrEnum):

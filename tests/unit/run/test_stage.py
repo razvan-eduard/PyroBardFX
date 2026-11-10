@@ -1,5 +1,7 @@
 import contextlib
 
+from pyrobardfx.adapters.constants import Backend
+from pyrobardfx.adapters.devices import BackendOrder
 from pyrobardfx.domain.constants import StageName
 from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.cancel import RunCancelledError
@@ -24,6 +26,7 @@ def dependencies(
         .story("the-lighthouse")
         .run_id(RunId("20261109T153000Z-a1b2"))
         .settings(Settings())
+        .backend_order(BackendOrder((Backend.CPU,)))
         .build(),
         events=FanOutBuilder.over(clock, (sink or RecordingSink(),)),
         clock=clock,

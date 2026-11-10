@@ -12,6 +12,7 @@ from tests.builders.locales import LocalesBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import START, FakeClock
+from tests.fakes.devices import FakeBackendProbe
 from tests.fakes.events import RecordingSink
 from tests.fakes.speaker import RecordingSpeaker
 from tests.fakes.tokens import FixedTokenSource
@@ -38,6 +39,7 @@ def ready_run(
         FakeTrash(clock, sandbox / "trash"),
         cancel or FakeCancelToken(),
         labels,
+        FakeBackendProbe(),
         sinks,
     )
     return factory.open(WorkingDirectory(root=working.build()), RecordingSpeaker)

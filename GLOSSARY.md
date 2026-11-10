@@ -226,3 +226,21 @@ _Avoid_: settings dump, config header
 **Setting definition**:
 What a settings card needs to show one setting (its label key, help key, group, kind, default and constraints), produced from the settings model's JSON schema.
 _Avoid_: setting spec, field info
+
+### Models
+
+**Adapter**:
+The one class an I/O call or a model call sits behind. Each adapter family (STT, TTS, LLM, CLAP, sound generator, diffusion, still, geometry, upscaler, media, net, trash and clock) has one base class and one fake. The model families share the `Adapter` base, which owns the backend, dtype, load, release, timing, progress steps and cancel checks; each runtime is one subclass that declares the backends it runs on and its dtype on each.
+_Avoid_: wrapper, driver, plugin
+
+**Backend**:
+Where a model runs: MPS or MLX on Apple Silicon, CUDA on NVIDIA, or the CPU. The device resolver orders the backends a machine offers, best first, once per Run, at Run start; the CPU closes every order.
+_Avoid_: platform (that is the operating system), runtime (that is the library behind an adapter)
+
+**Device**:
+The user's choice of Backend: `auto`, or one backend, given by the `--device` flag or the device setting. A given flag wins, `auto` included; with no flag the setting decides. A named backend goes first; an Apple Silicon one (MPS or MLX) keeps its partner next when the machine has it, then the CPU.
+_Avoid_: GPU, hardware
+
+**Model slot**:
+The one place a model is held in memory between stages: loading the next model releases the held one first, so a 16 GB machine finishes a Run.
+_Avoid_: model cache, pool

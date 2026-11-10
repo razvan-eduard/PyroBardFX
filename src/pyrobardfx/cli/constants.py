@@ -2,6 +2,9 @@
 
 APP_NAME = "pyrobardfx"
 WORKING_DIR_OPTION = "--working-dir"
+DEVICE_OPTION = "--device"
+# Where the start callback leaves the `--device` choice for the commands: the context's meta.
+DEVICE_META_KEY = "pyrobardfx.device_choice"
 REFUSED_EXIT_CODE = 1
 # The exit code of a program stopped by an interrupt, as shells report it.
 CANCELLED_EXIT_CODE = 130
@@ -10,6 +13,7 @@ NO_WORKING_DIRECTORY_MESSAGE = "the run command started without an open working 
 
 # The locale keys of the typer help, which resolves in en when the app is built.
 WORKING_DIR_HELP_LABEL_KEY = "cli.working_dir.help"
+DEVICE_HELP_LABEL_KEY = "cli.device.help"
 RUN_HELP_LABEL_KEY = "cli.run.help"
 STORY_HELP_LABEL_KEY = "cli.run.story.help"
 

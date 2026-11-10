@@ -4,6 +4,7 @@ from typing import Self
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from pyrobardfx.adapters.devices import BackendOrder
 from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR, INVALID_SNAPSHOT_MESSAGE
 from pyrobardfx.settings.model import Settings
@@ -18,6 +19,7 @@ class RunSnapshot(BaseModel):
     story: str
     run_id: RunId
     settings: Settings
+    backend_order: BackendOrder
 
 
 class InvalidSnapshotError(Exception):
@@ -35,6 +37,7 @@ class RunSnapshotBuilder:
         self._story: str | None = None
         self._run_id: RunId | None = None
         self._settings: Settings | None = None
+        self._backend_order: BackendOrder | None = None
 
     def story(self, name: str) -> Self:
         self._story = name
@@ -49,9 +52,19 @@ class RunSnapshotBuilder:
         self._settings = settings
         return self
 
+    def backend_order(self, order: BackendOrder) -> Self:
+        """Take the backends every model of the Run may use, best first, resolved at its start."""
+        self._backend_order = order
+        return self
+
     def build(self) -> RunSnapshot:
         """Return the frozen snapshot, or raise `InvalidSnapshotError` naming the bad fields."""
-        values = dict(story=self._story, run_id=self._run_id, settings=self._settings)
+        values = dict(
+            story=self._story,
+            run_id=self._run_id,
+            settings=self._settings,
+            backend_order=self._backend_order,
+        )
         try:
             return RunSnapshot.model_validate(values)
         except ValidationError as error:

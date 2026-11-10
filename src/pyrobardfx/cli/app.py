@@ -6,9 +6,14 @@ from typing import Annotated
 
 import typer
 
+from pyrobardfx.adapters.constants import DeviceChoice
+from pyrobardfx.adapters.devices import BackendProbe, SystemBackendProbe
 from pyrobardfx.cli.constants import (
     APP_NAME,
     CANCELLED_EXIT_CODE,
+    DEVICE_HELP_LABEL_KEY,
+    DEVICE_META_KEY,
+    DEVICE_OPTION,
     NO_WORKING_DIRECTORY_MESSAGE,
     REFUSED_EXIT_CODE,
     RUN_COMMAND,
@@ -45,6 +50,7 @@ class CliApp:
         trash: Trash,
         cancel: CancellableToken,
         labels: Labels,
+        probe: BackendProbe,
         sinks: Sequence[EventSink] = (),
     ) -> typer.Typer:
         """Build the app over the given adapters; each event goes to the CLI printer and `sinks`.
@@ -52,6 +58,11 @@ class CliApp:
         Until the settings are open the printer speaks the language of `labels`; a command that
         opens them speaks their `ui_language`, read from the locales folder of `labels`. The help
         is en, as it resolves here, before `--working-dir` says where the settings are.
+
+        `--device` is left in the context's meta under `DEVICE_META_KEY`, `None` when not given;
+        the `run` command hands it to the device resolver, where a given one wins over the device
+        setting. `probe` tells the
+        resolver which backends the machine offers.
         """
         app = typer.Typer(name=APP_NAME, add_completion=False)
         help_text = labels.for_language(FALLBACK_LANGUAGE)
@@ -66,14 +77,19 @@ class CliApp:
                 Path | None,
                 typer.Option(WORKING_DIR_OPTION, help=help_text.label(WORKING_DIR_HELP_LABEL_KEY)),
             ] = None,
+            device: Annotated[
+                DeviceChoice | None,
+                typer.Option(DEVICE_OPTION, help=help_text.label(DEVICE_HELP_LABEL_KEY)),
+            ] = None,
         ) -> None:
+            ctx.meta[DEVICE_META_KEY] = device
             try:
                 ctx.obj = service.open(working_dir)
             except RefusedError as error:
                 printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
 
-        runs = RunFactory(clock, tokens, trash, cancel, labels, sinks)
+        runs = RunFactory(clock, tokens, trash, cancel, labels, probe, sinks)
         CliApp._add_run(app, help_text, runs, cancel)
         return app
 
@@ -95,7 +111,7 @@ class CliApp:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
-            ready = runs.open(working, CliPrinter)
+            ready = runs.open(working, CliPrinter, ctx.meta[DEVICE_META_KEY])
             try:
                 with SigintCancel(cancel):
                     outcome = ready.start(story)
@@ -113,5 +129,11 @@ def main() -> None:
     host = HostFacts.from_host()
     labels = Labels.load(Language.EN)
     CliApp.build(
-        host, clock, SecretsTokenSource(), Send2TrashTrash(clock), ThreadCancelToken(), labels
+        host,
+        clock,
+        SecretsTokenSource(),
+        Send2TrashTrash(clock),
+        ThreadCancelToken(),
+        labels,
+        SystemBackendProbe(),
     )()
