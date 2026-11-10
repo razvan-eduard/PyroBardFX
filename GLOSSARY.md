@@ -213,3 +213,15 @@ _Avoid_: workspace, project folder, data dir
 **Store**:
 A hand-readable JSON file behind a pydantic model with one writer, replaced whole on every write and read from memory; the settings and the library index are stores.
 _Avoid_: database, cache (that is data the app can make again)
+
+**Setup preset**:
+A named set of settings saved as partial JSON in the working directory: it holds only the fields it sets, and loading it gives the defaults with those fields over them. One Setup preset may be the default, which a working directory without a settings file starts from.
+_Avoid_: profile, template, Quality preset (that is a render level)
+
+**Settings stamp**:
+The settings a script records: only the fields that differ from the defaults.
+_Avoid_: settings dump, config header
+
+**Setting definition**:
+What a settings card needs to show one setting (its label key, help key, group, kind, default and constraints), produced from the settings model's JSON schema.
+_Avoid_: setting spec, field info

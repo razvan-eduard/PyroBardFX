@@ -8,8 +8,9 @@ HOME_OVERRIDE_ENV = "PYROBARDFX_HOME"
 DOCUMENTS_PLATFORMS = frozenset({"darwin", "win32"})
 STORIES_FOLDER = "stories"
 RUNS_FOLDER = "runs"
+CONFIG_FOLDER = "config"
 LAYOUT = (
-    "config",
+    CONFIG_FOLDER,
     STORIES_FOLDER,
     "library",
     "models",

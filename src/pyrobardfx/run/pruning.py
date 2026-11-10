@@ -15,5 +15,5 @@ class PruneRunsStage(Stage[RunFolder, RunFolder]):
         self._folders = folders
 
     def body(self, inputs: RunFolder) -> RunFolder:
-        self._folders.prune(inputs, self.snapshot.runs_to_keep, self._events)
+        self._folders.prune(inputs, self.snapshot.settings.runs_to_keep, self._events)
         return inputs

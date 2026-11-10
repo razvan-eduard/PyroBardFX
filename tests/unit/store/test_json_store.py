@@ -131,3 +131,52 @@ def test_changing_a_written_value_afterwards_leaves_the_store_unchanged(tmp_path
     written.level = 2.0
 
     assert store.read() == Shelf(name="Pădure", level=0.5)
+
+
+def test_a_broken_file_is_moved_whole_to_the_backup_path(tmp_path: Path) -> None:
+    path, backup = tmp_path / "shelf.json", tmp_path / "shelf.broken.json"
+    path.write_text('{"name": "Ploaie", "lev', encoding="utf-8")
+
+    JsonStore.open_or_set_aside(path, DEFAULT, backup)
+
+    assert (path.exists(), backup.read_text(encoding="utf-8")) == (False, '{"name": "Ploaie", "lev')
+
+
+def test_a_store_opened_on_a_file_that_breaks_its_model_reads_the_default(tmp_path: Path) -> None:
+    path = tmp_path / "shelf.json"
+    path.write_text('{"name": "Ploaie", "level": "high"}', encoding="utf-8")
+
+    store, _ = JsonStore.open_or_set_aside(path, DEFAULT, tmp_path / "shelf.broken.json")
+
+    assert store.read() == DEFAULT
+
+
+def test_a_broken_file_set_aside_names_the_backup_it_went_to(tmp_path: Path) -> None:
+    path, backup = tmp_path / "shelf.json", tmp_path / "shelf.broken.json"
+    path.write_text('{"name": "Ploaie", "level": "high"}', encoding="utf-8")
+
+    _, set_aside = JsonStore.open_or_set_aside(path, DEFAULT, backup)
+
+    assert set_aside == backup
+
+
+def test_a_broken_file_whose_backup_path_is_taken_goes_to_a_numbered_one(tmp_path: Path) -> None:
+    path, backup = tmp_path / "shelf.json", tmp_path / "shelf.broken.json"
+    backup.write_text("earlier", encoding="utf-8")
+    path.write_text('{"name": "Ploaie", "level": "high"}', encoding="utf-8")
+
+    _, set_aside = JsonStore.open_or_set_aside(path, DEFAULT, backup)
+
+    assert (set_aside, backup.read_text(encoding="utf-8")) == (
+        tmp_path / "shelf.broken-2.json",
+        "earlier",
+    )
+
+
+def test_a_store_opened_on_a_sound_file_sets_nothing_aside(tmp_path: Path) -> None:
+    path = tmp_path / "shelf.json"
+    path.write_text('{"name": "Ploaie", "level": 0.8}', encoding="utf-8")
+
+    store, set_aside = JsonStore.open_or_set_aside(path, DEFAULT, tmp_path / "shelf.broken.json")
+
+    assert (store.read(), set_aside) == (Shelf(name="Ploaie", level=0.8), None)

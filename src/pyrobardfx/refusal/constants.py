@@ -12,3 +12,5 @@ class RefusalReason(StrEnum):
     CANNOT_CREATE = "workdir.refused.cannot_create"
     NO_STORY = "run.refused.no_story"
     RUN_ID_TAKEN = "run.refused.run_id_taken"
+    PRESET_NAME_TAKEN = "settings.refused.preset_name_taken"
+    PRESET_UNKNOWN = "settings.refused.preset_unknown"

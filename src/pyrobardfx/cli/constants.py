@@ -27,6 +27,12 @@ REFUSAL_TEXT = {
     RefusalReason.RUN_ID_TAKEN: (
         "Refused run: every run id drawn, the last {detail}, already has a Run folder in {path}."
     ),
+    RefusalReason.PRESET_NAME_TAKEN: (
+        "Refused setup preset {detail}: {path} already holds a setup preset of that name."
+    ),
+    RefusalReason.PRESET_UNKNOWN: (
+        "Refused setup preset {detail}: {path} holds no setup preset of that name."
+    ),
 }
 # English text of the key `run.finished`, until `label(key)` and the locales take it.
 RUN_FINISHED_TEXT = "Run {run_id} finished: {path}"

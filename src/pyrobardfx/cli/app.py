@@ -25,6 +25,7 @@ from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.cancel import CancelFlag, CancelToken
 from pyrobardfx.run.service import RunService
 from pyrobardfx.run.tokens import SecretsTokenSource, TokenSource
+from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.trash.base import Trash
 from pyrobardfx.trash.system import Send2TrashTrash
 from pyrobardfx.workdir.host import HostFacts
@@ -69,7 +70,8 @@ class CliApp:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
-            runs = RunService(working, clock, tokens, trash, events, cancel)
+            settings = SettingsService.open(working, clock, events)
+            runs = RunService(working, clock, tokens, trash, events, cancel, settings)
             try:
                 outcome = runs.start(story)
             except RefusedError as error:

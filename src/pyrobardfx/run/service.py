@@ -15,6 +15,7 @@ from pyrobardfx.run.run_id import RunId
 from pyrobardfx.run.snapshot import RunSnapshot, RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
 from pyrobardfx.run.tokens import TokenSource
+from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.store.json_store import JsonStore
 from pyrobardfx.trash.base import Trash
 from pyrobardfx.workdir.run_folders import RunFolder, RunFolders, RunFolderTakenError
@@ -30,7 +31,10 @@ class RunOutcome:
 
 
 class RunService:
-    """Starts Runs in one working directory; each Run's events also go to its `run.log`."""
+    """Starts Runs in one working directory; each Run's events also go to its `run.log`.
+
+    A Run reads the settings once, at its start, into its frozen snapshot (ADR 0002).
+    """
 
     def __init__(
         self,
@@ -40,12 +44,14 @@ class RunService:
         trash: Trash,
         events: EventFanOut,
         cancel: CancelToken,
+        settings: SettingsService,
     ) -> None:
         self._folders = RunFolders(working, RunId.matches, trash)
         self._clock = clock
         self._tokens = tokens
         self._events = events
         self._cancel = cancel
+        self._settings = settings
 
     def start(self, story: str) -> RunOutcome:
         """Run the Story into a new Run folder, or raise `RefusedError` touching no earlier Run.
@@ -78,5 +84,6 @@ class RunService:
 
     def _create_once(self, story: str) -> tuple[RunSnapshot, RunFolder]:
         run_id = RunId.draw(self._clock, self._tokens)
-        snapshot = RunSnapshotBuilder().story(story).run_id(run_id).build()
+        builder = RunSnapshotBuilder().story(story).run_id(run_id)
+        snapshot = builder.settings(self._settings.read()).build()
         return snapshot, self._folders.create(story, run_id)

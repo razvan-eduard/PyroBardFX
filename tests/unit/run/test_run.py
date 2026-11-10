@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner, Result
 
+from pyrobardfx.settings.model import Settings
 from tests.builders.cli_app import CliAppBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.cancel import FakeCancelToken
@@ -60,7 +61,11 @@ def test_a_run_folder_holds_the_snapshot_the_run_started_with(tmp_path: Path) ->
     run_story(tmp_path, FakeClock(START))
 
     snapshot = json.loads((runs_of(tmp_path) / RUN_ID / "snapshot.json").read_text())
-    assert (snapshot["story"], snapshot["run_id"], snapshot["runs_to_keep"]) == (STORY, RUN_ID, 5)
+    assert (snapshot["story"], snapshot["run_id"], snapshot["settings"]["runs_to_keep"]) == (
+        STORY,
+        RUN_ID,
+        5,
+    )
 
 
 def test_a_run_prunes_then_passes_every_stage_in_the_harness_order(tmp_path: Path) -> None:
@@ -294,3 +299,16 @@ def test_a_run_prints_its_stage_events_on_stderr(tmp_path: Path) -> None:
     result = run_story(tmp_path, FakeClock(START))
 
     assert "export_per_video 100% stage_finished" in result.stderr
+
+
+def test_a_run_start_prunes_down_to_the_keep_count_the_settings_hold(tmp_path: Path) -> None:
+    working = WorkingDirectoryBuilder(tmp_path / "work").settings(Settings(runs_to_keep=2))
+    for minute in ("00", "10", "20"):
+        working.run_folder(STORY, f"20261109T15{minute}00Z-0000")
+
+    run_story(tmp_path, FakeClock(START), working=working)
+
+    assert sorted(folder.name for folder in runs_of(tmp_path).iterdir()) == [
+        "20261109T152000Z-0000",
+        RUN_ID,
+    ]

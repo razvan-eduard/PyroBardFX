@@ -2,15 +2,10 @@
 
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
-from pyrobardfx.run.constants import (
-    DEFAULT_RUNS_TO_KEEP,
-    ERROR_LOCATION_KEY,
-    FIELD_SEPARATOR,
-    INVALID_SNAPSHOT_MESSAGE,
-    MIN_RUNS_TO_KEEP,
-)
+from pyrobardfx.run.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR, INVALID_SNAPSHOT_MESSAGE
+from pyrobardfx.settings.model import Settings
 from pyrobardfx.store.constants import EXTRA_FORBID
 
 
@@ -21,7 +16,7 @@ class RunSnapshot(BaseModel):
 
     story: str
     run_id: str
-    runs_to_keep: int = Field(ge=MIN_RUNS_TO_KEEP)
+    settings: Settings
 
 
 class InvalidSnapshotError(Exception):
@@ -38,7 +33,7 @@ class RunSnapshotBuilder:
     def __init__(self) -> None:
         self._story: str | None = None
         self._run_id: str | None = None
-        self._runs_to_keep = DEFAULT_RUNS_TO_KEEP
+        self._settings = Settings()
 
     def story(self, name: str) -> Self:
         self._story = name
@@ -48,13 +43,14 @@ class RunSnapshotBuilder:
         self._run_id = run_id
         return self
 
-    def runs_to_keep(self, count: int) -> Self:
-        self._runs_to_keep = count
+    def settings(self, settings: Settings) -> Self:
+        """Take the settings the Run reads; they are frozen, so a later edit never reaches it."""
+        self._settings = settings
         return self
 
     def build(self) -> RunSnapshot:
         """Return the frozen snapshot, or raise `InvalidSnapshotError` naming the bad fields."""
-        values = dict(story=self._story, run_id=self._run_id, runs_to_keep=self._runs_to_keep)
+        values = dict(story=self._story, run_id=self._run_id, settings=self._settings)
         try:
             return RunSnapshot.model_validate(values)
         except ValidationError as error:

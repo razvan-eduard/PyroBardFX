@@ -6,13 +6,15 @@ import secrets
 from pathlib import Path
 from typing import Self
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from pyrobardfx.store.constants import (
     DUMP_MODE,
     ENCODING,
+    FIRST_NUMBERED_BACKUP,
     JSON_INDENT,
     LINE_END,
+    NUMBERED_BACKUP_STEM,
     TEMP_NAME,
     TEMP_TOKEN_BYTES,
     WRITE_MODE,
@@ -35,6 +37,34 @@ class JsonStore[M: BaseModel]:
         if not path.exists():
             return cls(path, default)
         return cls(path, type(default).model_validate_json(path.read_text(encoding=ENCODING)))
+
+    @classmethod
+    def open_or_set_aside(cls, path: Path, default: M, backup: Path) -> tuple[Self, Path | None]:
+        """Open like `open`, but move a broken or invalid file to `backup` and hold `default`.
+
+        The second value is where the bad file went, kept whole, or `None` when nothing was set
+        aside. A taken `backup` is never overwritten; the file goes to a numbered name beside it.
+        """
+        try:
+            return cls.open(path, default), None
+        except ValidationError, UnicodeDecodeError:
+            free = cls._free(backup)
+            os.replace(path, free)
+            return cls(path, default), free
+
+    @staticmethod
+    def _free(backup: Path) -> Path:
+        """`backup`, or the first numbered name beside it that no file holds."""
+        free, number = backup, FIRST_NUMBERED_BACKUP
+        while free.exists():
+            free = backup.with_stem(NUMBERED_BACKUP_STEM.format(stem=backup.stem, number=number))
+            number += 1
+        return free
+
+    @property
+    def path(self) -> Path:
+        """The file this store writes."""
+        return self._path
 
     def read(self) -> M:
         """Return a copy of the in-memory value; changing it never changes the store."""
