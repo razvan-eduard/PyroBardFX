@@ -59,6 +59,7 @@ _Avoid_: step (that is a progress callback inside a Stage), node, phase
 **Pipeline event**:
 One structured record of a Run's event stream: the event name, the Stage it came from, the percent that Stage got to, its UTC time and the event's own fields.
 _Avoid_: log line, message
+"Message" is avoided for a Pipeline event only: the user-facing text of an error or a locale string may still be called a message, so `*_MESSAGE` constant names stay.
 
 **Event fan-out**:
 The one structlog logger of a Run's event stream that stamps every Pipeline event with the clock's UTC time and hands it to every Event sink; a Stage emits through it without knowing the sinks.
