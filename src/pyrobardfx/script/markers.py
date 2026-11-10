@@ -37,7 +37,7 @@ class ScriptLine:
 
 class Markers:
     """Tells a marker line from a line of the script's text, and breaks a line of text at each
-    chapter or video tag it holds."""
+    marker tag it holds."""
 
     def __init__(self, words: TagWords) -> None:
         self.patterns = words.marker_patterns()
@@ -54,7 +54,7 @@ class Markers:
 
     def lines(self, text: str, said: str) -> list[ScriptLine]:
         """The lines of `said`, which is `text` with its tags blanked, each told apart; a line
-        with text and a chapter or video tag is broken into its pieces there."""
+        with text and a marker tag is broken into its pieces there."""
         lines, start = [], 0
         for line in said.splitlines(keepends=True):
             marker = None if self.blank(text, start, line) else self.of(line, start)
@@ -66,7 +66,7 @@ class Markers:
         return lines
 
     def pieces(self, text: str, line: str, start: int) -> list[ScriptLine]:
-        """`line`, which is no marker line, broken at each chapter or video tag it holds."""
+        """`line`, which is no marker line, broken at each marker tag it holds."""
         found = sorted(
             ((match, kind) for kind, pattern in self.breaking for match in pattern.finditer(line)),
             key=lambda pair: pair[0].start(),

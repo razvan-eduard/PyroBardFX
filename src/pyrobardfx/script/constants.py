@@ -10,7 +10,7 @@ from enum import StrEnum
 class TagKind(StrEnum):
     """The kind of an inline tag, as the parser records it whatever spelling the script used."""
 
-    SFX = "sfx"
+    ONE_SHOT = "one-shot"
     AMBIENCE = "ambience"
     UNDERSCORE = "underscore"
     TRANSITION = "transition"
@@ -39,9 +39,11 @@ class Fade(StrEnum):
     LONG = "long"
 
 
+# The English word of a tag kind whose word is not its name: a one-shot is written `[sfx: ...]`.
+ENGLISH_OWN_WORDS = {TagKind.ONE_SHOT: "sfx"}
 # The English tag words: each tag kind's own word and the other spellings a script may use for it.
 ENGLISH_KIND_WORDS = {
-    **{kind.value: kind for kind in TagKind},
+    **{ENGLISH_OWN_WORDS.get(kind, kind.value): kind for kind in TagKind},
     "scene": TagKind.VISUAL,
 }
 # Joins the words of a tag language, or the fade words, into one pattern that matches any of them.
@@ -68,7 +70,7 @@ VOLUME_CAP = 2.0
 # a content id. Every other kind keeps its whole text as its value.
 SPLIT_VALUE_KINDS = frozenset(
     {
-        TagKind.SFX,
+        TagKind.ONE_SHOT,
         TagKind.AMBIENCE,
         TagKind.UNDERSCORE,
         TagKind.TRANSITION,
@@ -99,16 +101,22 @@ MARK_MARKER_PATTERNS = (
     (MarkerKind.SECTION, r"^#{2,}\s*(?P<title>.*)$"),
     (MarkerKind.SECTION, r"^(?:-{3,}|\*{3,})(?P<title>)$"),
 )
-# A chapter or video tag around its word. On a line with text it breaks the line there: the text
-# before ends its Paragraph and the text after starts the next (user ruling 2026-11-10).
-BREAKING_MARKER_PATTERN = r"\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]"
-BREAKING_MARKER_KINDS = (MarkerKind.CHAPTER, MarkerKind.VIDEO)
-# Each marker tag's pattern around its word; a section tag needs no colon before its title, but
-# its word ends at a word boundary.
+# A marker tag whose title, when it has one, follows a colon: `[chapter: X]`, `[section]`,
+# `[video]`.
+COLON_MARKER_PATTERN = r"\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]"
+# A section tag filling its whole line needs no colon before its title, but its word ends at a word
+# boundary: `[section 2]`.
+SECTION_LINE_PATTERN = r"\[\s*{word}\b\s*:?\s*(?P<title>[^\]]*)\]"
+# Each marker tag's pattern around its word, on a line with text: a marker tag breaks the line
+# there, the text before ends its Paragraph and the text after starts the next; mid-line a section
+# tag needs its colon (user rulings 2026-11-10).
+BREAKING_MARKER_PATTERNS = dict.fromkeys(MarkerKind, COLON_MARKER_PATTERN)
+# A marker tag filling its whole line.
 WORD_MARKER_PATTERNS = {
-    MarkerKind.CHAPTER: f"^{BREAKING_MARKER_PATTERN}$",
-    MarkerKind.VIDEO: f"^{BREAKING_MARKER_PATTERN}$",
-    MarkerKind.SECTION: r"^\[\s*{word}\b\s*:?\s*(?P<title>[^\]]*)\]$",
+    kind: f"^{pattern}$"
+    for kind, pattern in (
+        BREAKING_MARKER_PATTERNS | {MarkerKind.SECTION: SECTION_LINE_PATTERN}
+    ).items()
 }
 # The English word of each marker tag.
 ENGLISH_MARKER_WORDS = {

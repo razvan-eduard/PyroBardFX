@@ -186,3 +186,45 @@ def test_no_word_of_a_marker_tag_on_a_line_with_text_is_spoken() -> None:
     (_, chapter) = chapters_of("Fog [chapter: The Long Night] she ran [sfx: steps].")
 
     assert chapter.sections[0].paragraphs[0].tags[0].word == 3
+
+
+@pytest.mark.parametrize(
+    ("marker", "title"),
+    [
+        ("[section: The Quay]", "The Quay"),
+        ("[Section]", None),
+        ("[ section : The Quay ]", "The Quay"),
+    ],
+)
+def test_a_section_tag_on_a_line_with_text_breaks_the_line_there(
+    marker: str, title: str | None
+) -> None:
+    (chapter,) = chapters_of(f"# One\nFog came. {marker} Rang.\nGone.")
+
+    assert [(s.title, [p.text for p in s.paragraphs]) for s in chapter.sections] == [
+        (None, ["Fog came."]),
+        (title, ["Rang.\nGone."]),
+    ]
+
+
+def test_a_word_that_only_begins_with_section_on_a_line_with_text_stays_text() -> None:
+    section = only_section("Fog [sectional] rang.")
+
+    assert [p.text for p in section.paragraphs] == ["Fog [sectional] rang."]
+
+
+@pytest.mark.parametrize(
+    "words", ["[section's end]", "[section-b]", "[section 4.2 of the log]", "[ section 2 ]"]
+)
+def test_a_section_tag_without_a_colon_before_its_title_on_a_line_with_text_stays_text(
+    words: str,
+) -> None:
+    section = only_section(f"Fog {words} rang.")
+
+    assert [p.text for p in section.paragraphs] == [f"Fog {words} rang."]
+
+
+def test_no_word_of_a_section_tag_on_a_line_with_text_is_spoken() -> None:
+    (chapter,) = chapters_of("Fog [section: The Long Quay] she ran [sfx: steps].")
+
+    assert chapter.sections[1].paragraphs[0].tags[0].word == 3

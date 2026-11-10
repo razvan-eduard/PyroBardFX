@@ -16,7 +16,7 @@ def tags_of(text: str) -> list[Tag]:
 def test_a_sound_tag_records_its_kind_value_and_the_spoken_words_before_it() -> None:
     (tag,) = tags_of("She opened the door [sfx: door] and left.")
 
-    assert (tag.kind, tag.value, tag.word) == ("sfx", "door", 4)
+    assert (tag.kind, tag.value, tag.word) == ("one-shot", "door", 4)
 
 
 def test_a_sound_tag_reads_a_trailing_volume_and_fade_word_in_either_order() -> None:
@@ -68,13 +68,19 @@ def test_a_hash_shorter_than_six_hex_digits_is_no_content_id() -> None:
 def test_scene_is_read_as_visual_in_any_case() -> None:
     tags = tags_of("[SCENE: lsd | fog] [Sfx: door]")
 
-    assert [t.kind for t in tags] == ["visual", "sfx"]
+    assert [t.kind for t in tags] == ["visual", "one-shot"]
 
 
 def test_ambiance_is_no_tag_word_and_stays_spoken_text() -> None:
     (chapter,) = ScriptParser().parse("Rain [Ambiance: forest] fell.").chapters
 
     assert chapter.sections[0].paragraphs[0].text == "Rain [Ambiance: forest] fell."
+
+
+def test_the_one_shot_kind_name_is_no_tag_word_and_stays_spoken_text() -> None:
+    (chapter,) = ScriptParser().parse("The door [one-shot: door] shut.").chapters
+
+    assert chapter.sections[0].paragraphs[0].text == "The door [one-shot: door] shut."
 
 
 def test_a_music_tag_reads_volume_and_fade_as_a_sound_tag_does() -> None:

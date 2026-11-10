@@ -27,7 +27,7 @@ A blank-line block of the script; the unit the autotagger reasons about. In an a
 _Avoid_: segment, chunk (that is a render window)
 
 **Marker**:
-A Script line or tag that opens a Chapter or a Section or forces a Video break: a `#` or `##` heading, a `---` or `***` line, or a `[chapter: Title]`, `[section …]` or `[video]` tag. A `[chapter: …]` or `[video]` on a line with text breaks the line there.
+A Script line or tag that opens a Chapter or a Section or forces a Video break: a `#` or `##` heading, a `---` or `***` line, or a `[chapter: Title]`, `[section …]` or `[video]` tag. A `[chapter: …]`, `[section …]` or `[video]` on a line with text breaks the line there.
 _Avoid_: divider, separator, heading (that is one form of Marker)
 
 **Scene**:

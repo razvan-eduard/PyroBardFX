@@ -10,8 +10,7 @@ from dataclasses import dataclass
 from typing import Self
 
 from pyrobardfx.script.constants import (
-    BREAKING_MARKER_KINDS,
-    BREAKING_MARKER_PATTERN,
+    BREAKING_MARKER_PATTERNS,
     ENGLISH_GLOBAL_KIND_WORDS,
     ENGLISH_KIND_WORDS,
     ENGLISH_MARKER_WORDS,
@@ -76,17 +75,16 @@ class TagWords:
         )
 
     def breaking_patterns(self) -> tuple[tuple[MarkerKind, re.Pattern[str]], ...]:
-        """Each chapter or video tag's pattern, to find one on a line with text; group
-        `TITLE_GROUP` is the title of the Chapter it opens."""
+        """Each marker tag's pattern, to find one on a line with text; group `TITLE_GROUP` is
+        the title of the Chapter or Section it opens."""
         return tuple(
             (
                 kind,
                 re.compile(
-                    BREAKING_MARKER_PATTERN.format(word=re.escape(self.markers[kind])),
-                    re.IGNORECASE,
+                    BREAKING_MARKER_PATTERNS[kind].format(word=re.escape(word)), re.IGNORECASE
                 ),
             )
-            for kind in BREAKING_MARKER_KINDS
+            for kind, word in self.markers.items()
         )
 
     @staticmethod
