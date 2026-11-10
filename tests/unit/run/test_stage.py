@@ -6,6 +6,7 @@ from pyrobardfx.run.constants import STAGE_ORDER
 from pyrobardfx.run.pipeline import NoOpStage, Pipeline
 from pyrobardfx.run.snapshot import RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
+from pyrobardfx.settings.model import Settings
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
@@ -20,6 +21,7 @@ def dependencies(
         snapshot=RunSnapshotBuilder()
         .story("the-lighthouse")
         .run_id("20261109T153000Z-a1b2")
+        .settings(Settings())
         .build(),
         events=EventFanOut(clock, (sink or RecordingSink(),)),
         clock=clock,

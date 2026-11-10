@@ -314,11 +314,28 @@ def test_a_run_start_prunes_down_to_the_keep_count_the_settings_hold(tmp_path: P
     ]
 
 
-def run_after_a_broken_settings_file(sandbox: Path) -> Result:
+def test_a_run_start_never_prunes_its_own_run_folder_when_an_older_run_id_sorts_later(
+    tmp_path: Path,
+) -> None:
+    working = WorkingDirectoryBuilder(tmp_path / "work").settings(Settings(runs_to_keep=2))
+    for minute in ("00", "10"):
+        working.run_folder(STORY, f"20261109T16{minute}00Z-0000")
+
+    run_story(tmp_path, FakeClock(START), working=working)
+
+    assert sorted(folder.name for folder in runs_of(tmp_path).iterdir()) == [
+        RUN_ID,
+        "20261109T161000Z-0000",
+    ]
+
+
+def run_after_a_broken_settings_file(
+    sandbox: Path, story: str = STORY, cancel: FakeCancelToken | None = None
+) -> Result:
     config = sandbox / "work" / "config"
     config.mkdir(parents=True)
     (config / "settings.json").write_text('{"runs_to_keep": "many"}', encoding="utf-8")
-    return run_story(sandbox, FakeClock(START))
+    return run_story(sandbox, FakeClock(START), story=story, cancel=cancel)
 
 
 def test_a_run_after_a_broken_settings_file_logs_its_set_aside_inside_the_settings_stage(
@@ -334,3 +351,19 @@ def test_a_run_after_a_broken_settings_file_prints_its_set_aside_once(tmp_path: 
     result = run_after_a_broken_settings_file(tmp_path)
 
     assert result.stderr.count("settings_file_set_aside") == 1
+
+
+def test_a_run_refused_after_a_broken_settings_file_prints_its_set_aside_once(
+    tmp_path: Path,
+) -> None:
+    result = run_after_a_broken_settings_file(tmp_path, story="no-such-story")
+
+    assert (result.exit_code, result.stderr.count("settings_file_set_aside")) == (1, 1)
+
+
+def test_a_run_cancelled_before_its_settings_stage_prints_its_set_aside_once(
+    tmp_path: Path,
+) -> None:
+    result = run_after_a_broken_settings_file(tmp_path, cancel=FakeCancelToken(cancel_at=1))
+
+    assert (result.exit_code, result.stderr.count("settings_file_set_aside")) == (130, 1)

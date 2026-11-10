@@ -91,10 +91,15 @@ class RunFolders:
         return len(parts) == STORY_NAME_PARTS and parts[0] != PARENT_FOLDER_NAME
 
     def prune(self, folder: RunFolder, keep: int, events: StageEvents) -> None:
-        """Trash the oldest Run folders beside `folder` so `keep` remain; each emits its event."""
+        """Trash the oldest Run folders beside `folder` so `keep` remain; each emits its event.
+
+        `folder` is always among those kept, even when an earlier Run id sorts later than its own.
+        """
         runs = folder.path.parent
-        old = sorted((path for path in runs.iterdir() if self._is_run(path)), reverse=True)
-        for path in old[keep:]:
+        others = (path for path in runs.iterdir() if path != folder.path and self._is_run(path))
+        # The new folder ranks first, so it fills one of the `keep` places whatever its Run id.
+        ranked = [folder.path, *sorted(others, reverse=True)]
+        for path in ranked[keep:]:
             self._trash.trash(path, events)
 
     def _is_run(self, folder: Path) -> bool:

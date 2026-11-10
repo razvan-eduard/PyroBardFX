@@ -14,9 +14,16 @@ from tests.fakes.clock import FakeClock
 
 def test_a_snapshot_without_its_run_id_is_refused_naming_the_run_id() -> None:
     with pytest.raises(InvalidSnapshotError) as refused:
-        RunSnapshotBuilder().story("the-lighthouse").build()
+        RunSnapshotBuilder().story("the-lighthouse").settings(Settings()).build()
 
     assert refused.value.fields == ("run_id",)
+
+
+def test_a_snapshot_without_its_settings_is_refused_naming_the_settings() -> None:
+    with pytest.raises(InvalidSnapshotError) as refused:
+        RunSnapshotBuilder().story("the-lighthouse").run_id("20261109T153000Z-a1b2").build()
+
+    assert refused.value.fields == ("settings",)
 
 
 def test_a_settings_edit_after_the_snapshot_is_built_leaves_the_snapshot_unchanged(

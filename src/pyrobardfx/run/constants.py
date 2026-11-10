@@ -10,6 +10,7 @@ RUN_ID_TOKEN_HEX_LENGTH = 2 * RUN_ID_TOKEN_BYTES
 RUN_ID_PATTERN = rf"\d{{8}}T\d{{6}}Z-[0-9a-f]{{{RUN_ID_TOKEN_HEX_LENGTH}}}"
 # How many run ids a Run start draws before it refuses: a clash needs the same second and token.
 RUN_ID_ATTEMPTS = 3
+NO_RUN_ID_ATTEMPT_MESSAGE = "a Run start drew no run id: RUN_ID_ATTEMPTS is below one"
 
 SNAPSHOT_FILE = "snapshot.json"
 INVALID_SNAPSHOT_MESSAGE = "run snapshot refuses {fields}: unset or out of range"

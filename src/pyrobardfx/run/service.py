@@ -9,6 +9,7 @@ from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.cancel import CancelToken, RunCancelledError
 from pyrobardfx.run.constants import (
+    NO_RUN_ID_ATTEMPT_MESSAGE,
     PRUNE_STAGE,
     RUN_ID_ATTEMPTS,
     SETTINGS_STAGE,
@@ -79,15 +80,15 @@ class RunService:
 
     def _create(self, story: str) -> tuple[RunSnapshot, RunFolder]:
         """Draw run ids until one has no Run folder yet; refuse after `RUN_ID_ATTEMPTS` draws."""
-        for _ in range(RUN_ID_ATTEMPTS - 1):
+        taken: RunFolderTakenError | None = None
+        for _ in range(RUN_ID_ATTEMPTS):
             try:
                 return self._create_once(story)
-            except RunFolderTakenError:
-                continue
-        try:
-            return self._create_once(story)
-        except RunFolderTakenError as error:
-            raise RefusedError(RefusalReason.RUN_ID_TAKEN, error.runs, error.run_id) from error
+            except RunFolderTakenError as error:
+                taken = error
+        if taken is None:
+            raise RuntimeError(NO_RUN_ID_ATTEMPT_MESSAGE)
+        raise RefusedError(RefusalReason.RUN_ID_TAKEN, taken.runs, taken.run_id) from taken
 
     def _create_once(self, story: str) -> tuple[RunSnapshot, RunFolder]:
         run_id = RunId.draw(self._clock, self._tokens)

@@ -4,12 +4,17 @@ from string import Formatter
 
 import pytest
 
+from pyrobardfx.cli import constants as cli_constants
+from pyrobardfx.events import constants as events_constants
 from pyrobardfx.locales.constants import LOCALE_FILE, LOCALES_FOLDER, Language
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.settings.definitions import SettingDefinitions
 from pyrobardfx.settings.model import Settings
 
 SOURCE = Path(__file__).parents[3] / "src" / "pyrobardfx"
+KEY_SUFFIX = "_KEY"
+# The `*_KEY` constants of those modules that key a dict, never a locale text.
+NOT_LOCALE_KEYS = {"EVENT_RECORD_KEY"}
 
 
 def texts_of(language: Language) -> dict[str, str]:
@@ -56,3 +61,14 @@ def test_the_english_locale_holds_every_refusal_and_settings_key_of_the_code() -
     }
 
     assert (settings | set(RefusalReason)) - texts_of(Language.EN).keys() == set()
+
+
+def test_the_english_locale_holds_every_locale_key_of_the_cli_and_events_constants() -> None:
+    keys = {
+        value
+        for module in (cli_constants, events_constants)
+        for name, value in vars(module).items()
+        if name.endswith(KEY_SUFFIX) and name not in NOT_LOCALE_KEYS
+    }
+
+    assert keys - texts_of(Language.EN).keys() == set()

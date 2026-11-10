@@ -1,6 +1,7 @@
 """The settings stage: names in the Run's events each settings file set aside at open."""
 
 from pyrobardfx.events.constants import PERCENT_DONE
+from pyrobardfx.events.fan_out import StageEvents
 from pyrobardfx.run.stage import Stage, StageDependencies
 from pyrobardfx.settings.constants import EVENT_SET_ASIDE
 from pyrobardfx.settings.service import SettingsService
@@ -21,8 +22,16 @@ class SettingsStage(Stage[RunFolder, RunFolder]):
         self._settings = settings
 
     def body(self, inputs: RunFolder) -> RunFolder:
-        for record in self._settings.take_set_aside():
-            self._events.emit(
+        self.replay(self._settings, self._events)
+        return inputs
+
+    @staticmethod
+    def replay(settings: SettingsService, events: StageEvents) -> None:
+        """Emit one set-aside event per record `settings` still holds; a record goes out once.
+
+        A Run refused or cancelled before this stage calls it too, so its user still sees them.
+        """
+        for record in settings.take_set_aside():
+            events.emit(
                 EVENT_SET_ASIDE, PERCENT_DONE, path=str(record.path), backup=str(record.backup)
             )
-        return inputs

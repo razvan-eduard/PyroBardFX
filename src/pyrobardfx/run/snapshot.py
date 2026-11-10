@@ -33,7 +33,7 @@ class RunSnapshotBuilder:
     def __init__(self) -> None:
         self._story: str | None = None
         self._run_id: str | None = None
-        self._settings = Settings()
+        self._settings: Settings | None = None
 
     def story(self, name: str) -> Self:
         self._story = name

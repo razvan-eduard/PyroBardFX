@@ -4,6 +4,7 @@ from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.run.settings_stage import SettingsStage
 from pyrobardfx.run.snapshot import RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
+from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.workdir.run_folders import RunFolder
 from pyrobardfx.workdir.working_directory import WorkingDirectory
@@ -17,7 +18,11 @@ RUN_ID = "20261109T153000Z-a1b2"
 def dependencies(sink: RecordingSink) -> StageDependencies:
     clock = FakeClock()
     return StageDependencies(
-        snapshot=RunSnapshotBuilder().story("the-lighthouse").run_id(RUN_ID).build(),
+        snapshot=RunSnapshotBuilder()
+        .story("the-lighthouse")
+        .run_id(RUN_ID)
+        .settings(Settings())
+        .build(),
         events=EventFanOut(clock, (sink,)),
         clock=clock,
         cancel=FakeCancelToken(),
