@@ -11,6 +11,7 @@ from pyrobardfx.cli.constants import (
 )
 from pyrobardfx.events.event import PipelineEvent
 from pyrobardfx.locales.labels import Labels
+from pyrobardfx.refusal.constants import DETAIL_FIELD, ENV_FIELD, OPTION_FIELD, PATH_FIELD
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.workdir.constants import HOME_OVERRIDE_ENV
 from pyrobardfx.workdir.run_folders import RunFolder
@@ -25,14 +26,13 @@ class CliPrinter:
 
     def refused(self, error: RefusedError) -> None:
         labelled = {name: self._labels.label(key) for name, key in error.labelled.items()}
-        text = self._labels.label(error.reason).format(
-            path=error.path,
-            detail=error.detail,
-            option=WORKING_DIR_OPTION,
-            env=HOME_OVERRIDE_ENV,
-            **error.literal,
-            **labelled,
-        )
+        fixed = {
+            PATH_FIELD: error.path,
+            DETAIL_FIELD: error.detail,
+            OPTION_FIELD: WORKING_DIR_OPTION,
+            ENV_FIELD: HOME_OVERRIDE_ENV,
+        }
+        text = self._labels.label(error.reason).format(**fixed, **error.literal, **labelled)
         typer.echo(text, err=True)
 
     def write(self, text: str) -> None:

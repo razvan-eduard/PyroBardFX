@@ -13,6 +13,8 @@ SCRIPT_SUFFIX = ".txt"
 PARSE_SUFFIX = ".json"
 ENCODING = "utf-8"
 INDENT = 2
+# Every line of a written parse ends in LF, whatever the platform's own line end.
+LINE_END = "\n"
 
 
 class ScriptFixtures:
@@ -38,7 +40,7 @@ class ScriptFixtures:
         written = []
         for script in self.scripts():
             target = script.with_suffix(PARSE_SUFFIX)
-            target.write_text(self.expected(script), encoding=ENCODING)
+            target.write_text(self.expected(script), encoding=ENCODING, newline=LINE_END)
             written.append(target)
         return written
 

@@ -22,6 +22,39 @@
         "start": 69,
         "end": 105
       }
+    },
+    {
+      "kind": "fx-all",
+      "value": "grain 0.3, vignette 0.5",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 107,
+        "end": 140
+      }
+    },
+    {
+      "kind": "settings",
+      "value": "quality_preset best",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 142,
+        "end": 173
+      }
+    },
+    {
+      "kind": "style-look",
+      "value": "noir | dark, grainy",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 175,
+        "end": 208
+      }
     }
   ],
   "chapters": [
@@ -45,8 +78,8 @@
     {
       "title": "The Harbour",
       "marker": {
-        "start": 145,
-        "end": 158
+        "start": 248,
+        "end": 261
       },
       "video_break": false,
       "sections": [
@@ -65,8 +98,8 @@
                   "content_id": null,
                   "word": 4,
                   "span": {
-                    "start": 164,
-                    "end": 184
+                    "start": 267,
+                    "end": 287
                   }
                 }
               ]
@@ -76,8 +109,8 @@
         {
           "title": "The Quay",
           "marker": {
-            "start": 197,
-            "end": 208
+            "start": 300,
+            "end": 311
           },
           "paragraphs": [
             {
@@ -91,8 +124,8 @@
                   "content_id": null,
                   "word": 8,
                   "span": {
-                    "start": 224,
-                    "end": 240
+                    "start": 327,
+                    "end": 343
                   }
                 }
               ]
@@ -102,8 +135,8 @@
         {
           "title": null,
           "marker": {
-            "start": 243,
-            "end": 246
+            "start": 346,
+            "end": 349
           },
           "paragraphs": [
             {
@@ -115,8 +148,8 @@
         {
           "title": "The Market",
           "marker": {
-            "start": 259,
-            "end": 280
+            "start": 362,
+            "end": 383
           },
           "paragraphs": [
             {
@@ -130,8 +163,8 @@
     {
       "title": "The Bell",
       "marker": {
-        "start": 302,
-        "end": 312
+        "start": 405,
+        "end": 415
       },
       "video_break": true,
       "sections": [
@@ -150,8 +183,8 @@
     {
       "title": "The Storm",
       "marker": {
-        "start": 323,
-        "end": 343
+        "start": 426,
+        "end": 446
       },
       "video_break": false,
       "sections": [

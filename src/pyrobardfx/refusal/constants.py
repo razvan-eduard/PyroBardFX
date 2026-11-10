@@ -14,8 +14,13 @@ REFUSED_LITERAL_MESSAGE = " {name}={value!r}"
 CLAIMED_TWICE_MESSAGE = "placeholders in both labelled and literal: {names}"
 # A refusal built with other further placeholders than its reason's text needs.
 WRONG_PLACEHOLDERS_MESSAGE = "{reason} needs the placeholders {needed}, was given {given}"
-# The placeholders the renderer fills for every refusal text.
-FIXED_PLACEHOLDERS: Final = frozenset({"path", "detail", "option", "env"})
+# The placeholders the renderer fills for every refusal text: the refusal's path and detail, the
+# working directory option and the home override environment variable.
+PATH_FIELD = "path"
+DETAIL_FIELD = "detail"
+OPTION_FIELD = "option"
+ENV_FIELD = "env"
+FIXED_PLACEHOLDERS: Final = frozenset({PATH_FIELD, DETAIL_FIELD, OPTION_FIELD, ENV_FIELD})
 # The placeholder of a refusal text that names the family, in the user's words.
 FAMILY_FIELD = "family"
 # The placeholder of the unknown Content type refusal that names the creator's choice as typed.

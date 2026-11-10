@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import pytest
+
+from pyrobardfx.script.constants import GlobalTagKind
 from pyrobardfx.script.model import ParsedScript
 from pyrobardfx.script.parser import ScriptParser
 from tests.builders.script_fixtures import FIXTURES, PARSE_SUFFIX, ScriptFixtures
@@ -18,6 +21,31 @@ def test_writing_the_fixtures_puts_the_parse_of_each_script_beside_it(tmp_path: 
 
     written = (tmp_path / "harbour.json").read_text(encoding="utf-8")
     assert ParsedScript.model_validate_json(written) == ScriptParser().parse(SCRIPT)
+
+
+def test_the_fixture_writer_ends_each_line_of_a_parse_in_lf_where_the_platform_ends_it_in_crlf(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write_text = Path.write_text
+
+    def windows_write_text(
+        path: Path,
+        data: str,
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> int:
+        """`Path.write_text` as on Windows: with no `newline`, each `\\n` goes out as CRLF."""
+        return write_text(
+            path, data, encoding, errors, CRLF.decode() if newline is None else newline
+        )
+
+    monkeypatch.setattr(Path, "write_text", windows_write_text)
+    (tmp_path / "harbour.txt").write_bytes(SCRIPT.encode("utf-8"))
+
+    ScriptFixtures(tmp_path).write()
+
+    assert CRLF not in (tmp_path / "harbour.json").read_bytes()
 
 
 def test_a_script_with_crlf_line_ends_is_parsed_with_its_line_ends_kept(tmp_path: Path) -> None:
@@ -45,6 +73,14 @@ def test_the_crlf_fixture_ends_every_line_in_crlf_on_disk() -> None:
 
     assert lines != []
     assert [line for line in lines if not line.endswith(CRLF)] == []
+
+
+def test_the_crlf_fixture_holds_a_global_tag_of_every_kind() -> None:
+    shipped = ParsedScript.model_validate_json(
+        CRLF_FIXTURE.with_suffix(PARSE_SUFFIX).read_text(encoding="utf-8")
+    )
+
+    assert {tag.kind for tag in shipped.global_tags} == set(GlobalTagKind)
 
 
 def without_offsets(value: object) -> object:
