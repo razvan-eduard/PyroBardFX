@@ -83,7 +83,8 @@ class CliApp:
     ) -> None:
         """Register the `run` command, which speaks the `ui_language` of the opened settings.
 
-        For the span of the Run, SIGINT cancels `cancel`; the Run stops at its next cancel check.
+        For the span of the Run, the first SIGINT cancels `cancel`; the Run stops at its next cancel
+        check. A second SIGINT goes to the handler from before the Run and stops the app hard.
         """
 
         @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_KEY))
