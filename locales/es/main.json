@@ -15,6 +15,10 @@
   "settings.refused.preset_unknown": "Preajuste de configuración {detail} rechazado: {path} no contiene ningún preajuste de configuración con ese nombre.",
   "settings.runs_to_keep.help": "Cuántas Ejecuciones de una Historia conservar, incluida la nueva; cada nueva Ejecución mueve a la papelera la más antigua por encima de este número.",
   "settings.runs_to_keep.label": "Ejecuciones a conservar",
+  "settings.story_language.help": "El idioma en que se cuenta una Historia: la voz del narrador lo habla y la transcripción lo escucha. Puede ser distinto del idioma de la interfaz.",
+  "settings.story_language.label": "Idioma de la historia",
+  "settings.ui_language.help": "El idioma del texto de la aplicación: menús, tarjetas, mensajes y las líneas de terminal de un comando.",
+  "settings.ui_language.label": "Idioma de la interfaz",
   "workdir.refused.cannot_create": "Directorio de trabajo {path} rechazado: no se puede crear ({detail}). Elige otro lugar con {option} o {env}.",
   "workdir.refused.in_temp": "Directorio de trabajo {path} rechazado: está dentro de la carpeta temporal {detail}, que el sistema puede vaciar al reiniciar. Elige otro lugar con {option} o {env}."
 }

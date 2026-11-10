@@ -15,6 +15,10 @@
   "settings.refused.preset_unknown": "Presetare de configurare {detail} refuzată: {path} nu conține nicio presetare de configurare cu acest nume.",
   "settings.runs_to_keep.help": "Câte Rulări ale unei Povești se păstrează, inclusiv cea nouă; fiecare Rulare nouă mută în coșul de gunoi pe cea mai veche peste acest număr.",
   "settings.runs_to_keep.label": "Rulări de păstrat",
+  "settings.story_language.help": "Limba în care este spusă o Poveste: vocea naratorului o vorbește, iar transcrierea o ascultă. Poate fi alta decât limba interfeței.",
+  "settings.story_language.label": "Limba poveștii",
+  "settings.ui_language.help": "Limba textului aplicației: meniuri, carduri, mesaje și liniile din terminal ale unei comenzi.",
+  "settings.ui_language.label": "Limba interfeței",
   "workdir.refused.cannot_create": "Director de lucru {path} refuzat: nu poate fi creat ({detail}). Alege alt loc cu {option} sau {env}.",
   "workdir.refused.in_temp": "Director de lucru {path} refuzat: se află în dosarul temporar {detail}, pe care sistemul îl poate goli la repornire. Alege alt loc cu {option} sau {env}."
 }

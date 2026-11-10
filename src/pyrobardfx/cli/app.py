@@ -49,8 +49,9 @@ class CliApp:
     ) -> typer.Typer:
         """Build the app over the given adapters; each event goes to the CLI printer and `sinks`.
 
-        The printer speaks the language of `labels`; the help is en, as it resolves here, before
-        `--working-dir` says where the settings are.
+        Until the settings are open the printer speaks the language of `labels`; a command that
+        opens them speaks their `ui_language`, read from the locales folder of `labels`. The help
+        is en, as it resolves here, before `--working-dir` says where the settings are.
         """
         app = typer.Typer(name=APP_NAME, add_completion=False)
         help_text = labels.for_language(FALLBACK_LANGUAGE)
@@ -83,16 +84,20 @@ class CliApp:
             # The settings stage replays each set-aside event into the Run, which also logs it to
             # `run.log`; opening on a fan-out without sinks makes that replay the only send.
             settings = SettingsService.open(working, clock, EventFanOut(clock, ()))
-            runs = RunService(working, clock, tokens, trash, events, cancel, settings)
+            # From here on the lines speak the UI language of the opened settings.
+            speaking = labels.for_language(settings.read().ui_language)
+            run_printer = CliPrinter(speaking)
+            run_events = EventFanOut(clock, (run_printer, *sinks), labels=speaking)
+            runs = RunService(working, clock, tokens, trash, run_events, cancel, settings)
             try:
                 outcome = runs.start(story)
             except RefusedError as error:
-                printer.refused(error)
+                run_printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
             if outcome.cancelled:
-                printer.run_cancelled(outcome.folder)
+                run_printer.run_cancelled(outcome.folder)
                 raise typer.Exit(code=CANCELLED_EXIT_CODE)
-            printer.run_finished(outcome.folder)
+            run_printer.run_finished(outcome.folder)
 
         return app
 

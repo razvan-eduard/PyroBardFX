@@ -3,7 +3,9 @@
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
+from pyrobardfx.locales.constants import Language
 from pyrobardfx.settings.constants import (
+    DEFAULT_LANGUAGE,
     DEFAULT_RUNS_TO_KEEP,
     GROUP_KEY,
     HELP_KEY,
@@ -13,6 +15,10 @@ from pyrobardfx.settings.constants import (
     QUALITY_PRESET_LABEL,
     RUNS_TO_KEEP_HELP,
     RUNS_TO_KEEP_LABEL,
+    STORY_LANGUAGE_HELP,
+    STORY_LANGUAGE_LABEL,
+    UI_LANGUAGE_HELP,
+    UI_LANGUAGE_LABEL,
     QualityPresetName,
     SettingGroup,
 )
@@ -41,5 +47,17 @@ class Settings(BaseModel):
         default=QualityPresetName.BALANCED,
         json_schema_extra=SettingMeta.of(
             QUALITY_PRESET_LABEL, QUALITY_PRESET_HELP, SettingGroup.RENDER
+        ),
+    )
+    ui_language: Language = Field(
+        default=DEFAULT_LANGUAGE,
+        json_schema_extra=SettingMeta.of(
+            UI_LANGUAGE_LABEL, UI_LANGUAGE_HELP, SettingGroup.LANGUAGE
+        ),
+    )
+    story_language: Language = Field(
+        default=DEFAULT_LANGUAGE,
+        json_schema_extra=SettingMeta.of(
+            STORY_LANGUAGE_LABEL, STORY_LANGUAGE_HELP, SettingGroup.LANGUAGE
         ),
     )

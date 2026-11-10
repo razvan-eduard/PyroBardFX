@@ -2,6 +2,8 @@
 
 from enum import StrEnum
 
+from pyrobardfx.locales.constants import Language
+
 SETTINGS_FILE = "settings.json"
 PRESETS_FILE = "presets.json"
 # A broken store file is kept beside itself under this name, dated by the clock's UTC time.
@@ -50,6 +52,13 @@ RUNS_TO_KEEP_LABEL = "settings.runs_to_keep.label"
 RUNS_TO_KEEP_HELP = "settings.runs_to_keep.help"
 QUALITY_PRESET_LABEL = "settings.quality_preset.label"
 QUALITY_PRESET_HELP = "settings.quality_preset.help"
+UI_LANGUAGE_LABEL = "settings.ui_language.label"
+UI_LANGUAGE_HELP = "settings.ui_language.help"
+STORY_LANGUAGE_LABEL = "settings.story_language.label"
+STORY_LANGUAGE_HELP = "settings.story_language.help"
+
+# The language a fresh working directory speaks and tells its Stories in.
+DEFAULT_LANGUAGE = Language.EN
 
 
 class SettingGroup(StrEnum):
@@ -57,6 +66,7 @@ class SettingGroup(StrEnum):
 
     RUNS = "runs"
     RENDER = "render"
+    LANGUAGE = "language"
 
 
 class QualityPresetName(StrEnum):

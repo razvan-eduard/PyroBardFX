@@ -15,6 +15,10 @@
   "settings.refused.preset_unknown": "Einrichtungsvorgabe {detail} abgelehnt: {path} enthält keine Einrichtungsvorgabe dieses Namens.",
   "settings.runs_to_keep.help": "Wie viele Läufe einer Geschichte behalten werden, der neue eingeschlossen; jeder neue Lauf verschiebt den ältesten über dieser Zahl in den Papierkorb.",
   "settings.runs_to_keep.label": "Zu behaltende Läufe",
+  "settings.story_language.help": "Die Sprache, in der eine Geschichte erzählt wird: Die Stimme des Erzählers spricht sie, und die Transkription hört auf sie. Sie kann von der Sprache der Oberfläche abweichen.",
+  "settings.story_language.label": "Sprache der Geschichte",
+  "settings.ui_language.help": "Die Sprache der Texte der App: Menüs, Karten, Meldungen und die Terminalzeilen eines Befehls.",
+  "settings.ui_language.label": "Sprache der Oberfläche",
   "workdir.refused.cannot_create": "Arbeitsverzeichnis {path} abgelehnt: Es kann nicht angelegt werden ({detail}). Wähle mit {option} oder {env} einen anderen Ort.",
   "workdir.refused.in_temp": "Arbeitsverzeichnis {path} abgelehnt: Es liegt im temporären Ordner {detail}, den das System beim Neustart leeren kann. Wähle mit {option} oder {env} einen anderen Ort."
 }

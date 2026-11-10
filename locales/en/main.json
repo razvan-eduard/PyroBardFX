@@ -15,6 +15,10 @@
   "settings.refused.preset_unknown": "Refused setup preset {detail}: {path} holds no setup preset of that name.",
   "settings.runs_to_keep.help": "How many Runs of a Story to keep, the new Run included; each new Run moves the oldest beyond this count to the trash.",
   "settings.runs_to_keep.label": "Runs to keep",
+  "settings.story_language.help": "The language a Story is told in: the narrator's voice speaks it and the transcription listens for it. It may differ from the UI language.",
+  "settings.story_language.label": "Story language",
+  "settings.ui_language.help": "The language of the app's own text: menus, cards, messages and the terminal lines of a command.",
+  "settings.ui_language.label": "UI language",
   "workdir.refused.cannot_create": "Refused working directory {path}: it cannot be created ({detail}). Choose another place with {option} or {env}.",
   "workdir.refused.in_temp": "Refused working directory {path}: it is inside the temporary folder {detail}, which the system may empty on reboot. Choose another place with {option} or {env}."
 }

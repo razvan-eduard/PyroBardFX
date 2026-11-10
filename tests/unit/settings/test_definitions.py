@@ -40,6 +40,38 @@ def test_an_integer_bound_reaches_the_card_as_an_integer() -> None:
     assert repr(card["minimum"]) == "1"
 
 
+def test_the_ui_language_is_a_choice_of_the_five_languages_defaulting_to_english() -> None:
+    ui = definition("ui_language")
+
+    assert (ui.choices, ui.default) == (("ro", "en", "fr", "de", "es"), "en")
+
+
+def test_the_ui_language_carries_its_label_key_help_key_and_the_language_group() -> None:
+    ui = definition("ui_language")
+
+    assert (ui.label_key, ui.help_key, ui.group) == (
+        "settings.ui_language.label",
+        "settings.ui_language.help",
+        "language",
+    )
+
+
+def test_the_story_language_is_a_choice_of_the_five_languages_defaulting_to_english() -> None:
+    story = definition("story_language")
+
+    assert (story.choices, story.default) == (("ro", "en", "fr", "de", "es"), "en")
+
+
+def test_the_story_language_carries_its_label_key_help_key_and_the_language_group() -> None:
+    story = definition("story_language")
+
+    assert (story.label_key, story.help_key, story.group) == (
+        "settings.story_language.label",
+        "settings.story_language.help",
+        "language",
+    )
+
+
 class _Volume(BaseModel):
     level: int = Field(
         default=3, gt=0, json_schema_extra=SettingMeta.of("l", "h", SettingGroup.RUNS)

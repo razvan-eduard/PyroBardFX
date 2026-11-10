@@ -15,6 +15,10 @@
   "settings.refused.preset_unknown": "Préréglage de configuration {detail} refusé : {path} ne contient aucun préréglage de configuration de ce nom.",
   "settings.runs_to_keep.help": "Combien d'Exécutions d'une Histoire garder, la nouvelle comprise ; chaque nouvelle Exécution met à la corbeille la plus ancienne au-delà de ce nombre.",
   "settings.runs_to_keep.label": "Exécutions à garder",
+  "settings.story_language.help": "La langue dans laquelle une Histoire est racontée : la voix du narrateur la parle et la transcription l'écoute. Elle peut différer de la langue de l'interface.",
+  "settings.story_language.label": "Langue de l'histoire",
+  "settings.ui_language.help": "La langue du texte de l'application : menus, cartes, messages et lignes de terminal d'une commande.",
+  "settings.ui_language.label": "Langue de l'interface",
   "workdir.refused.cannot_create": "Répertoire de travail {path} refusé : il ne peut pas être créé ({detail}). Choisissez un autre endroit avec {option} ou {env}.",
   "workdir.refused.in_temp": "Répertoire de travail {path} refusé : il se trouve dans le dossier temporaire {detail}, que le système peut vider au redémarrage. Choisissez un autre endroit avec {option} ou {env}."
 }
