@@ -3,6 +3,9 @@
 from dataclasses import dataclass
 
 from pyrobardfx.clock.base import Clock
+from pyrobardfx.domain.constants import StageName
+from pyrobardfx.domain.run_id import RunId
+from pyrobardfx.domain.tokens import TokenSource
 from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.events.sinks import JsonLinesSink
 from pyrobardfx.refusal.constants import RefusalReason
@@ -10,18 +13,14 @@ from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.cancel import CancelToken, RunCancelledError
 from pyrobardfx.run.constants import (
     NO_RUN_ID_ATTEMPT_MESSAGE,
-    PRUNE_STAGE,
     RUN_ID_ATTEMPTS,
-    SETTINGS_STAGE,
     SNAPSHOT_FILE,
 )
 from pyrobardfx.run.pipeline import Pipeline
 from pyrobardfx.run.pruning import PruneRunsStage
-from pyrobardfx.run.run_id import RunId
 from pyrobardfx.run.settings_stage import SettingsStage
 from pyrobardfx.run.snapshot import RunSnapshot, RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
-from pyrobardfx.run.tokens import TokenSource
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.store.json_store import JsonStore
 from pyrobardfx.trash.base import Trash
@@ -53,7 +52,7 @@ class RunService:
         cancel: CancelToken,
         settings: SettingsService,
     ) -> None:
-        self._folders = RunFolders(working, RunId.matches, trash)
+        self._folders = RunFolders(working, trash)
         self._clock = clock
         self._tokens = tokens
         self._events = events
@@ -70,8 +69,8 @@ class RunService:
         with self._folders.log(folder) as handle:
             events = self._events.with_sink(JsonLinesSink(handle))
             dependencies = StageDependencies(snapshot, events, self._clock, self._cancel)
-            prune = PruneRunsStage(PRUNE_STAGE, dependencies, self._folders)
-            settings = SettingsStage(SETTINGS_STAGE, dependencies, self._settings)
+            prune = PruneRunsStage(StageName.PRUNE_RUNS, dependencies, self._folders)
+            settings = SettingsStage(StageName.SETTINGS, dependencies, self._settings)
             try:
                 Pipeline.harness(dependencies, prune, settings).run(folder)
             except RunCancelledError:

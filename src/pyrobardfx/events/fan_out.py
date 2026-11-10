@@ -7,6 +7,7 @@ import structlog
 from structlog.typing import EventDict, WrappedLogger
 
 from pyrobardfx.clock.base import Clock
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_KEY, TIMESTAMP_FIELD
 from pyrobardfx.events.event import EventValue, PipelineEvent
 from pyrobardfx.locales.labels import Labels
@@ -80,7 +81,7 @@ class EventFanOut:
         wider._sinks = (*self._sinks, _IsolatedSink(sink, self._errors, self._labels))
         return wider
 
-    def at(self, stage: str) -> StageEvents:
+    def at(self, stage: StageName) -> StageEvents:
         """Return the emitter of the events of `stage`."""
         processors = (self._stamp, self._check, *self._sinks, self._drop)
         logger: structlog.BoundLogger = structlog.wrap_logger(

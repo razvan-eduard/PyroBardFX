@@ -4,6 +4,7 @@ from typing import Self
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR, INVALID_SNAPSHOT_MESSAGE
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.store.constants import EXTRA_FORBID
@@ -15,7 +16,7 @@ class RunSnapshot(BaseModel):
     model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
 
     story: str
-    run_id: str
+    run_id: RunId
     settings: Settings
 
 
@@ -32,14 +33,14 @@ class RunSnapshotBuilder:
 
     def __init__(self) -> None:
         self._story: str | None = None
-        self._run_id: str | None = None
+        self._run_id: RunId | None = None
         self._settings: Settings | None = None
 
     def story(self, name: str) -> Self:
         self._story = name
         return self
 
-    def run_id(self, run_id: str) -> Self:
+    def run_id(self, run_id: RunId) -> Self:
         self._run_id = run_id
         return self
 

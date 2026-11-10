@@ -3,6 +3,8 @@
 import threading
 from typing import Protocol
 
+from pyrobardfx.domain.constants import StageName
+
 
 class CancelToken(Protocol):
     """Tells a Run whether it was asked to stop; the job manager holds the other end."""
@@ -15,12 +17,12 @@ class CancelToken(Protocol):
 class RunCancelledError(Exception):
     """The Run was asked to stop; the stage named `stage` stopped at a cancel check."""
 
-    def __init__(self, stage: str) -> None:
+    def __init__(self, stage: StageName) -> None:
         super().__init__(stage)
         self.stage = stage
 
 
-class CancelFlag:
+class ThreadCancelToken:
     """The cancel token of a running app: set once by `cancel()`, from any thread."""
 
     def __init__(self) -> None:

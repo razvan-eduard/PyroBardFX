@@ -1,6 +1,6 @@
 """The Run folders of the Stories in one working directory."""
 
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,6 +8,7 @@ from typing import TextIO
 
 from pydantic import BaseModel, ConfigDict
 
+from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.events.fan_out import StageEvents
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
@@ -30,14 +31,14 @@ from pyrobardfx.workdir.working_directory import WorkingDirectory
 class RunFolder:
     """The folder of one Run, holding every file the Run writes."""
 
-    run_id: str
+    run_id: RunId
     path: Path
 
 
 class RunFolderTakenError(Exception):
     """A Run folder of that run id already exists; nothing was created or deleted."""
 
-    def __init__(self, runs: Path, run_id: str) -> None:
+    def __init__(self, runs: Path, run_id: RunId) -> None:
         super().__init__(run_id)
         self.runs = runs
         self.run_id = run_id
@@ -48,24 +49,18 @@ class LatestPointer(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
 
-    run_id: str
+    run_id: RunId
 
 
 class RunFolders:
     """Creates the Run folders of the Stories in one working directory and points to the newest."""
 
-    def __init__(
-        self, working: WorkingDirectory, is_run_name: Callable[[str], bool], trash: Trash
-    ) -> None:
-        """`is_run_name` tells a Run folder's name from other names kept in `runs/`.
-
-        Pruned Run folders go to `trash`, so a pruned Run can be restored.
-        """
+    def __init__(self, working: WorkingDirectory, trash: Trash) -> None:
+        """Pruned Run folders go to `trash`, so a pruned Run can be restored."""
         self._stories = working.root / STORIES_FOLDER
-        self._is_run_name = is_run_name
         self._trash = trash
 
-    def create(self, story: str, run_id: str) -> RunFolder:
+    def create(self, story: str, run_id: RunId) -> RunFolder:
         """Create the Run folder and point the Story's `latest` at it.
 
         Touching nothing, raise `RefusedError` when the Story has no folder and
@@ -102,9 +97,10 @@ class RunFolders:
         for path in ranked[keep:]:
             self._trash.trash(path, events)
 
-    def _is_run(self, folder: Path) -> bool:
+    @staticmethod
+    def _is_run(folder: Path) -> bool:
         """Tell a Run folder from other things kept in `runs/`; pruning trashes only Run folders."""
-        return folder.is_dir() and self._is_run_name(folder.name)
+        return folder.is_dir() and RunId.matches(folder.name)
 
     @staticmethod
     @contextmanager

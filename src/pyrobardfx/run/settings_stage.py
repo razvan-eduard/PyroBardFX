@@ -1,5 +1,6 @@
 """The settings stage: names in the Run's events each settings file set aside at open."""
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import PERCENT_DONE
 from pyrobardfx.events.fan_out import StageEvents
 from pyrobardfx.run.stage import Stage, StageDependencies
@@ -16,7 +17,7 @@ class SettingsStage(Stage[RunFolder, RunFolder]):
     """
 
     def __init__(
-        self, name: str, dependencies: StageDependencies, settings: SettingsService
+        self, name: StageName, dependencies: StageDependencies, settings: SettingsService
     ) -> None:
         super().__init__(name, dependencies)
         self._settings = settings

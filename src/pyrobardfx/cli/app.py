@@ -20,15 +20,15 @@ from pyrobardfx.cli.constants import (
 from pyrobardfx.cli.printer import CliPrinter
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.clock.system import SystemClock
+from pyrobardfx.domain.constants import StageName
+from pyrobardfx.domain.tokens import SecretsTokenSource, TokenSource
 from pyrobardfx.events.fan_out import EventFanOut, EventSink
 from pyrobardfx.locales.constants import FALLBACK_LANGUAGE, Language
 from pyrobardfx.locales.labels import Labels
 from pyrobardfx.refusal.error import RefusedError
-from pyrobardfx.run.cancel import CancelFlag, CancelToken
-from pyrobardfx.run.constants import SETTINGS_STAGE
+from pyrobardfx.run.cancel import CancelToken, ThreadCancelToken
 from pyrobardfx.run.service import RunService
 from pyrobardfx.run.settings_stage import SettingsStage
-from pyrobardfx.run.tokens import SecretsTokenSource, TokenSource
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.trash.base import Trash
 from pyrobardfx.trash.system import Send2TrashTrash
@@ -109,7 +109,7 @@ class CliApp:
             run_events = EventFanOut(clock, (run_printer, *sinks), run_printer, speaking)
             runs = RunService(working, clock, tokens, trash, run_events, cancel, settings)
             # A Run that ends before its settings stage leaves set-aside records unsent; send them.
-            unsent = run_events.at(SETTINGS_STAGE)
+            unsent = run_events.at(StageName.SETTINGS)
             try:
                 outcome = runs.start(story)
             except RefusedError as error:
@@ -127,4 +127,6 @@ def main() -> None:
     clock = SystemClock()
     host = HostFacts.from_host()
     labels = Labels.load(Language.EN)
-    CliApp.build(host, clock, SecretsTokenSource(), Send2TrashTrash(clock), CancelFlag(), labels)()
+    CliApp.build(
+        host, clock, SecretsTokenSource(), Send2TrashTrash(clock), ThreadCancelToken(), labels
+    )()

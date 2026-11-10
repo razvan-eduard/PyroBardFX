@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.event import PipelineEvent
 from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.locales.constants import Language
@@ -21,7 +22,9 @@ def test_an_event_is_stamped_in_utc_with_the_clock_time() -> None:
     sink = RecordingSink()
     clock = FakeClock(datetime(2026, 11, 9, 17, 30, 0, tzinfo=timezone(timedelta(hours=2))))
 
-    EventFanOut(clock, (sink,), io.StringIO(), ENGLISH).at("settings").emit("stage_started", 0.0)
+    EventFanOut(clock, (sink,), io.StringIO(), ENGLISH).at(StageName.SETTINGS).emit(
+        "stage_started", 0.0
+    )
 
     assert [event.timestamp.isoformat() for event in sink.events] == ["2026-11-09T15:30:00+00:00"]
 
@@ -30,22 +33,24 @@ def test_an_event_whose_timestamp_is_not_in_utc_is_refused() -> None:
     bucharest = datetime(2026, 11, 9, 17, 30, 0, tzinfo=timezone(timedelta(hours=2)))
 
     with pytest.raises(ValidationError):
-        PipelineEvent(event="stage_started", stage="settings", percent=0.0, timestamp=bucharest)
+        PipelineEvent(
+            event="stage_started", stage=StageName.SETTINGS, percent=0.0, timestamp=bucharest
+        )
 
 
 def test_an_event_with_a_percent_above_one_hundred_is_refused() -> None:
     fan_out = EventFanOut(FakeClock(), (RecordingSink(),), io.StringIO(), ENGLISH)
 
     with pytest.raises(ValidationError):
-        fan_out.at("settings").emit("stage_finished", 100.5)
+        fan_out.at(StageName.SETTINGS).emit("stage_finished", 100.5)
 
 
 def test_one_event_reaches_every_sink_including_one_added_later() -> None:
     first, later = RecordingSink(), RecordingSink()
 
-    EventFanOut(FakeClock(), (first,), io.StringIO(), ENGLISH).with_sink(later).at("settings").emit(
-        "stage_started", 0
-    )
+    EventFanOut(FakeClock(), (first,), io.StringIO(), ENGLISH).with_sink(later).at(
+        StageName.SETTINGS
+    ).emit("stage_started", 0)
 
     assert [len(first.events), len(later.events)] == [1, 1]
 
@@ -53,7 +58,7 @@ def test_one_event_reaches_every_sink_including_one_added_later() -> None:
 def test_an_event_carries_its_own_fields_beside_event_stage_and_percent() -> None:
     sink = RecordingSink()
 
-    EventFanOut(FakeClock(), (sink,), io.StringIO(), ENGLISH).at("prune_runs").emit(
+    EventFanOut(FakeClock(), (sink,), io.StringIO(), ENGLISH).at(StageName.PRUNE_RUNS).emit(
         "path_trashed", 100.0, seconds=1.5
     )
 
@@ -68,7 +73,7 @@ def test_an_event_carries_its_own_fields_beside_event_stage_and_percent() -> Non
 
 
 def emit_twice(fan_out: EventFanOut) -> None:
-    events = fan_out.at("settings")
+    events = fan_out.at(StageName.SETTINGS)
     events.emit("stage_started", 0.0)
     events.emit("stage_finished", 100.0)
 

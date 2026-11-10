@@ -2,6 +2,7 @@
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import (
     NOT_UTC_MESSAGE,
     PERCENT_DONE,
@@ -20,7 +21,7 @@ class PipelineEvent(BaseModel):
     model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
 
     event: str
-    stage: str
+    stage: StageName
     percent: float = Field(ge=PERCENT_START, le=PERCENT_DONE)
     timestamp: AwareDatetime
     fields: dict[str, EventValue] = Field(default_factory=dict)

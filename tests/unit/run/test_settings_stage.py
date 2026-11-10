@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pyrobardfx.domain.constants import StageName
+from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.settings_stage import SettingsStage
 from pyrobardfx.run.snapshot import RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
@@ -12,7 +14,7 @@ from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
 
-RUN_ID = "20261109T153000Z-a1b2"
+RUN_ID = RunId("20261109T153000Z-a1b2")
 
 
 def dependencies(sink: RecordingSink) -> StageDependencies:
@@ -43,7 +45,7 @@ def test_the_settings_stage_replays_each_set_aside_file_between_its_start_and_fi
 ) -> None:
     settings, path = settings_with_broken_file(tmp_path)
     sink = RecordingSink()
-    stage = SettingsStage("settings", dependencies(sink), settings)
+    stage = SettingsStage(StageName.SETTINGS, dependencies(sink), settings)
 
     stage.run(RunFolder(RUN_ID, tmp_path / RUN_ID))
 
@@ -65,4 +67,7 @@ def test_the_settings_stage_returns_its_run_folder_unchanged(tmp_path: Path) -> 
     settings, _ = settings_with_broken_file(tmp_path)
     folder = RunFolder(RUN_ID, tmp_path / RUN_ID)
 
-    assert SettingsStage("settings", dependencies(RecordingSink()), settings).run(folder) is folder
+    assert (
+        SettingsStage(StageName.SETTINGS, dependencies(RecordingSink()), settings).run(folder)
+        is folder
+    )

@@ -11,7 +11,6 @@ BACKUP_NAME = "{stem}.broken-{time}{suffix}"
 
 UNKNOWN_DEFAULT_MESSAGE = "the default setup preset {name} is not among the presets"
 
-STAGE_NAME = "settings"
 EVENT_SET_ASIDE = "settings_file_set_aside"
 
 DEFAULT_RUNS_TO_KEEP = 5

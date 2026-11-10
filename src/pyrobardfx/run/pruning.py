@@ -1,5 +1,6 @@
 """The pruning stage: the first stage of a Run, trashing old Runs down to the keep count."""
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.run.stage import Stage, StageDependencies
 from pyrobardfx.workdir.run_folders import RunFolder, RunFolders
 
@@ -10,7 +11,9 @@ class PruneRunsStage(Stage[RunFolder, RunFolder]):
     As a stage it passes a cancel check first, so a Run cancelled at once trashes nothing.
     """
 
-    def __init__(self, name: str, dependencies: StageDependencies, folders: RunFolders) -> None:
+    def __init__(
+        self, name: StageName, dependencies: StageDependencies, folders: RunFolders
+    ) -> None:
         super().__init__(name, dependencies)
         self._folders = folders
 

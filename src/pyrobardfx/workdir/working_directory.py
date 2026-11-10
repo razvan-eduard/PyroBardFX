@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import PERCENT_DONE
 from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.refusal.constants import RefusalReason
@@ -15,7 +16,6 @@ from pyrobardfx.workdir.constants import (
     EVENT_OPENED,
     HOME_OVERRIDE_ENV,
     LAYOUT,
-    STAGE_NAME,
     TEMP_ENV_VARS,
 )
 from pyrobardfx.workdir.host import HostFacts
@@ -60,7 +60,7 @@ class WorkingDirectoryService:
 
     def __init__(self, host: HostFacts, events: EventFanOut) -> None:
         self._host = host
-        self._events = events.at(STAGE_NAME)
+        self._events = events.at(StageName.WORKING_DIRECTORY_OPEN)
 
     def open(self, override: Path | None) -> WorkingDirectory:
         """Return the laid-out working directory or raise `RefusedError`."""

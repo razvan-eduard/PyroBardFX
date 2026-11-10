@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, JsonValue
 
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.clock.constants import UTC_NAME_TIME_FORMAT
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import PERCENT_DONE
 from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.refusal.constants import RefusalReason
@@ -17,7 +18,6 @@ from pyrobardfx.settings.constants import (
     EVENT_SET_ASIDE,
     PRESETS_FILE,
     SETTINGS_FILE,
-    STAGE_NAME,
 )
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.presets import SetupPresetList, SetupPresetsFile
@@ -160,7 +160,7 @@ class _StoreOpener:
 
     def __init__(self, clock: Clock, events: EventFanOut) -> None:
         self._clock = clock
-        self._events = events.at(STAGE_NAME)
+        self._events = events.at(StageName.SETTINGS)
         self.set_aside: list[SetAsideFile] = []
 
     def open[M: BaseModel](self, path: Path, default: M) -> JsonStore[M]:

@@ -1,5 +1,6 @@
 """The fake stage: adds its name to the names it is given, with a cancel check in its body."""
 
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.run.stage import Stage, StageDependencies
 
 # How far into the fake stage its cancel check sits, between its two steps.
@@ -12,7 +13,7 @@ class FakeStage(Stage[tuple[str, ...], tuple[str, ...]]):
     It returns the names it was given with its own name added, so a test can see the order.
     """
 
-    def __init__(self, name: str, dependencies: StageDependencies) -> None:
+    def __init__(self, name: StageName, dependencies: StageDependencies) -> None:
         super().__init__(name, dependencies)
         self.done: list[str] = []
 

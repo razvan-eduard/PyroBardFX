@@ -1,12 +1,7 @@
 """Constants of the Run area."""
 
-from pyrobardfx.settings.constants import STAGE_NAME as SETTINGS_STAGE
-from pyrobardfx.workdir.constants import STAGE_NAME as WORKING_DIRECTORY_STAGE
+from pyrobardfx.domain.constants import StageName
 
-RUN_ID_FORMAT = "{time}-{token}"
-RUN_ID_TOKEN_BYTES = 2
-RUN_ID_TOKEN_HEX_LENGTH = 2 * RUN_ID_TOKEN_BYTES
-RUN_ID_PATTERN = rf"\d{{8}}T\d{{6}}Z-[0-9a-f]{{{RUN_ID_TOKEN_HEX_LENGTH}}}"
 # How many run ids a Run start draws before it refuses: a clash needs the same second and token.
 RUN_ID_ATTEMPTS = 3
 NO_RUN_ID_ATTEMPT_MESSAGE = "a Run start drew no run id: RUN_ID_ATTEMPTS is below one"
@@ -16,24 +11,21 @@ INVALID_SNAPSHOT_MESSAGE = "run snapshot refuses {fields}: unset or out of range
 FIELD_SEPARATOR = ", "
 ERROR_LOCATION_KEY = "loc"
 
-# The stage a Run passes before the harness stages: trashing old Runs down to the keep count.
-PRUNE_STAGE = "prune_runs"
-
 # The predecessor's self-test harness order; every Run passes the stages in this order.
 STAGE_ORDER = (
-    WORKING_DIRECTORY_STAGE,
-    SETTINGS_STAGE,
-    "tagging_or_reconcile",
-    "snapshot",
-    "voice_and_alignment",
-    "sound_design_and_mix",
-    "scenes_and_look",
-    "final_script_and_review",
-    "render_in_chunks",
-    "audio_reactive_fx",
-    "upscale",
-    "mux_and_subtitles",
-    "export_per_video",
+    StageName.WORKING_DIRECTORY_OPEN,
+    StageName.SETTINGS,
+    StageName.TAGGING_OR_RECONCILE,
+    StageName.SNAPSHOT,
+    StageName.VOICE_AND_ALIGNMENT,
+    StageName.SOUND_DESIGN_AND_MIX,
+    StageName.SCENES_AND_LOOK,
+    StageName.FINAL_SCRIPT_AND_REVIEW,
+    StageName.RENDER_IN_CHUNKS,
+    StageName.AUDIO_REACTIVE_FX,
+    StageName.UPSCALE,
+    StageName.MUX_AND_SUBTITLES,
+    StageName.EXPORT_PER_VIDEO,
 )
 EVENT_STAGE_STARTED = "stage_started"
 EVENT_STAGE_FINISHED = "stage_finished"

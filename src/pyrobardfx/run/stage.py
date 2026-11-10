@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from pyrobardfx.clock.base import Clock
+from pyrobardfx.domain.constants import StageName
 from pyrobardfx.events.constants import PERCENT_DONE, PERCENT_START
 from pyrobardfx.events.fan_out import EventFanOut, StageEvents
 from pyrobardfx.run.cancel import CancelToken, RunCancelledError
@@ -31,7 +32,7 @@ class Stage[In, Out](ABC):
     Its logger is the stage's bound emitter of the Run's event fan-out.
     """
 
-    def __init__(self, name: str, dependencies: StageDependencies) -> None:
+    def __init__(self, name: StageName, dependencies: StageDependencies) -> None:
         self.name = name
         self._dependencies = dependencies
         self._events: StageEvents = dependencies.events.at(name)
