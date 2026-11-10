@@ -1,11 +1,13 @@
 import json
+import pkgutil
+from importlib import import_module
 from pathlib import Path
 from string import Formatter
+from types import ModuleType
 
 import pytest
 
-from pyrobardfx.cli import constants as cli_constants
-from pyrobardfx.events import constants as events_constants
+import pyrobardfx
 from pyrobardfx.locales.constants import LOCALE_FILE, LOCALES_FOLDER, Language
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.settings.definitions import SettingDefinitions
@@ -13,10 +15,20 @@ from pyrobardfx.settings.model import Settings
 
 SOURCE = Path(__file__).parents[3] / "src" / "pyrobardfx"
 LABEL_KEY_SUFFIX = "_LABEL_KEY"
+CONSTANTS_MODULE = ".constants"
 
 
 def texts_of(language: Language) -> dict[str, str]:
     return json.loads((LOCALES_FOLDER / language / LOCALE_FILE).read_text(encoding="utf-8"))
+
+
+def constants_modules() -> list[ModuleType]:
+    """Every `pyrobardfx.*.constants` module, found by walking the package."""
+    return [
+        import_module(info.name)
+        for info in pkgutil.walk_packages(pyrobardfx.__path__, f"{pyrobardfx.__name__}.")
+        if info.name.endswith(CONSTANTS_MODULE)
+    ]
 
 
 def every_key() -> set[str]:
@@ -61,13 +73,14 @@ def test_the_english_locale_holds_every_refusal_and_settings_key_of_the_code() -
     assert (settings | set(RefusalReason)) - texts_of(Language.EN).keys() == set()
 
 
-def test_the_english_locale_holds_every_locale_key_of_the_cli_and_events_constants() -> None:
+def test_the_english_locale_holds_every_locale_key_of_every_constants_module() -> None:
+    modules = constants_modules()
     keys = {
         value
-        for module in (cli_constants, events_constants)
+        for module in modules
         for name, value in vars(module).items()
         if name.endswith(LABEL_KEY_SUFFIX)
     }
 
-    assert keys
+    assert {"cli", "events", "adapters"} <= {module.__name__.split(".")[1] for module in modules}
     assert keys - texts_of(Language.EN).keys() == set()
