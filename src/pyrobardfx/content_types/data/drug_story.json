@@ -1,0 +1,241 @@
+{
+  "label_key": "content_types.drug_story.label",
+  "quality": "masterpiece, best quality, highly detailed, abstract visual art, cinematic lighting, smooth motion",
+  "negative": "text, watermark, logo, letters, people, face, hands, syringe, needle, pills, powder, lines of powder, pipe, joint, bottle, drug paraphernalia, gore, blood, nsfw, lowres, blurry, jpeg artifacts",
+  "styles": {
+    "sober narration": "calm abstract ink clouds drifting in dark water, soft fog, muted teal and grey, gentle slow motion, minimal",
+    "psilocybin": "organic fractal patterns, glowing mycelium networks, breathing forest walls, bioluminescent spirals, fibonacci growth, earthy greens and violet",
+    "lsd": "intricate geometric fractal tessellation, sacred geometry mandala, rainbow prismatic colors, infinite recursive patterns, melting rainbow waves",
+    "mdma": "warm pulsing neon light, soft glowing heart shaped light blooms, pink and amber bokeh, euphoric warm haze, flowing silk light ribbons",
+    "ketamine": "vast empty dissociative space, liquid chrome geometry floating in void, cold blue and white, distant horizon, infinite corridor, detached and quiet",
+    "pcp / dxm": "numb robotic distorted space, stretched corridors, heavy red and grey, glitching blocky geometry, detached and disconnected motion",
+    "nitrous oxide": "brief wah-wah pulsing echoes, repeating ripples, white and silver light, sound-wave shapes, fleeting tunnel of rings",
+    "deliriant (datura / dramamine)": "murky dim brown and green light, shadowy shapes that seem to move at the edge of vision, half-seen objects that dissolve, dry dusty haze, confusing unsettling mood",
+    "cannabis": "slow drifting smoke swirls, green and gold haze, soft focus, lazy flowing curves, warm dim light",
+    "dmt": "hyperdimensional jeweled architecture, impossible kaleidoscopic temples, glowing geometric lattices, electric magenta and gold, overwhelming intricate detail",
+    "ayahuasca": "deep jungle night, glowing serpent-like vines of light, emerald and violet, intricate woven patterns, dark visionary ceremony mood",
+    "mescaline": "glowing desert cactus geometry, warm earthy ochre and turquoise, shimmering heat waves, slow sacred patterns, vivid sunset colors",
+    "2c-b": "playful neon geometry, saturated electric colors, rubbery morphing shapes, glowing outlines, bright club light trails",
+    "salvia": "reality folding like paper pages, flat planes peeling and rotating, zipper-like seams in space, sudden spinning tunnels, unsettling bright pastel",
+    "stimulants": "sharp fractured glass shards, high contrast white strobe light, fast jagged lines, cold electric blue, tense restless energy",
+    "crack": "brief blinding white flash then sudden darkness, harsh contrast, trembling sharp shapes, cold metallic light, craving emptiness",
+    "cathinones (etnobotanice)": "harsh flickering fluorescent light, twitching repeating shapes, sickly green and white, claustrophobic tight spaces, anxious restless energy",
+    "alcohol": "blurred amber light, double vision, warm whiskey tones, smeared reflections, wobbling distorted lights",
+    "opioids": "heavy slow melting shapes, warm sinking darkness, muted brown and gold, soft heavy fog, drowsy fading light",
+    "benzodiazepines": "soft blurred edges, foggy pastel blue, slow motion drifting, memory fragments fading out, quiet muffled calm",
+    "ghb": "warm wobbling liquid light, slippery soft focus, sudden dimming darkness, pink and blue haze, unsteady swaying",
+    "kratom": "muted earthy green leaves, slow warm haze, calm dull light, gentle heavy drift",
+    "inhalants (aurolac)": "smeared chemical rainbow film, oily distorted reflections, ringing tunnel vision, dirty yellow light, choking haze",
+    "synthetic cannabinoids (spice)": "harsh green distortion, looping panicky repetitions, warped heavy shapes, dark flickering, uneasy paranoia",
+    "danger / overdose": "desaturated cold palette, flickering red warning light, fragmented distorted shapes, heavy shadows, unsettling stillness",
+    "comedown": "grey washed out colors, cracked textures, dim flickering light, empty rooms of fog, slow decay",
+    "recovery / help": "soft dawn light, clear open sky, warm gold sunrise, calm water reflections, hopeful gentle glow"
+  },
+  "keywords": {
+    "en": {
+      "danger / overdose": [
+        "overdos*",
+        "unconscious*",
+        "faint*",
+        "convulsi*",
+        "ambulance",
+        "911"
+      ],
+      "deliriant (datura / dramamine)": [
+        "datura",
+        "jimson*",
+        "thorn apple",
+        "dramamin*",
+        "dimenhydrinat*",
+        "diphenhydramin*",
+        "benadryl",
+        "scopolamin*",
+        "brugmansi*",
+        "angel's trumpet"
+      ],
+      "pcp / dxm": [
+        "pcp",
+        "phencyclidin*",
+        "angel dust",
+        "dxm",
+        "dextromethorphan*",
+        "cough syrup",
+        "robotripping"
+      ],
+      "nitrous oxide": [
+        "laughing gas",
+        "nitrous",
+        "balloon*",
+        "whippet*"
+      ],
+      "ketamine": [
+        "ketamin*",
+        "keta",
+        "special k",
+        "k-hole",
+        "mxe"
+      ],
+      "salvia": [
+        "salvia",
+        "salvinorin*"
+      ],
+      "ayahuasca": [
+        "ayahuasca",
+        "yage"
+      ],
+      "dmt": [
+        "dmt",
+        "changa",
+        "5-meo*"
+      ],
+      "mescaline": [
+        "mescalin*",
+        "peyote",
+        "san pedro",
+        "cactus*"
+      ],
+      "2c-b": [
+        "2c-b",
+        "2cb",
+        "2c-*",
+        "nexus"
+      ],
+      "lsd": [
+        "lsd",
+        "acid*",
+        "blotter*",
+        "lsa",
+        "1p-lsd",
+        "1cp-lsd"
+      ],
+      "psilocybin": [
+        "psilocyb*",
+        "mushroom*",
+        "shroom*",
+        "truffle*"
+      ],
+      "mdma": [
+        "mdma",
+        "mda",
+        "ecstasy",
+        "molly"
+      ],
+      "crack": [
+        "crack"
+      ],
+      "cathinones (etnobotanice)": [
+        "mephedron*",
+        "cathinon*",
+        "bath salts",
+        "flakka",
+        "alpha-pvp",
+        "a-pvp",
+        "3-mmc",
+        "4-mmc"
+      ],
+      "stimulants": [
+        "cocain*",
+        "coke",
+        "amphetamin*",
+        "speed",
+        "methamphetamin*",
+        "crystal meth",
+        "meth",
+        "stimulant*",
+        "modafinil",
+        "ritalin*"
+      ],
+      "synthetic cannabinoids (spice)": [
+        "spice",
+        "synthetic cannabinoid*",
+        "k2"
+      ],
+      "cannabis": [
+        "cannabis",
+        "marijuana",
+        "weed",
+        "joint*",
+        "hashish",
+        "hash",
+        "thc"
+      ],
+      "inhalants (aurolac)": [
+        "glue",
+        "solvent*",
+        "thinner*",
+        "poppers",
+        "inhalant*",
+        "huffing"
+      ],
+      "ghb": [
+        "ghb",
+        "gbl",
+        "liquid ecstasy"
+      ],
+      "benzodiazepines": [
+        "benzo*",
+        "xanax",
+        "alprazolam",
+        "diazepam",
+        "clonazepam",
+        "klonopin",
+        "lorazepam",
+        "sedative*",
+        "sleeping pill*",
+        "zolpidem",
+        "pregabalin*",
+        "lyrica"
+      ],
+      "opioids": [
+        "heroin*",
+        "opioid*",
+        "opiate*",
+        "fentanyl",
+        "methadon*",
+        "morphin*",
+        "tramadol",
+        "codein*",
+        "oxycodon*",
+        "buprenorphin*",
+        "suboxone"
+      ],
+      "kratom": [
+        "kratom"
+      ],
+      "alcohol": [
+        "alcohol*",
+        "drunk*",
+        "booze",
+        "vodka",
+        "beer",
+        "whisky",
+        "whiskey",
+        "wine"
+      ],
+      "recovery / help": [
+        "recover*",
+        "therap*",
+        "heal*",
+        "counsel*",
+        "detox*",
+        "psycholog*",
+        "doctor*"
+      ],
+      "comedown": [
+        "hangover*",
+        "exhausted",
+        "comedown",
+        "the next day",
+        "drained"
+      ]
+    }
+  },
+  "default_look": "standard",
+  "sound_mix": {
+    "ambience": 0.5,
+    "atmosphere": 0.5,
+    "underscore": 0.4,
+    "effects": 0.6,
+    "transitions": 0.7
+  }
+}

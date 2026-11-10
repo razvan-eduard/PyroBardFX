@@ -1,0 +1,29 @@
+{
+  "label_key": "content_types.book_chapter.label",
+  "quality": "masterpiece, best quality, highly detailed, painterly illustration, storybook atmosphere, soft cinematic lighting, smooth motion",
+  "negative": "text, watermark, logo, letters, words, gore, nsfw, lowres, blurry, jpeg artifacts, deformed",
+  "styles": {
+    "calm narration": "soft watercolor landscape, gentle morning light, drifting clouds, warm paper texture, peaceful",
+    "adventure": "vast epic landscape, mountains and winding road, golden hour, sweeping clouds, sense of journey",
+    "mystery": "foggy old city streets at night, gas lamps, long shadows, noir mood, muted blue and amber",
+    "romance": "warm sunset glow, soft bokeh lights, flower petals drifting, pastel pink and gold, tender mood",
+    "fantasy": "enchanted forest with glowing lights, ancient castle in the distance, magical particles, rich jewel tones",
+    "science fiction": "futuristic city skyline, neon reflections, starfield, sleek structures, cool cyan and violet",
+    "historical": "old village in sepia tones, cobblestone streets, candlelight interiors, aged painting style",
+    "melancholy": "rain on a window, grey blue tones, empty bench in a park, falling leaves, quiet sadness",
+    "joyful": "bright meadow full of flowers, sunlight, floating dandelion seeds, vivid warm colors",
+    "tension / climax": "stormy sky over a cliff, dramatic light rays, swirling clouds, high contrast, intense",
+    "epilogue": "calm sea at sunrise, soft golden light, gentle waves, sense of closure and peace"
+  },
+  "keywords": {
+    "en": {}
+  },
+  "default_look": "calm",
+  "sound_mix": {
+    "ambience": 0.35,
+    "atmosphere": 0.35,
+    "underscore": 0.28,
+    "effects": 0.4,
+    "transitions": 0.5
+  }
+}

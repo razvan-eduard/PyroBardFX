@@ -3,6 +3,7 @@
 from enum import StrEnum
 
 from pyrobardfx.locales.constants import Language
+from pyrobardfx.script.constants import GlobalTagKind
 
 SETTINGS_FILE = "settings.json"
 PRESETS_FILE = "presets.json"
@@ -17,6 +18,17 @@ EVENT_SET_ASIDE = "settings_file_set_aside"
 # Settings stamp hold only the other settings.
 # The device belongs to the machine, not to a Story, so it is global too.
 GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language", "device"})
+
+# The Settings stamp's text form in a script: `[settings: quality_preset best, name value]`, one
+# global tag of the kind `settings`, each non-default setting as its name and its value, the
+# values apart as a tag's parts are.
+STAMP_TAG = "[{kind}:{values}]"
+STAMP_VALUE = " {name} {value}"
+SETTINGS_KIND = GlobalTagKind.SETTINGS
+# The blanks a global tag's line may hold around the tag.
+LINE_BLANKS = " \t"
+# What `str.find` returns when the text holds no match.
+NOT_FOUND = -1
 
 DEFAULT_RUNS_TO_KEEP = 5
 MIN_RUNS_TO_KEEP = 1
