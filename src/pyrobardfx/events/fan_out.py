@@ -8,8 +8,10 @@ import structlog
 from structlog.typing import EventDict, WrappedLogger
 
 from pyrobardfx.clock.base import Clock
-from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_TEXT, LINE_END
+from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_KEY, LINE_END
 from pyrobardfx.events.event import EventValue, PipelineEvent
+from pyrobardfx.locales.constants import FALLBACK_LANGUAGE
+from pyrobardfx.locales.labels import Labels
 
 
 class EventSink(Protocol):
@@ -23,9 +25,10 @@ class EventSink(Protocol):
 class _IsolatedSink:
     """One sink at the end of the processor chain; once it raises, it is reported and skipped."""
 
-    def __init__(self, sink: EventSink, errors: TextIO | None) -> None:
+    def __init__(self, sink: EventSink, errors: TextIO | None, labels: Labels | None) -> None:
         self._sink = sink
         self._errors = errors
+        self._labels = labels
         self._failed = False
 
     # structlog types the wrapped logger and the event dict with `Any` values.
@@ -36,7 +39,10 @@ class _IsolatedSink:
             self._sink.send(event_dict[EVENT_RECORD_KEY])
         except Exception as error:  # Any sink failure must leave the Run going.
             self._failed = True
-            text = EVENTS_SINK_FAILED_TEXT.format(sink=type(self._sink).__name__, reason=error)
+            labels = self._labels or Labels.load(FALLBACK_LANGUAGE)
+            text = labels.label(EVENTS_SINK_FAILED_KEY).format(
+                sink=type(self._sink).__name__, reason=error
+            )
             (self._errors or sys.stderr).write(text + LINE_END)
         return event_dict
 
@@ -46,20 +52,26 @@ class EventFanOut:
 
     The events travel through a structlog logger: its processor chain stamps the clock's UTC
     time, checks the event and ends in the sinks. A sink that raises is reported once on
-    `errors` (stderr unless given) and gets no further events; the other sinks go on.
+    `errors` (stderr unless given), in the language of `labels` (en unless given), and gets no
+    further events; the other sinks go on.
     """
 
     def __init__(
-        self, clock: Clock, sinks: Sequence[EventSink], errors: TextIO | None = None
+        self,
+        clock: Clock,
+        sinks: Sequence[EventSink],
+        errors: TextIO | None = None,
+        labels: Labels | None = None,
     ) -> None:
         self._clock = clock
         self._errors = errors
-        self._sinks = tuple(_IsolatedSink(sink, errors) for sink in sinks)
+        self._labels = labels
+        self._sinks = tuple(_IsolatedSink(sink, errors, labels) for sink in sinks)
 
     def with_sink(self, sink: EventSink) -> Self:
         """Return a fan-out that also sends to `sink`; this one keeps its own sinks."""
-        wider = type(self)(self._clock, (), self._errors)
-        wider._sinks = (*self._sinks, _IsolatedSink(sink, self._errors))
+        wider = type(self)(self._clock, (), self._errors, self._labels)
+        wider._sinks = (*self._sinks, _IsolatedSink(sink, self._errors, self._labels))
         return wider
 
     def at(self, stage: str) -> StageEvents:

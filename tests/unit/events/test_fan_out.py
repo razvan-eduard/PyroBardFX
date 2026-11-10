@@ -1,11 +1,15 @@
 import io
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
 from pyrobardfx.events.event import PipelineEvent
 from pyrobardfx.events.fan_out import EventFanOut
+from pyrobardfx.locales.constants import Language
+from pyrobardfx.locales.labels import Labels
+from tests.builders.locales import LocalesBuilder
 from tests.fakes.clock import START, FakeClock
 from tests.fakes.events import RecordingSink
 
@@ -86,3 +90,19 @@ def test_a_failing_sink_is_reported_once_on_the_error_stream_with_its_reason() -
     emit_twice(EventFanOut(FakeClock(), (RecordingSink(OSError("disk full")),), errors))
 
     assert errors.getvalue().count("disk full") == 1
+
+
+def test_a_failing_sink_is_reported_in_the_language_of_the_labels(tmp_path: Path) -> None:
+    folder = (
+        LocalesBuilder(tmp_path)
+        .texts(Language.EN, {})
+        .texts(Language.RO, {"events.sink_failed": "Receptorul {sink} a cedat: {reason}"})
+    )
+    errors = io.StringIO()
+    failing = RecordingSink(OSError("disk full"))
+
+    emit_twice(
+        EventFanOut(FakeClock(), (failing,), errors, Labels.load(Language.RO, folder.build()))
+    )
+
+    assert "a cedat" in errors.getvalue()

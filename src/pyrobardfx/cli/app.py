@@ -12,15 +12,17 @@ from pyrobardfx.cli.constants import (
     NO_WORKING_DIRECTORY_MESSAGE,
     REFUSED_EXIT_CODE,
     RUN_COMMAND,
-    RUN_HELP,
-    STORY_HELP,
-    WORKING_DIR_HELP,
+    RUN_HELP_KEY,
+    STORY_HELP_KEY,
+    WORKING_DIR_HELP_KEY,
     WORKING_DIR_OPTION,
 )
 from pyrobardfx.cli.printer import CliPrinter
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.clock.system import SystemClock
 from pyrobardfx.events.fan_out import EventFanOut, EventSink
+from pyrobardfx.locales.constants import FALLBACK_LANGUAGE, Language
+from pyrobardfx.locales.labels import Labels
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.cancel import CancelFlag, CancelToken
 from pyrobardfx.run.service import RunService
@@ -42,30 +44,38 @@ class CliApp:
         tokens: TokenSource,
         trash: Trash,
         cancel: CancelToken,
+        labels: Labels,
         sinks: Sequence[EventSink] = (),
     ) -> typer.Typer:
-        """Build the app over the given adapters; each event goes to the CLI printer and `sinks`."""
+        """Build the app over the given adapters; each event goes to the CLI printer and `sinks`.
+
+        The printer speaks the language of `labels`; the help is en, as it resolves here, before
+        `--working-dir` says where the settings are.
+        """
         app = typer.Typer(name=APP_NAME, add_completion=False)
-        events = EventFanOut(clock, (CliPrinter(), *sinks))
+        help_text = labels.for_language(FALLBACK_LANGUAGE)
+        printer = CliPrinter(labels)
+        events = EventFanOut(clock, (printer, *sinks), labels=labels)
         service = WorkingDirectoryService(host, events)
 
         @app.callback(invoke_without_command=True)
         def start(
             ctx: typer.Context,
             working_dir: Annotated[
-                Path | None, typer.Option(WORKING_DIR_OPTION, help=WORKING_DIR_HELP)
+                Path | None,
+                typer.Option(WORKING_DIR_OPTION, help=help_text.label(WORKING_DIR_HELP_KEY)),
             ] = None,
         ) -> None:
             try:
                 ctx.obj = service.open(working_dir)
             except RefusedError as error:
-                CliPrinter.refused(error)
+                printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
 
-        @app.command(RUN_COMMAND, help=RUN_HELP)
+        @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_KEY))
         def run(
             ctx: typer.Context,
-            story: Annotated[str, typer.Argument(help=STORY_HELP)],
+            story: Annotated[str, typer.Argument(help=help_text.label(STORY_HELP_KEY))],
         ) -> None:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
@@ -77,12 +87,12 @@ class CliApp:
             try:
                 outcome = runs.start(story)
             except RefusedError as error:
-                CliPrinter.refused(error)
+                printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
             if outcome.cancelled:
-                CliPrinter.run_cancelled(outcome.folder)
+                printer.run_cancelled(outcome.folder)
                 raise typer.Exit(code=CANCELLED_EXIT_CODE)
-            CliPrinter.run_finished(outcome.folder)
+            printer.run_finished(outcome.folder)
 
         return app
 
@@ -90,4 +100,5 @@ class CliApp:
 def main() -> None:
     clock = SystemClock()
     host = HostFacts.from_host()
-    CliApp.build(host, clock, SecretsTokenSource(), Send2TrashTrash(clock), CancelFlag())()
+    labels = Labels.load(Language.EN)
+    CliApp.build(host, clock, SecretsTokenSource(), Send2TrashTrash(clock), CancelFlag(), labels)()

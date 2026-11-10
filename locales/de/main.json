@@ -1,0 +1,20 @@
+{
+  "cli.run.help": "Führt eine Geschichte durch jede Stufe in einen neuen Lauf-Ordner.",
+  "cli.run.story.help": "Der Name des Ordners der Geschichte unter stories/ im Arbeitsverzeichnis.",
+  "cli.working_dir.help": "Diesen Ordner statt des Standardorts als Arbeitsverzeichnis verwenden.",
+  "events.sink_failed": "Ereignisempfänger {sink} ist fehlgeschlagen und erhält keine weiteren Ereignisse: {reason}",
+  "run.cancelled": "Lauf {run_id} abgebrochen: {path}",
+  "run.finished": "Lauf {run_id} beendet: {path}",
+  "run.progress": "{stage} {percent:.0f}% {event}{fields}",
+  "run.progress_field": " {key}={value}",
+  "run.refused.no_story": "Lauf abgelehnt: In {path} gibt es keine Geschichte namens {detail}.",
+  "run.refused.run_id_taken": "Lauf abgelehnt: Jede gezogene Lauf-ID, zuletzt {detail}, hat bereits einen Lauf-Ordner in {path}.",
+  "settings.quality_preset.help": "Die Qualitätsvorgabe, aus der ein Lauf seine Render-Einstellungen bezieht: fast, balanced oder best.",
+  "settings.quality_preset.label": "Qualitätsvorgabe",
+  "settings.refused.preset_name_taken": "Einrichtungsvorgabe {detail} abgelehnt: {path} enthält bereits eine Einrichtungsvorgabe dieses Namens.",
+  "settings.refused.preset_unknown": "Einrichtungsvorgabe {detail} abgelehnt: {path} enthält keine Einrichtungsvorgabe dieses Namens.",
+  "settings.runs_to_keep.help": "Wie viele Läufe einer Geschichte behalten werden, der neue eingeschlossen; jeder neue Lauf verschiebt den ältesten über dieser Zahl in den Papierkorb.",
+  "settings.runs_to_keep.label": "Zu behaltende Läufe",
+  "workdir.refused.cannot_create": "Arbeitsverzeichnis {path} abgelehnt: Es kann nicht angelegt werden ({detail}). Wähle mit {option} oder {env} einen anderen Ort.",
+  "workdir.refused.in_temp": "Arbeitsverzeichnis {path} abgelehnt: Es liegt im temporären Ordner {detail}, den das System beim Neustart leeren kann. Wähle mit {option} oder {env} einen anderen Ort."
+}

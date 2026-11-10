@@ -6,6 +6,8 @@ from typing import Self
 import typer
 
 from pyrobardfx.cli.app import CliApp
+from pyrobardfx.locales.constants import Language
+from pyrobardfx.locales.labels import Labels
 from pyrobardfx.workdir.host import HostFacts
 from tests.builders.host_facts import HostFactsBuilder
 from tests.fakes.cancel import FakeCancelToken
@@ -26,6 +28,7 @@ class CliAppBuilder:
         self._trash: FakeTrash | None = None
         self._cancel = FakeCancelToken()
         self._sinks: list[RecordingSink] = []
+        self._labels: Labels | None = None
 
     def host(self, host: HostFacts) -> Self:
         self._host = host
@@ -47,6 +50,11 @@ class CliAppBuilder:
         self._cancel = cancel
         return self
 
+    def labels(self, labels: Labels) -> Self:
+        """Speak the language of `labels` instead of en from the repo's locales."""
+        self._labels = labels
+        return self
+
     def sink(self, sink: RecordingSink) -> Self:
         """Send every event of the app to `sink` too, beside the CLI printer."""
         self._sinks.append(sink)
@@ -60,5 +68,6 @@ class CliAppBuilder:
             self._tokens,
             self._trash or FakeTrash(clock, self._sandbox / "trash"),
             self._cancel,
+            self._labels or Labels.load(Language.EN),
             self._sinks,
         )

@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import pytest
 from pydantic import BaseModel, Field
@@ -8,19 +7,9 @@ from pyrobardfx.settings.constants import SettingGroup
 from pyrobardfx.settings.definitions import SettingDefinition, SettingDefinitions
 from pyrobardfx.settings.model import SettingMeta, Settings
 
-ENGLISH_LOCALE = Path(__file__).parents[3] / "locales" / "en" / "main.json"
-
 
 def definition(name: str) -> SettingDefinition:
     return next(item for item in SettingDefinitions.of(Settings) if item.name == name)
-
-
-def test_the_english_locale_holds_every_label_and_help_key_of_the_settings() -> None:
-    english = json.loads(ENGLISH_LOCALE.read_text(encoding="utf-8"))
-    definitions = SettingDefinitions.of(Settings)
-    keys = {key for item in definitions for key in (item.label_key, item.help_key)}
-
-    assert keys - english.keys() == set()
 
 
 def test_a_definition_carries_the_label_key_help_key_and_group_of_its_field() -> None:

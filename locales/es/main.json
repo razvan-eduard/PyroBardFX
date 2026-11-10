@@ -1,0 +1,20 @@
+{
+  "cli.run.help": "Lleva una Historia por cada etapa hasta una nueva carpeta de Ejecución.",
+  "cli.run.story.help": "El nombre de la carpeta de la Historia bajo stories/ en el directorio de trabajo.",
+  "cli.working_dir.help": "Usar esta carpeta como directorio de trabajo en lugar del lugar predeterminado.",
+  "events.sink_failed": "El receptor de eventos {sink} falló y no recibe más eventos: {reason}",
+  "run.cancelled": "Ejecución {run_id} cancelada: {path}",
+  "run.finished": "Ejecución {run_id} terminada: {path}",
+  "run.progress": "{stage} {percent:.0f}% {event}{fields}",
+  "run.progress_field": " {key}={value}",
+  "run.refused.no_story": "Ejecución rechazada: no hay ninguna Historia llamada {detail} en {path}.",
+  "run.refused.run_id_taken": "Ejecución rechazada: cada id de ejecución sorteado, el último {detail}, ya tiene una carpeta de Ejecución en {path}.",
+  "settings.quality_preset.help": "El preajuste de calidad del que una Ejecución toma sus ajustes de render: fast, balanced o best.",
+  "settings.quality_preset.label": "Preajuste de calidad",
+  "settings.refused.preset_name_taken": "Preajuste de configuración {detail} rechazado: {path} ya contiene un preajuste de configuración con ese nombre.",
+  "settings.refused.preset_unknown": "Preajuste de configuración {detail} rechazado: {path} no contiene ningún preajuste de configuración con ese nombre.",
+  "settings.runs_to_keep.help": "Cuántas Ejecuciones de una Historia conservar, incluida la nueva; cada nueva Ejecución mueve a la papelera la más antigua por encima de este número.",
+  "settings.runs_to_keep.label": "Ejecuciones a conservar",
+  "workdir.refused.cannot_create": "Directorio de trabajo {path} rechazado: no se puede crear ({detail}). Elige otro lugar con {option} o {env}.",
+  "workdir.refused.in_temp": "Directorio de trabajo {path} rechazado: está dentro de la carpeta temporal {detail}, que el sistema puede vaciar al reiniciar. Elige otro lugar con {option} o {env}."
+}

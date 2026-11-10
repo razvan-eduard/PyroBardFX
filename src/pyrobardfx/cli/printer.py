@@ -3,25 +3,28 @@
 import typer
 
 from pyrobardfx.cli.constants import (
-    REFUSAL_TEXT,
-    RUN_CANCELLED_TEXT,
-    RUN_FINISHED_TEXT,
-    RUN_PROGRESS_FIELD_TEXT,
-    RUN_PROGRESS_TEXT,
+    RUN_CANCELLED_KEY,
+    RUN_FINISHED_KEY,
+    RUN_PROGRESS_FIELD_KEY,
+    RUN_PROGRESS_KEY,
     WORKING_DIR_OPTION,
 )
 from pyrobardfx.events.event import PipelineEvent
+from pyrobardfx.locales.labels import Labels
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.workdir.constants import HOME_OVERRIDE_ENV
 from pyrobardfx.workdir.run_folders import RunFolder
 
 
 class CliPrinter:
-    """Turns service outcomes into terminal text; as the CLI's event sink, prints each event."""
+    """Turns service outcomes into terminal text in the language of `labels`; as the CLI's event
+    sink, prints each event. Ids, stage and event names go out as they are, never translated."""
 
-    @staticmethod
-    def refused(error: RefusedError) -> None:
-        text = REFUSAL_TEXT[error.reason].format(
+    def __init__(self, labels: Labels) -> None:
+        self._labels = labels
+
+    def refused(self, error: RefusedError) -> None:
+        text = self._labels.label(error.reason).format(
             path=error.path,
             detail=error.detail,
             option=WORKING_DIR_OPTION,
@@ -29,21 +32,19 @@ class CliPrinter:
         )
         typer.echo(text, err=True)
 
-    @staticmethod
-    def run_finished(folder: RunFolder) -> None:
-        typer.echo(RUN_FINISHED_TEXT.format(run_id=folder.run_id, path=folder.path))
+    def run_finished(self, folder: RunFolder) -> None:
+        text = self._labels.label(RUN_FINISHED_KEY)
+        typer.echo(text.format(run_id=folder.run_id, path=folder.path))
 
-    @staticmethod
-    def run_cancelled(folder: RunFolder) -> None:
-        typer.echo(RUN_CANCELLED_TEXT.format(run_id=folder.run_id, path=folder.path))
+    def run_cancelled(self, folder: RunFolder) -> None:
+        text = self._labels.label(RUN_CANCELLED_KEY)
+        typer.echo(text.format(run_id=folder.run_id, path=folder.path))
 
     def send(self, event: PipelineEvent) -> None:
         """Write one progress line per event to stderr, apart from the text a command prints."""
-        fields = "".join(
-            RUN_PROGRESS_FIELD_TEXT.format(key=key, value=value)
-            for key, value in event.fields.items()
-        )
-        text = RUN_PROGRESS_TEXT.format(
+        field = self._labels.label(RUN_PROGRESS_FIELD_KEY)
+        fields = "".join(field.format(key=key, value=value) for key, value in event.fields.items())
+        text = self._labels.label(RUN_PROGRESS_KEY).format(
             stage=event.stage, percent=event.percent, event=event.event, fields=fields
         )
         typer.echo(text, err=True)
