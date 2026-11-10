@@ -20,7 +20,7 @@
   "content_types.drug_story.label": "Drogengeschichte",
   "content_types.refused.auto_unresolved": "Content Type auto abgelehnt: Das Modell hat keinen von {detail} genannt. Geben Sie einen Content Type ein: einen davon oder Ihren eigenen als JSON-Datei in {path}.",
   "content_types.refused.invalid_file": "Content-Type-Datei {path} übersprungen: Sie ist kein gültiger Content Type ({detail}). Korrigieren Sie die Datei, um ihren Content Type zu nutzen; die anderen Content Types werden weiterhin geladen.",
-  "content_types.refused.unknown": "Content Type abgelehnt: Keiner dieses Namens wird mitgeliefert oder liegt in {path}. Geben Sie einen von {detail} ein oder legen Sie Ihren eigenen als JSON-Datei in {path} an.",
+  "content_types.refused.unknown": "Content Type „{choice}“ abgelehnt: Keiner dieses Namens wird mitgeliefert oder liegt in {path}. Geben Sie einen von {detail} ein oder legen Sie Ihren eigenen als JSON-Datei in {path} an.",
   "content_types.scary_story.label": "Gruselgeschichte",
   "events.sink_failed": "Ereignisempfänger {sink} ist fehlgeschlagen und erhält keine weiteren Ereignisse: {reason}",
   "run.cancelled": "Lauf {run_id} abgebrochen: {path}",

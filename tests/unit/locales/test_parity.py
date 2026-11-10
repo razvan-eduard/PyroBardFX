@@ -10,7 +10,11 @@ import pytest
 import pyrobardfx
 from pyrobardfx.content_types.constants import DATA_FILE_PATTERN, SHIPPED_FOLDER
 from pyrobardfx.locales.constants import LOCALE_FILE, LOCALES_FOLDER, Language
-from pyrobardfx.refusal.constants import RefusalReason
+from pyrobardfx.refusal.constants import (
+    FIXED_PLACEHOLDERS,
+    FURTHER_PLACEHOLDERS,
+    RefusalReason,
+)
 from pyrobardfx.settings.definitions import SettingDefinitions
 from pyrobardfx.settings.model import Settings
 
@@ -66,6 +70,21 @@ def test_each_translation_keeps_the_placeholders_of_the_english_text(language: L
     }
 
     assert changed == set()
+
+
+def test_every_placeholder_of_a_refusal_text_is_one_its_refusal_gives_a_value() -> None:
+    english = texts_of(Language.EN)
+    unfilled = {
+        reason: names
+        for reason in RefusalReason
+        if (
+            names := {name for name, _ in placeholders_of(english[reason])}
+            - FIXED_PLACEHOLDERS
+            - FURTHER_PLACEHOLDERS.get(reason, frozenset())
+        )
+    }
+
+    assert unfilled == {}
 
 
 def test_every_key_of_the_locale_files_is_used_by_the_code() -> None:

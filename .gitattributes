@@ -1,0 +1,3 @@
+# The fixture scripts keep their line ends on every checkout: the CRLF one is parsed as CRLF, the
+# others as LF (story 27).
+tests/fixtures/script/*.txt -text

@@ -8,8 +8,6 @@ NO_RUN_ID_ATTEMPT_MESSAGE = "a Run start drew no run id: RUN_ID_ATTEMPTS is belo
 
 SNAPSHOT_FILE = "snapshot.json"
 INVALID_SNAPSHOT_MESSAGE = "run snapshot refuses {fields}: unset or out of range"
-FIELD_SEPARATOR = ", "
-ERROR_LOCATION_KEY = "loc"
 
 # The predecessor's self-test harness order; every Run passes the stages in this order.
 STAGE_ORDER = (

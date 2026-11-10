@@ -13,6 +13,8 @@ SCRIPT_SUFFIX = ".txt"
 PARSE_SUFFIX = ".json"
 ENCODING = "utf-8"
 INDENT = 2
+# Every line of a written parse ends in LF, whatever the platform's own line end.
+LINE_END = "\n"
 
 
 class ScriptFixtures:
@@ -25,8 +27,12 @@ class ScriptFixtures:
         return sorted(self._folder.glob(f"*{SCRIPT_SUFFIX}"))
 
     def expected(self, script: Path) -> str:
-        """The parse of `script` as its fixture file holds it."""
-        parsed = ScriptParser().parse(script.read_text(encoding=ENCODING))
+        """The parse of `script` as its fixture file holds it.
+
+        The script is read as bytes, so a CRLF script keeps its line ends: `read_text` would turn
+        CRLF into LF, and the parse would lose the offsets of the CRLF text.
+        """
+        parsed = ScriptParser().parse(script.read_bytes().decode(ENCODING))
         return parsed.model_dump_json(indent=INDENT) + "\n"
 
     def write(self) -> list[Path]:
@@ -34,7 +40,7 @@ class ScriptFixtures:
         written = []
         for script in self.scripts():
             target = script.with_suffix(PARSE_SUFFIX)
-            target.write_text(self.expected(script), encoding=ENCODING)
+            target.write_text(self.expected(script), encoding=ENCODING, newline=LINE_END)
             written.append(target)
         return written
 

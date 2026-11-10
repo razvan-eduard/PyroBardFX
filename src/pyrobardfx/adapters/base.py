@@ -12,7 +12,6 @@ from pyrobardfx.adapters.constants import (
     EVENT_MODEL_LOADED,
     EVENT_MODEL_RELEASED,
     EVENT_MODEL_STEP,
-    FAMILY_FIELD,
     FAMILY_LABEL_KEYS,
     AdapterFamily,
     Backend,
@@ -23,7 +22,7 @@ from pyrobardfx.clock.base import Clock
 from pyrobardfx.events.constants import PERCENT_DONE
 from pyrobardfx.events.event import EventValue
 from pyrobardfx.events.fan_out import StageEvents
-from pyrobardfx.refusal.constants import RefusalReason
+from pyrobardfx.refusal.constants import FAMILY_FIELD, RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 
 
@@ -152,9 +151,11 @@ class Adapter(ABC):
                 return backend
         labelled = {FAMILY_FIELD: FAMILY_LABEL_KEYS[declaration.family]}
         if refuses_cpu and order.backends == (Backend.CPU,):
-            raise RefusedError(RefusalReason.CPU_REFUSED, None, declaration.family, labelled)
+            raise RefusedError(
+                RefusalReason.CPU_REFUSED, None, declaration.family, labelled=labelled
+            )
         backends = BACKEND_SEPARATOR.join(order.backends)
-        raise RefusedError(RefusalReason.BACKEND_UNSUPPORTED, None, backends, labelled)
+        raise RefusedError(RefusalReason.BACKEND_UNSUPPORTED, None, backends, labelled=labelled)
 
     @abstractmethod
     def _load(self) -> None:

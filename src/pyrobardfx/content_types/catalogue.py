@@ -20,9 +20,9 @@ from pyrobardfx.content_types.constants import (
 from pyrobardfx.content_types.detector import ContentTypeDetector
 from pyrobardfx.content_types.model import ContentType
 from pyrobardfx.locales.labels import Labels
-from pyrobardfx.refusal.constants import RefusalReason
+from pyrobardfx.refusal.constants import CHOICE_FIELD, RefusalReason
 from pyrobardfx.refusal.error import RefusedError
-from pyrobardfx.run.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR
+from pyrobardfx.store.constants import ERROR_LOCATION_KEY, LIST_JOINER
 from pyrobardfx.store.json_store import JsonStore
 from pyrobardfx.workdir.constants import CONTENT_TYPES_FOLDER
 from pyrobardfx.workdir.working_directory import WorkingDirectory
@@ -88,11 +88,12 @@ class ContentTypes:
         `auto` asks `detector`, offering every name, and takes the name its answer holds, else
         the name whose first word it holds. The answer may write a name's `_` as a space or a
         hyphen, in any case. Any other choice is taken as it is. A choice no Content type holds,
-        and an `auto` whose answer names none, raise `RefusedError` listing every name.
+        and an `auto` whose answer names none, raise `RefusedError` listing every name; the
+        refusal of an unknown choice also names the choice.
         """
         if choice != AUTO:
             if choice not in self._types:
-                raise self._refusal(RefusalReason.CONTENT_TYPE_UNKNOWN)
+                raise self._refusal(RefusalReason.CONTENT_TYPE_UNKNOWN, {CHOICE_FIELD: choice})
             return choice
         names = self.names()
         said = detector.answer(script, names).lower()
@@ -104,16 +105,22 @@ class ContentTypes:
             raise self._refusal(RefusalReason.AUTO_UNRESOLVED)
         return picked
 
-    def _refusal(self, reason: RefusalReason) -> RefusedError:
-        """A refusal of the choice, pointing at the own folder and listing every name."""
-        return RefusedError(reason, self._own, FIELD_SEPARATOR.join(self.names()))
+    def _refusal(
+        self, reason: RefusalReason, literal: Mapping[str, str] | None = None
+    ) -> RefusedError:
+        """A refusal of the choice, pointing at the own folder and listing every name.
+
+        `literal` maps each further placeholder of `reason`'s text to its value as it is.
+        """
+        names = LIST_JOINER.join(self.names())
+        return RefusedError(reason, self._own, names, literal=literal)
 
     @staticmethod
     def _problem(error: ValueError) -> str:
         """What is wrong with a file: each bad field, or the parser's words where there is none."""
         if not isinstance(error, ValidationError):
             return str(error)
-        return FIELD_SEPARATOR.join(
+        return LIST_JOINER.join(
             LOCATION_SEPARATOR.join(map(str, item[ERROR_LOCATION_KEY])) or item[ERROR_MESSAGE_KEY]
             for item in error.errors()
         )

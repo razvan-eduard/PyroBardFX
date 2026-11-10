@@ -1,4 +1,3 @@
-from pyrobardfx.script.model import ParsedScript
 from pyrobardfx.script.parser import ScriptParser
 
 GLOBALS = """[TAGS-PRESENT]
@@ -54,21 +53,6 @@ def test_ambiance_all_is_no_global_tag_word_and_stays_text() -> None:
         (),
         "[ambiance-all: rain]\nThe fog came in.",
     )
-
-
-def test_a_script_with_crlf_line_ends_parses_as_its_lf_form_but_for_offsets() -> None:
-    text = GLOBALS + "\n# Two\n[video]\nRang.\n\n## Quay\nGone.\n"
-
-    def outline(script: ParsedScript) -> list[object]:
-        return [
-            [(t.kind, t.value) for t in script.global_tags],
-            [(c.title, c.video_break, [s.title for s in c.sections]) for c in script.chapters],
-            [p.text for c in script.chapters for s in c.sections for p in s.paragraphs],
-        ]
-
-    crlf = ScriptParser().parse(text.replace("\n", "\r\n"))
-
-    assert outline(crlf) == outline(ScriptParser().parse(text))
 
 
 def test_a_global_sound_tag_keeps_its_content_id_as_an_inline_tag_does() -> None:
