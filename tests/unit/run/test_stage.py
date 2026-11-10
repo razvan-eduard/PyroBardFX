@@ -1,12 +1,12 @@
 import contextlib
 
-from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.run.cancel import RunCancelledError
 from pyrobardfx.run.constants import STAGE_ORDER
 from pyrobardfx.run.pipeline import NoOpStage, Pipeline
 from pyrobardfx.run.snapshot import RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
 from pyrobardfx.settings.model import Settings
+from tests.builders.fan_out import FanOutBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
@@ -23,7 +23,7 @@ def dependencies(
         .run_id("20261109T153000Z-a1b2")
         .settings(Settings())
         .build(),
-        events=EventFanOut(clock, (sink or RecordingSink(),)),
+        events=FanOutBuilder.over(clock, (sink or RecordingSink(),)),
         clock=clock,
         cancel=cancel or FakeCancelToken(),
     )

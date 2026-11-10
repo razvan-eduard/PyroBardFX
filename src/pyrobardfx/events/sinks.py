@@ -2,8 +2,8 @@
 
 from typing import TextIO
 
-from pyrobardfx.events.constants import LINE_END
 from pyrobardfx.events.event import PipelineEvent
+from pyrobardfx.store.constants import LINE_END
 
 
 class JsonLinesSink:

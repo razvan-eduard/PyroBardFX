@@ -13,12 +13,15 @@ from tests.builders.locales import LocalesBuilder
 from tests.fakes.clock import START, FakeClock
 from tests.fakes.events import RecordingSink
 
+# The repo's own en labels: every test here not about the report's language reads them.
+ENGLISH = Labels.load(Language.EN)
+
 
 def test_an_event_is_stamped_in_utc_with_the_clock_time() -> None:
     sink = RecordingSink()
     clock = FakeClock(datetime(2026, 11, 9, 17, 30, 0, tzinfo=timezone(timedelta(hours=2))))
 
-    EventFanOut(clock, (sink,)).at("settings").emit("stage_started", 0.0)
+    EventFanOut(clock, (sink,), io.StringIO(), ENGLISH).at("settings").emit("stage_started", 0.0)
 
     assert [event.timestamp.isoformat() for event in sink.events] == ["2026-11-09T15:30:00+00:00"]
 
@@ -31,7 +34,7 @@ def test_an_event_whose_timestamp_is_not_in_utc_is_refused() -> None:
 
 
 def test_an_event_with_a_percent_above_one_hundred_is_refused() -> None:
-    fan_out = EventFanOut(FakeClock(), (RecordingSink(),))
+    fan_out = EventFanOut(FakeClock(), (RecordingSink(),), io.StringIO(), ENGLISH)
 
     with pytest.raises(ValidationError):
         fan_out.at("settings").emit("stage_finished", 100.5)
@@ -40,7 +43,9 @@ def test_an_event_with_a_percent_above_one_hundred_is_refused() -> None:
 def test_one_event_reaches_every_sink_including_one_added_later() -> None:
     first, later = RecordingSink(), RecordingSink()
 
-    EventFanOut(FakeClock(), (first,)).with_sink(later).at("settings").emit("stage_started", 0)
+    EventFanOut(FakeClock(), (first,), io.StringIO(), ENGLISH).with_sink(later).at("settings").emit(
+        "stage_started", 0
+    )
 
     assert [len(first.events), len(later.events)] == [1, 1]
 
@@ -48,7 +53,9 @@ def test_one_event_reaches_every_sink_including_one_added_later() -> None:
 def test_an_event_carries_its_own_fields_beside_event_stage_and_percent() -> None:
     sink = RecordingSink()
 
-    EventFanOut(FakeClock(), (sink,)).at("prune_runs").emit("path_trashed", 100.0, seconds=1.5)
+    EventFanOut(FakeClock(), (sink,), io.StringIO(), ENGLISH).at("prune_runs").emit(
+        "path_trashed", 100.0, seconds=1.5
+    )
 
     event = sink.events[0]
     assert (event.event, event.stage, event.percent, event.timestamp, event.fields) == (
@@ -70,7 +77,9 @@ def test_a_failing_sink_leaves_every_other_sink_its_events() -> None:
     other = RecordingSink()
 
     emit_twice(
-        EventFanOut(FakeClock(), (RecordingSink(OSError("disk full")), other), io.StringIO())
+        EventFanOut(
+            FakeClock(), (RecordingSink(OSError("disk full")), other), io.StringIO(), ENGLISH
+        )
     )
 
     assert len(other.events) == 2
@@ -79,7 +88,7 @@ def test_a_failing_sink_leaves_every_other_sink_its_events() -> None:
 def test_a_failing_sink_is_skipped_after_its_first_failure() -> None:
     failing = RecordingSink(OSError("disk full"))
 
-    emit_twice(EventFanOut(FakeClock(), (failing,), io.StringIO()))
+    emit_twice(EventFanOut(FakeClock(), (failing,), io.StringIO(), ENGLISH))
 
     assert len(failing.events) == 1
 
@@ -87,7 +96,7 @@ def test_a_failing_sink_is_skipped_after_its_first_failure() -> None:
 def test_a_failing_sink_is_reported_once_on_the_error_stream_with_its_reason() -> None:
     errors = io.StringIO()
 
-    emit_twice(EventFanOut(FakeClock(), (RecordingSink(OSError("disk full")),), errors))
+    emit_twice(EventFanOut(FakeClock(), (RecordingSink(OSError("disk full")),), errors, ENGLISH))
 
     assert errors.getvalue().count("disk full") == 1
 

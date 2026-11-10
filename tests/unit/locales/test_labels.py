@@ -51,3 +51,9 @@ def test_labels_for_another_language_read_that_language_from_the_same_folder(
     assert Labels.load(Language.RO, folder).for_language(Language.EN).label(FINISHED) == (
         "Finished"
     )
+
+
+def test_a_language_without_a_locale_file_falls_back_to_english(tmp_path: Path) -> None:
+    folder = LocalesBuilder(tmp_path).texts(Language.EN, {FINISHED: "Finished"}).build()
+
+    assert Labels.load(Language.RO, folder).label(FINISHED) == "Finished"

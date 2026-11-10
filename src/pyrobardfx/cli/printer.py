@@ -32,6 +32,10 @@ class CliPrinter:
         )
         typer.echo(text, err=True)
 
+    def write(self, text: str) -> None:
+        """Write `text` to stderr as it is: the fan-out reports a failed event sink here."""
+        typer.echo(text, err=True, nl=False)
+
     def run_finished(self, folder: RunFolder) -> None:
         text = self._labels.label(RUN_FINISHED_KEY)
         typer.echo(text.format(run_id=folder.run_id, path=folder.path))

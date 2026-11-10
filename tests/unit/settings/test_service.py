@@ -3,13 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.settings.constants import QualityPresetName
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SetAsideFile, SettingChange, SettingsService
 from pyrobardfx.workdir.working_directory import WorkingDirectory
+from tests.builders.fan_out import FanOutBuilder
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
 
@@ -19,7 +19,7 @@ BEST_ONLY = Settings(quality_preset=QualityPresetName.BEST)
 
 def open_settings(root: Path, sink: RecordingSink | None = None) -> SettingsService:
     (root / "config").mkdir(parents=True, exist_ok=True)
-    events = EventFanOut(FakeClock(), (sink or RecordingSink(),))
+    events = FanOutBuilder.over(FakeClock(), (sink or RecordingSink(),))
     return SettingsService.open(WorkingDirectory(root=root), FakeClock(), events)
 
 

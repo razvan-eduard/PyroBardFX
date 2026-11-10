@@ -8,7 +8,6 @@ SETTINGS_FILE = "settings.json"
 PRESETS_FILE = "presets.json"
 # A broken store file is kept beside itself under this name, dated by the clock's UTC time.
 BACKUP_NAME = "{stem}.broken-{time}{suffix}"
-BACKUP_TIME_FORMAT = "%Y%m%dT%H%M%SZ"
 
 UNKNOWN_DEFAULT_MESSAGE = "the default setup preset {name} is not among the presets"
 

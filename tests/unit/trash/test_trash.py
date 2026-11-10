@@ -1,14 +1,15 @@
 import errno
 from pathlib import Path
 
-from pyrobardfx.events.fan_out import EventFanOut, StageEvents
+from pyrobardfx.events.fan_out import StageEvents
+from tests.builders.fan_out import FanOutBuilder
 from tests.fakes.clock import START, FakeClock
 from tests.fakes.events import RecordingSink
 from tests.fakes.trash import FakeTrash
 
 
 def events_of_pruning(sink: RecordingSink) -> StageEvents:
-    return EventFanOut(FakeClock(START), (sink,)).at("prune_runs")
+    return FanOutBuilder.over(FakeClock(START), (sink,)).at("prune_runs")
 
 
 def old_run(sandbox: Path) -> Path:

@@ -1,17 +1,16 @@
 """The event fan-out: a structlog logger whose processor chain ends in the event sinks."""
 
-import sys
 from collections.abc import Sequence
-from typing import Protocol, Self, TextIO
+from typing import Protocol, Self
 
 import structlog
 from structlog.typing import EventDict, WrappedLogger
 
 from pyrobardfx.clock.base import Clock
-from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_KEY, LINE_END
+from pyrobardfx.events.constants import EVENT_RECORD_KEY, EVENTS_SINK_FAILED_KEY, TIMESTAMP_FIELD
 from pyrobardfx.events.event import EventValue, PipelineEvent
-from pyrobardfx.locales.constants import FALLBACK_LANGUAGE
 from pyrobardfx.locales.labels import Labels
+from pyrobardfx.store.constants import LINE_END
 
 
 class EventSink(Protocol):
@@ -22,10 +21,18 @@ class EventSink(Protocol):
         ...
 
 
+class ErrorStream(Protocol):
+    """Where a failed sink is reported: a text file such as `io.StringIO`, or the CLI printer."""
+
+    def write(self, text: str, /) -> object:
+        """Write `text` as it is, line end included."""
+        ...
+
+
 class _IsolatedSink:
     """One sink at the end of the processor chain; once it raises, it is reported and skipped."""
 
-    def __init__(self, sink: EventSink, errors: TextIO | None, labels: Labels | None) -> None:
+    def __init__(self, sink: EventSink, errors: ErrorStream, labels: Labels) -> None:
         self._sink = sink
         self._errors = errors
         self._labels = labels
@@ -39,11 +46,10 @@ class _IsolatedSink:
             self._sink.send(event_dict[EVENT_RECORD_KEY])
         except Exception as error:  # Any sink failure must leave the Run going.
             self._failed = True
-            labels = self._labels or Labels.load(FALLBACK_LANGUAGE)
-            text = labels.label(EVENTS_SINK_FAILED_KEY).format(
+            text = self._labels.label(EVENTS_SINK_FAILED_KEY).format(
                 sink=type(self._sink).__name__, reason=error
             )
-            (self._errors or sys.stderr).write(text + LINE_END)
+            self._errors.write(text + LINE_END)
         return event_dict
 
 
@@ -52,16 +58,16 @@ class EventFanOut:
 
     The events travel through a structlog logger: its processor chain stamps the clock's UTC
     time, checks the event and ends in the sinks. A sink that raises is reported once on
-    `errors` (stderr unless given), in the language of `labels` (en unless given), and gets no
-    further events; the other sinks go on.
+    `errors`, in the language of `labels`, and gets no further events; the other sinks go on.
+    The caller picks both: the CLI passes its error stream and the labels it speaks.
     """
 
     def __init__(
         self,
         clock: Clock,
         sinks: Sequence[EventSink],
-        errors: TextIO | None = None,
-        labels: Labels | None = None,
+        errors: ErrorStream,
+        labels: Labels,
     ) -> None:
         self._clock = clock
         self._errors = errors
@@ -84,7 +90,7 @@ class EventFanOut:
 
     # structlog types the wrapped logger and the event dict with `Any` values.
     def _stamp(self, logger: WrappedLogger, method: str, event_dict: EventDict) -> EventDict:
-        event_dict["timestamp"] = self._clock.utc_now()
+        event_dict[TIMESTAMP_FIELD] = self._clock.utc_now()
         return event_dict
 
     # structlog types the wrapped logger and the event dict with `Any` values.

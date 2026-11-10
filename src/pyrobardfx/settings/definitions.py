@@ -23,6 +23,9 @@ from pyrobardfx.settings.constants import (
 )
 from pyrobardfx.store.constants import EXTRA_FORBID
 
+# A JSON schema object is untyped JSON: pydantic hands it over with `Any` values.
+type SchemaObject = dict[str, Any]
+
 
 class SettingDefinition(BaseModel):
     """One setting as the model's JSON schema defines it."""
@@ -52,9 +55,8 @@ class SettingDefinitions:
             for name, field in schema[PROPERTIES_KEY].items()
         )
 
-    # A JSON schema is untyped JSON: pydantic hands it over with `Any` values.
     @staticmethod
-    def _resolved(field: dict[str, Any], definitions: dict[str, Any]) -> dict[str, Any]:
+    def _resolved(field: SchemaObject, definitions: SchemaObject) -> SchemaObject:
         """Merge the shared definition a field refers to, such as an enum, into the field."""
         if REF_KEY not in field:
             return field
@@ -62,7 +64,7 @@ class SettingDefinitions:
         return {**shared, **field}
 
     @staticmethod
-    def _one(name: str, field: dict[str, Any]) -> SettingDefinition:
+    def _one(name: str, field: SchemaObject) -> SettingDefinition:
         """The definition of one field; a constraint the definition cannot carry is refused."""
         for key in UNMODELLED_CONSTRAINT_KEYS:
             if key in field:

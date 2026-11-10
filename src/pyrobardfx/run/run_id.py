@@ -4,10 +4,10 @@ import re
 from typing import Self
 
 from pyrobardfx.clock.base import Clock
+from pyrobardfx.clock.constants import UTC_NAME_TIME_FORMAT
 from pyrobardfx.run.constants import (
     RUN_ID_FORMAT,
     RUN_ID_PATTERN,
-    RUN_ID_TIME_FORMAT,
     RUN_ID_TOKEN_BYTES,
 )
 from pyrobardfx.run.tokens import TokenSource
@@ -21,7 +21,7 @@ class RunId(str):
     @classmethod
     def draw(cls, clock: Clock, tokens: TokenSource) -> Self:
         """Return a new run id stamped with the clock's UTC time and a fresh token."""
-        time = clock.utc_now().strftime(RUN_ID_TIME_FORMAT)
+        time = clock.utc_now().strftime(UTC_NAME_TIME_FORMAT)
         return cls(RUN_ID_FORMAT.format(time=time, token=tokens.hex(RUN_ID_TOKEN_BYTES)))
 
     @staticmethod

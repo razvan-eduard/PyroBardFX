@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Self
 
-from pydantic import TypeAdapter
+from pydantic import RootModel
 
 from pyrobardfx.locales.constants import (
     FALLBACK_LANGUAGE,
@@ -13,8 +13,11 @@ from pyrobardfx.locales.constants import (
     MISSING_LABEL_MESSAGE,
     Language,
 )
+from pyrobardfx.store.json_store import JsonStore
 
-_LOCALE_TEXTS = TypeAdapter(dict[str, str])
+
+class LocaleFile(RootModel[dict[str, str]]):
+    """One `<lang>/main.json`: the text of each locale key in that language."""
 
 
 class MissingLabelError(LookupError):
@@ -63,4 +66,5 @@ class Labels:
 
     @staticmethod
     def _read(folder: Path, language: Language) -> dict[str, str]:
-        return _LOCALE_TEXTS.validate_json((folder / language / LOCALE_FILE).read_bytes())
+        """The texts of `language`; a language with no locale file has none of its own."""
+        return JsonStore.open(folder / language / LOCALE_FILE, LocaleFile({})).read().root

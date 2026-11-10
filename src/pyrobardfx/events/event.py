@@ -2,7 +2,13 @@
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
 
-from pyrobardfx.events.constants import NOT_UTC_MESSAGE, PERCENT_DONE, PERCENT_START, UTC_OFFSET
+from pyrobardfx.events.constants import (
+    NOT_UTC_MESSAGE,
+    PERCENT_DONE,
+    PERCENT_START,
+    TIMESTAMP_FIELD,
+    UTC_OFFSET,
+)
 from pyrobardfx.store.constants import EXTRA_FORBID
 
 type EventValue = str | int | float | bool
@@ -19,7 +25,7 @@ class PipelineEvent(BaseModel):
     timestamp: AwareDatetime
     fields: dict[str, EventValue] = Field(default_factory=dict)
 
-    @field_validator("timestamp")
+    @field_validator(TIMESTAMP_FIELD)
     @classmethod
     def _in_utc(cls, timestamp: AwareDatetime) -> AwareDatetime:
         """Refuse a timestamp in any zone but UTC, so every sink's times sort and compare."""

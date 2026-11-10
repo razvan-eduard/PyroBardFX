@@ -3,7 +3,6 @@
 from pyrobardfx.settings.constants import STAGE_NAME as SETTINGS_STAGE
 from pyrobardfx.workdir.constants import STAGE_NAME as WORKING_DIRECTORY_STAGE
 
-RUN_ID_TIME_FORMAT = "%Y%m%dT%H%M%SZ"
 RUN_ID_FORMAT = "{time}-{token}"
 RUN_ID_TOKEN_BYTES = 2
 RUN_ID_TOKEN_HEX_LENGTH = 2 * RUN_ID_TOKEN_BYTES

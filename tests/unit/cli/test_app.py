@@ -115,3 +115,21 @@ def test_changing_both_languages_changes_no_event_name_run_folder_or_file_name(
     romanian = _Ran(tmp_path / "ro", Settings(ui_language=Language.RO, story_language=Language.RO))
 
     assert (romanian.events, romanian.files) == (english.events, english.files)
+
+
+def test_a_failing_sink_is_reported_on_the_command_stderr_in_the_ui_language(
+    tmp_path: Path,
+) -> None:
+    folder = with_romanian(tmp_path, {"events.sink_failed": "Destinația {sink} a cedat: {reason}"})
+    app = (
+        CliAppBuilder(tmp_path)
+        .labels(Labels.load(Language.EN, folder))
+        .sink(RecordingSink(OSError("disk full")))
+        .build()
+    )
+
+    result = CliRunner().invoke(
+        app, ["--working-dir", str(speaking_romanian(tmp_path)), "run", STORY]
+    )
+
+    assert result.stderr.count("Destinația RecordingSink a cedat: disk full") == 1

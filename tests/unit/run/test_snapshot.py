@@ -3,12 +3,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.run.snapshot import InvalidSnapshotError, RunSnapshotBuilder
 from pyrobardfx.settings.constants import QualityPresetName
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.workdir.working_directory import WorkingDirectory
+from tests.builders.fan_out import FanOutBuilder
 from tests.fakes.clock import FakeClock
 
 
@@ -31,7 +31,7 @@ def test_a_settings_edit_after_the_snapshot_is_built_leaves_the_snapshot_unchang
 ) -> None:
     (tmp_path / "config").mkdir()
     settings = SettingsService.open(
-        WorkingDirectory(root=tmp_path), FakeClock(), EventFanOut(FakeClock(), ())
+        WorkingDirectory(root=tmp_path), FakeClock(), FanOutBuilder.over(FakeClock())
     )
     builder = RunSnapshotBuilder().story("the-lighthouse").run_id("20261109T153000Z-a1b2")
     built = builder.settings(settings.read()).build()

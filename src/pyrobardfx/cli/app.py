@@ -58,7 +58,7 @@ class CliApp:
         app = typer.Typer(name=APP_NAME, add_completion=False)
         help_text = labels.for_language(FALLBACK_LANGUAGE)
         printer = CliPrinter(labels)
-        events = EventFanOut(clock, (printer, *sinks), labels=labels)
+        events = EventFanOut(clock, (printer, *sinks), printer, labels)
         service = WorkingDirectoryService(host, events)
 
         @app.callback(invoke_without_command=True)
@@ -75,6 +75,22 @@ class CliApp:
                 printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
 
+        CliApp._add_run(app, help_text, clock, tokens, trash, cancel, labels, sinks)
+        return app
+
+    @staticmethod
+    def _add_run(
+        app: typer.Typer,
+        help_text: Labels,
+        clock: Clock,
+        tokens: TokenSource,
+        trash: Trash,
+        cancel: CancelToken,
+        labels: Labels,
+        sinks: Sequence[EventSink],
+    ) -> None:
+        """Register the `run` command, which speaks the `ui_language` of the opened settings."""
+
         @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_KEY))
         def run(
             ctx: typer.Context,
@@ -85,11 +101,12 @@ class CliApp:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
             # The settings stage replays each set-aside event into the Run, which also logs it to
             # `run.log`; opening on a fan-out without sinks makes a replay the only send.
-            settings = SettingsService.open(working, clock, EventFanOut(clock, ()))
+            silent = EventFanOut(clock, (), CliPrinter(labels), labels)
+            settings = SettingsService.open(working, clock, silent)
             # From here on the lines speak the UI language of the opened settings.
             speaking = labels.for_language(settings.read().ui_language)
             run_printer = CliPrinter(speaking)
-            run_events = EventFanOut(clock, (run_printer, *sinks), labels=speaking)
+            run_events = EventFanOut(clock, (run_printer, *sinks), run_printer, speaking)
             runs = RunService(working, clock, tokens, trash, run_events, cancel, settings)
             # A Run that ends before its settings stage leaves set-aside records unsent; send them.
             unsent = run_events.at(SETTINGS_STAGE)
@@ -104,8 +121,6 @@ class CliApp:
                 run_printer.run_cancelled(outcome.folder)
                 raise typer.Exit(code=CANCELLED_EXIT_CODE)
             run_printer.run_finished(outcome.folder)
-
-        return app
 
 
 def main() -> None:

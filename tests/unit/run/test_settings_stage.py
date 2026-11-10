@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.run.settings_stage import SettingsStage
 from pyrobardfx.run.snapshot import RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
@@ -8,6 +7,7 @@ from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.workdir.run_folders import RunFolder
 from pyrobardfx.workdir.working_directory import WorkingDirectory
+from tests.builders.fan_out import FanOutBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
@@ -23,7 +23,7 @@ def dependencies(sink: RecordingSink) -> StageDependencies:
         .run_id(RUN_ID)
         .settings(Settings())
         .build(),
-        events=EventFanOut(clock, (sink,)),
+        events=FanOutBuilder.over(clock, (sink,)),
         clock=clock,
         cancel=FakeCancelToken(),
     )
@@ -34,7 +34,7 @@ def settings_with_broken_file(root: Path) -> tuple[SettingsService, Path]:
     path.parent.mkdir(parents=True)
     path.write_text('{"runs_to_keep": "many"}', encoding="utf-8")
     clock = FakeClock()
-    service = SettingsService.open(WorkingDirectory(root=root), clock, EventFanOut(clock, ()))
+    service = SettingsService.open(WorkingDirectory(root=root), clock, FanOutBuilder.over(clock))
     return service, path
 
 

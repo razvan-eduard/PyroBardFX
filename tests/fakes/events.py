@@ -9,7 +9,7 @@ class RecordingSink:
     """An event sink that keeps the events it is sent, in order, in `events`.
 
     Given `fails_with`, it keeps each event and then raises that error, as a broken sink would.
-    Given `on_event`, it calls it with each event it keeps, as a listener acting mid-Run would.
+    Given `on_event`, it calls it with each event it keeps, as a sink acting mid-Run would.
     """
 
     def __init__(

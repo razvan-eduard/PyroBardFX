@@ -7,13 +7,13 @@ from typing import Self
 from pydantic import BaseModel, ConfigDict, JsonValue
 
 from pyrobardfx.clock.base import Clock
+from pyrobardfx.clock.constants import UTC_NAME_TIME_FORMAT
 from pyrobardfx.events.constants import PERCENT_DONE
 from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.settings.constants import (
     BACKUP_NAME,
-    BACKUP_TIME_FORMAT,
     EVENT_SET_ASIDE,
     PRESETS_FILE,
     SETTINGS_FILE,
@@ -164,7 +164,7 @@ class _StoreOpener:
         self.set_aside: list[SetAsideFile] = []
 
     def open[M: BaseModel](self, path: Path, default: M) -> JsonStore[M]:
-        time = self._clock.utc_now().strftime(BACKUP_TIME_FORMAT)
+        time = self._clock.utc_now().strftime(UTC_NAME_TIME_FORMAT)
         backup = path.with_name(BACKUP_NAME.format(stem=path.stem, time=time, suffix=path.suffix))
         store, set_aside = JsonStore.open_or_set_aside(path, default, backup)
         if set_aside is not None:

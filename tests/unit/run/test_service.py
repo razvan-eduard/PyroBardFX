@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
-from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.run.service import RunService
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.service import SettingsService
 from pyrobardfx.workdir.working_directory import WorkingDirectory
+from tests.builders.fan_out import FanOutBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import START, FakeClock
@@ -26,7 +26,7 @@ def test_a_settings_edit_during_a_run_leaves_that_run_on_its_start_settings(
         working.run_folder(STORY, f"20261109T15{minute}00Z-0000")
     root = working.build()
     clock = FakeClock(START)
-    settings = SettingsService.open(WorkingDirectory(root=root), clock, EventFanOut(clock, ()))
+    settings = SettingsService.open(WorkingDirectory(root=root), clock, FanOutBuilder.over(clock))
     edit = Settings(runs_to_keep=1)
     sink = RecordingSink(on_event=lambda _: settings.write(edit))
     runs = RunService(
@@ -34,7 +34,7 @@ def test_a_settings_edit_during_a_run_leaves_that_run_on_its_start_settings(
         clock,
         FixedTokenSource("a1b2"),
         FakeTrash(clock, tmp_path / "trash"),
-        EventFanOut(clock, (sink,)),
+        FanOutBuilder.over(clock, (sink,)),
         FakeCancelToken(),
         settings,
     )
