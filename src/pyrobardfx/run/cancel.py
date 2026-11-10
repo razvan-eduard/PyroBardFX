@@ -14,6 +14,14 @@ class CancelToken(Protocol):
         ...
 
 
+class CancellableToken(CancelToken, Protocol):
+    """A cancel token together with its other end: the side that asks the Run to stop."""
+
+    def cancel(self) -> None:
+        """Ask the Run to stop at its next cancel check."""
+        ...
+
+
 class RunCancelledError(Exception):
     """The Run was asked to stop; the stage named `stage` stopped at a cancel check."""
 

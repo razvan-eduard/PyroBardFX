@@ -17,19 +17,17 @@ from pyrobardfx.cli.constants import (
     WORKING_DIR_HELP_KEY,
     WORKING_DIR_OPTION,
 )
+from pyrobardfx.cli.interrupt import SigintCancel
 from pyrobardfx.cli.printer import CliPrinter
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.clock.system import SystemClock
-from pyrobardfx.domain.constants import StageName
 from pyrobardfx.domain.tokens import SecretsTokenSource, TokenSource
 from pyrobardfx.events.fan_out import EventFanOut, EventSink
 from pyrobardfx.locales.constants import FALLBACK_LANGUAGE, Language
 from pyrobardfx.locales.labels import Labels
 from pyrobardfx.refusal.error import RefusedError
-from pyrobardfx.run.cancel import CancelToken, ThreadCancelToken
-from pyrobardfx.run.service import RunService
-from pyrobardfx.run.settings_stage import SettingsStage
-from pyrobardfx.settings.service import SettingsService
+from pyrobardfx.run.cancel import CancellableToken, ThreadCancelToken
+from pyrobardfx.run.factory import RunFactory
 from pyrobardfx.trash.base import Trash
 from pyrobardfx.trash.system import Send2TrashTrash
 from pyrobardfx.workdir.host import HostFacts
@@ -45,7 +43,7 @@ class CliApp:
         clock: Clock,
         tokens: TokenSource,
         trash: Trash,
-        cancel: CancelToken,
+        cancel: CancellableToken,
         labels: Labels,
         sinks: Sequence[EventSink] = (),
     ) -> typer.Typer:
@@ -75,21 +73,18 @@ class CliApp:
                 printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
 
-        CliApp._add_run(app, help_text, clock, tokens, trash, cancel, labels, sinks)
+        runs = RunFactory(clock, tokens, trash, cancel, labels, sinks)
+        CliApp._add_run(app, help_text, runs, cancel)
         return app
 
     @staticmethod
     def _add_run(
-        app: typer.Typer,
-        help_text: Labels,
-        clock: Clock,
-        tokens: TokenSource,
-        trash: Trash,
-        cancel: CancelToken,
-        labels: Labels,
-        sinks: Sequence[EventSink],
+        app: typer.Typer, help_text: Labels, runs: RunFactory, cancel: CancellableToken
     ) -> None:
-        """Register the `run` command, which speaks the `ui_language` of the opened settings."""
+        """Register the `run` command, which speaks the `ui_language` of the opened settings.
+
+        For the span of the Run, SIGINT cancels `cancel`; the Run stops at its next cancel check.
+        """
 
         @app.command(RUN_COMMAND, help=help_text.label(RUN_HELP_KEY))
         def run(
@@ -99,28 +94,17 @@ class CliApp:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
-            # The settings stage replays each set-aside event into the Run, which also logs it to
-            # `run.log`; opening on a fan-out without sinks makes a replay the only send.
-            silent = EventFanOut(clock, (), CliPrinter(labels), labels)
-            settings = SettingsService.open(working, clock, silent)
-            # From here on the lines speak the UI language of the opened settings.
-            speaking = labels.for_language(settings.read().ui_language)
-            run_printer = CliPrinter(speaking)
-            run_events = EventFanOut(clock, (run_printer, *sinks), run_printer, speaking)
-            runs = RunService(working, clock, tokens, trash, run_events, cancel, settings)
-            # A Run that ends before its settings stage leaves set-aside records unsent; send them.
-            unsent = run_events.at(StageName.SETTINGS)
+            ready = runs.open(working, CliPrinter)
             try:
-                outcome = runs.start(story)
+                with SigintCancel(cancel):
+                    outcome = ready.start(story)
             except RefusedError as error:
-                SettingsStage.replay(settings, unsent)
-                run_printer.refused(error)
+                ready.speaker.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
             if outcome.cancelled:
-                SettingsStage.replay(settings, unsent)
-                run_printer.run_cancelled(outcome.folder)
+                ready.speaker.run_cancelled(outcome.folder)
                 raise typer.Exit(code=CANCELLED_EXIT_CODE)
-            run_printer.run_finished(outcome.folder)
+            ready.speaker.run_finished(outcome.folder)
 
 
 def main() -> None:
