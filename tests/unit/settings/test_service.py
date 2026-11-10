@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from pyrobardfx.locales.constants import Language
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.settings.constants import QualityPresetName
@@ -15,6 +16,8 @@ from tests.fakes.events import RecordingSink
 
 NIGHT = Settings(runs_to_keep=9, quality_preset=QualityPresetName.BEST)
 BEST_ONLY = Settings(quality_preset=QualityPresetName.BEST)
+GLOBAL_ONLY = Settings(runs_to_keep=9, ui_language=Language.RO, story_language=Language.FR)
+GLOBAL_AND_BEST = GLOBAL_ONLY.model_copy(update={"quality_preset": QualityPresetName.BEST})
 
 
 def open_settings(root: Path, sink: RecordingSink | None = None) -> SettingsService:
@@ -160,15 +163,40 @@ def test_overwriting_the_default_preset_keeps_it_the_default(tmp_path: Path) -> 
     assert settings.presets().default == "night"
 
 
-def test_loading_a_preset_sets_its_fields_over_the_defaults(tmp_path: Path) -> None:
+def test_a_saved_preset_holds_none_of_the_global_settings_even_when_they_differ(
+    tmp_path: Path,
+) -> None:
+    settings = open_settings(tmp_path)
+    settings.write(GLOBAL_AND_BEST)
+
+    settings.save_preset("night")
+
+    assert presets_file(tmp_path)["presets"] == {"night": {"quality_preset": "best"}}
+
+
+def test_loading_a_preset_sets_its_fields_over_the_defaults_and_keeps_the_global_settings(
+    tmp_path: Path,
+) -> None:
     settings = open_settings(tmp_path)
     settings.write(BEST_ONLY)
     settings.save_preset("night")
-    settings.write(Settings(runs_to_keep=9))
+    settings.write(GLOBAL_ONLY)
 
     settings.load_preset("night")
 
-    assert open_settings(tmp_path).read() == BEST_ONLY
+    assert open_settings(tmp_path).read() == GLOBAL_AND_BEST
+
+
+def test_loading_a_preset_resets_the_other_settings_it_does_not_hold_to_the_defaults(
+    tmp_path: Path,
+) -> None:
+    settings = open_settings(tmp_path)
+    settings.save_preset("plain")
+    settings.write(GLOBAL_AND_BEST)
+
+    settings.load_preset("plain")
+
+    assert open_settings(tmp_path).read() == GLOBAL_ONLY
 
 
 def test_loading_a_preset_lists_each_setting_it_changed_with_its_old_and_new_value(
@@ -177,23 +205,45 @@ def test_loading_a_preset_lists_each_setting_it_changed_with_its_old_and_new_val
     settings = open_settings(tmp_path)
     settings.write(BEST_ONLY)
     settings.save_preset("night")
-    settings.write(Settings(runs_to_keep=9))
+    settings.write(GLOBAL_ONLY)
 
     changes = settings.load_preset("night")
 
-    assert changes == (
-        SettingChange(name="runs_to_keep", before=9, after=5),
-        SettingChange(name="quality_preset", before="balanced", after="best"),
-    )
+    assert changes == (SettingChange(name="quality_preset", before="balanced", after="best"),)
 
 
 def test_the_diff_of_a_preset_lists_what_a_load_would_change(tmp_path: Path) -> None:
     settings = open_settings(tmp_path)
     settings.write(BEST_ONLY)
     settings.save_preset("night")
-    settings.write(Settings(runs_to_keep=9))
+    settings.write(GLOBAL_ONLY)
 
-    assert settings.preset_diff("night") == settings.load_preset("night")
+    diff = settings.preset_diff("night")
+
+    assert (diff, diff == settings.load_preset("night")) == (
+        (SettingChange(name="quality_preset", before="balanced", after="best"),),
+        True,
+    )
+
+
+def test_a_preset_saved_holding_global_settings_loads_its_other_fields_and_keeps_those_in_place(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "presets.json").write_text(
+        '{"presets": {"night": {"quality_preset": "best", "runs_to_keep": 3,'
+        ' "ui_language": "en", "story_language": "de"}}}',
+        encoding="utf-8",
+    )
+    settings = open_settings(tmp_path)
+    settings.write(GLOBAL_ONLY)
+
+    settings.load_preset("night")
+
+    assert (settings.presets().names, open_settings(tmp_path).read()) == (
+        ("night",),
+        GLOBAL_AND_BEST,
+    )
 
 
 def test_the_diff_of_a_preset_leaves_the_settings_as_they_are(tmp_path: Path) -> None:

@@ -96,7 +96,7 @@ class SettingsService:
         self._settings.write(settings)
 
     def save_preset(self, name: str, *, overwrite: bool = False) -> None:
-        """Save the settings that differ from the defaults as the setup preset `name`.
+        """Save the other settings that differ from the defaults as the setup preset `name`.
 
         Without `overwrite`, a name another setup preset holds is refused and the presets stay as
         they were. With it, that preset is replaced and stays the default if it was.
@@ -111,9 +111,10 @@ class SettingsService:
         return SettingChange.between(self.read(), self._preset_settings(name))
 
     def load_preset(self, name: str) -> tuple[SettingChange, ...]:
-        """Set the settings to the defaults with the fields of the setup preset `name` over them.
+        """Set the other settings to the defaults with the fields of the preset `name` over them.
 
-        Returns each setting the load changed, the same list `preset_diff` gave before it.
+        The global settings stay as they are. Returns each setting the load changed, the same list
+        `preset_diff` gave before it.
         """
         before, after = self.read(), self._preset_settings(name)
         self.write(after)
@@ -144,7 +145,7 @@ class SettingsService:
     def _preset_settings(self, name: str) -> Settings:
         presets = self._presets.read()
         self._refuse_unknown(presets, name)
-        return presets.settings_of(name)
+        return presets.settings_of(name, self.read())
 
     def _refuse_taken(self, presets: SetupPresetsFile, name: str) -> None:
         if name in presets.presets:

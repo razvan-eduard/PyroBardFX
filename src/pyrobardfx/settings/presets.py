@@ -4,10 +4,10 @@ from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-from pyrobardfx.settings.constants import UNKNOWN_DEFAULT_MESSAGE
+from pyrobardfx.settings.constants import GLOBAL_SETTINGS, UNKNOWN_DEFAULT_MESSAGE
 from pyrobardfx.settings.model import Settings
 from pyrobardfx.settings.stamp import SettingsStamp
-from pyrobardfx.store.constants import EXTRA_FORBID, VALIDATE_AFTER
+from pyrobardfx.store.constants import DUMP_MODE, EXTRA_FORBID, VALIDATE_AFTER
 
 
 class SetupPresetList(BaseModel):
@@ -20,7 +20,11 @@ class SetupPresetList(BaseModel):
 
 
 class SetupPresetsFile(BaseModel):
-    """Each setup preset holds only the settings it sets; the rest come from the defaults."""
+    """Each setup preset holds only the other settings it sets; the rest come from the defaults.
+
+    A preset saved before the global settings left the presets may still hold some; they are
+    checked with the rest, then ignored.
+    """
 
     model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
 
@@ -36,13 +40,22 @@ class SetupPresetsFile(BaseModel):
             raise ValueError(UNKNOWN_DEFAULT_MESSAGE.format(name=self.default))
         return self
 
-    def settings_of(self, name: str) -> Settings:
-        """The settings the preset `name` gives: the defaults with its fields over them."""
-        return Settings.model_validate(self.presets[name])
+    def settings_of(self, name: str, current: Settings) -> Settings:
+        """The settings the preset `name` gives over `current`.
+
+        The other settings are the defaults with the preset's fields over them; the global
+        settings stay those of `current`.
+        """
+        others = {
+            key: value for key, value in self.presets[name].items() if key not in GLOBAL_SETTINGS
+        }
+        kept = current.model_dump(mode=DUMP_MODE, include=set(GLOBAL_SETTINGS))
+        return Settings.model_validate({**others, **kept})
 
     def start_settings(self) -> Settings:
         """The settings a working directory starts from: the default preset's, else the defaults."""
-        return Settings() if self.default is None else self.settings_of(self.default)
+        defaults = Settings()
+        return defaults if self.default is None else self.settings_of(self.default, defaults)
 
     def saved(self, name: str, stamp: SettingsStamp) -> Self:
         """Return the file with the non-default fields of `stamp` saved as the preset `name`."""

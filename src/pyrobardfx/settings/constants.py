@@ -13,6 +13,10 @@ UNKNOWN_DEFAULT_MESSAGE = "the default setup preset {name} is not among the pres
 
 EVENT_SET_ASIDE = "settings_file_set_aside"
 
+# The global settings apply to the whole working directory, not to one Run: Setup presets and the
+# Settings stamp hold only the other settings.
+GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language"})
+
 DEFAULT_RUNS_TO_KEEP = 5
 MIN_RUNS_TO_KEEP = 1
 
