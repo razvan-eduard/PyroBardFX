@@ -44,6 +44,39 @@ _Avoid_: job (that is the worker's unit, a Run is one kind of job), build (as a 
 The folder of one Run holding every file the Run wrote: its snapshot, tags, cues, scenes, final script, mix and Videos.
 _Avoid_: output folder, workspace
 
+**Run id**:
+The name of a Run and of its Run folder: the UTC time the Run started plus four random hex characters (`20261109T153000Z-a1b2`), so run ids sort by start time.
+_Avoid_: run number, job id
+
+**Run snapshot**:
+The frozen set of values one Run reads, built once at Run start and handed to every Stage; its copy in the Run folder is a record no Stage reads back (ADR 0002).
+_Avoid_: run config, run context, run settings
+
+**Stage**:
+One step of a Run, in the fixed order every Run passes; each holds the Run snapshot from its start.
+_Avoid_: step (that is a progress callback inside a Stage), node, phase
+
+**Pipeline event**:
+One structured record of a Run's event stream: the event name, the Stage it came from, the percent that Stage got to, its UTC time and the event's own fields.
+_Avoid_: log line, message
+"Message" is avoided for a Pipeline event only: the user-facing text of an error or a locale string may still be called a message, so `*_MESSAGE` constant names stay.
+
+**Event fan-out**:
+The one structlog logger of a Run's event stream that stamps every Pipeline event with the clock's UTC time and hands it to every Event sink; a Stage emits through it without knowing the sinks.
+_Avoid_: event bus, broker, dispatcher
+
+**Event sink**:
+One end of the Event fan-out that takes every Pipeline event: the `run.log` JSON lines file, the CLI printer, later the job websocket. A sink that fails is reported once and gets no further events; the Run and the other sinks go on.
+_Avoid_: handler, listener, subscriber
+
+**Cancel token**:
+What a Run asks at each cancel check whether it was asked to stop; the job manager holds the other end. A Run asked to stop ends at its next check and keeps its Run folder whole.
+_Avoid_: kill switch, abort flag, stop signal
+
+**Latest pointer**:
+The file in a Story's folder that names the run id of its newest Run.
+_Avoid_: current run, symlink
+
 **Review**:
 The stop before rendering where a Run waits for the user when a sound tag is red, the narration match is low, or a visual's model is missing; the user resumes or cancels.
 _Avoid_: pre-flight, check, approval
@@ -171,3 +204,25 @@ _Avoid_: episode split, export mode
 **Bookends**:
 The intro and outro added to every Video.
 _Avoid_: intro/outro (as two terms), jingle
+
+### Files
+
+**Working directory**:
+The one folder the app owns, holding every Story, the Sound library, the models, the settings and the caches. Created on first start in the platform's default place or where the user points it, and never inside a temporary folder.
+_Avoid_: workspace, project folder, data dir
+
+**Store**:
+A hand-readable JSON file behind a pydantic model with one writer, replaced whole on every write and read from memory; the settings and the library index are stores.
+_Avoid_: database, cache (that is data the app can make again)
+
+**Setup preset**:
+A named set of settings saved as partial JSON in the working directory: it holds only the fields it sets, and loading it gives the defaults with those fields over them. One Setup preset may be the default, which a working directory without a settings file starts from.
+_Avoid_: profile, template, Quality preset (that is a render level)
+
+**Settings stamp**:
+The settings a script records: only the fields that differ from the defaults.
+_Avoid_: settings dump, config header
+
+**Setting definition**:
+What a settings card needs to show one setting (its label key, help key, group, kind, default and constraints), produced from the settings model's JSON schema.
+_Avoid_: setting spec, field info

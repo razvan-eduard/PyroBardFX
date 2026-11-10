@@ -1,0 +1,1 @@
+"""The pyrobardfx command line."""
