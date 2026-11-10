@@ -6,6 +6,8 @@ APP_NAME = "pyrobardfx"
 WORKING_DIR_OPTION = "--working-dir"
 WORKING_DIR_HELP = "Use this folder as the working directory instead of the default place."
 REFUSED_EXIT_CODE = 1
+# The exit code of a program stopped by an interrupt, as shells report it.
+CANCELLED_EXIT_CODE = 130
 RUN_COMMAND = "run"
 RUN_HELP = "Take a Story through every stage into a new Run folder."
 NO_WORKING_DIRECTORY_MESSAGE = "the run command started without an open working directory"
@@ -28,3 +30,10 @@ REFUSAL_TEXT = {
 }
 # English text of the key `run.finished`, until `label(key)` and the locales take it.
 RUN_FINISHED_TEXT = "Run {run_id} finished: {path}"
+# English text of the key `run.cancelled`, until `label(key)` and the locales take it.
+RUN_CANCELLED_TEXT = "Run {run_id} cancelled: {path}"
+# English text of the key `run.progress`, until `label(key)` and the locales take it:
+# one progress line per event, with stage, percent, event name, then each field.
+RUN_PROGRESS_TEXT = "{stage} {percent:.0f}% {event}{fields}"
+# English text of the key `run.progress_field`, until `label(key)` and the locales take it.
+RUN_PROGRESS_FIELD_TEXT = " {key}={value}"

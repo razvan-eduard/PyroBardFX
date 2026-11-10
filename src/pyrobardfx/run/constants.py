@@ -17,6 +17,9 @@ INVALID_SNAPSHOT_MESSAGE = "run snapshot refuses {fields}: unset or out of range
 FIELD_SEPARATOR = ", "
 ERROR_LOCATION_KEY = "loc"
 
+# The stage a Run passes before the harness stages: trashing old Runs down to the keep count.
+PRUNE_STAGE = "prune_runs"
+
 # The predecessor's self-test harness order; every Run passes the stages in this order.
 STAGE_ORDER = (
     WORKING_DIRECTORY_STAGE,
@@ -35,3 +38,4 @@ STAGE_ORDER = (
 )
 EVENT_STAGE_STARTED = "stage_started"
 EVENT_STAGE_FINISHED = "stage_finished"
+EVENT_RUN_CANCELLED = "run_cancelled"

@@ -1,14 +1,14 @@
 """The `pyrobardfx` typer app and its console-script entry point."""
 
-import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Annotated
 
-import structlog
 import typer
 
 from pyrobardfx.cli.constants import (
     APP_NAME,
+    CANCELLED_EXIT_CODE,
     NO_WORKING_DIRECTORY_MESSAGE,
     REFUSED_EXIT_CODE,
     RUN_COMMAND,
@@ -20,7 +20,9 @@ from pyrobardfx.cli.constants import (
 from pyrobardfx.cli.printer import CliPrinter
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.clock.system import SystemClock
+from pyrobardfx.events.fan_out import EventFanOut, EventSink
 from pyrobardfx.refusal.error import RefusedError
+from pyrobardfx.run.cancel import CancelFlag, CancelToken
 from pyrobardfx.run.service import RunService
 from pyrobardfx.run.tokens import SecretsTokenSource, TokenSource
 from pyrobardfx.trash.base import Trash
@@ -35,16 +37,16 @@ class CliApp:
     @staticmethod
     def build(
         host: HostFacts,
-        clock: Clock | None = None,
-        tokens: TokenSource | None = None,
-        trash: Trash | None = None,
+        clock: Clock,
+        tokens: TokenSource,
+        trash: Trash,
+        cancel: CancelToken,
+        sinks: Sequence[EventSink] = (),
     ) -> typer.Typer:
-        """Build the app; `clock`, `tokens` and `trash` default to the system's own."""
+        """Build the app over the given adapters; each event goes to the CLI printer and `sinks`."""
         app = typer.Typer(name=APP_NAME, add_completion=False)
-        service = WorkingDirectoryService(host)
-        run_clock = clock or SystemClock()
-        run_tokens = tokens or SecretsTokenSource()
-        run_trash = trash or Send2TrashTrash(run_clock)
+        events = EventFanOut(clock, (CliPrinter(), *sinks))
+        service = WorkingDirectoryService(host, events)
 
         @app.callback(invoke_without_command=True)
         def start(
@@ -67,22 +69,21 @@ class CliApp:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
+            runs = RunService(working, clock, tokens, trash, events, cancel)
             try:
-                folder = RunService(working, run_clock, run_tokens, run_trash).start(story)
+                outcome = runs.start(story)
             except RefusedError as error:
                 CliPrinter.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
-            CliPrinter.run_finished(folder)
+            if outcome.cancelled:
+                CliPrinter.run_cancelled(outcome.folder)
+                raise typer.Exit(code=CANCELLED_EXIT_CODE)
+            CliPrinter.run_finished(outcome.folder)
 
         return app
 
-    @staticmethod
-    def configure_logging() -> None:
-        """Send log events to stderr so they never mix with the text a command prints."""
-        structlog.configure(logger_factory=structlog.PrintLoggerFactory(sys.stderr))
-
 
 def main() -> None:
-    CliApp.configure_logging()
     clock = SystemClock()
-    CliApp.build(HostFacts.from_host(), clock, SecretsTokenSource(), Send2TrashTrash(clock))()
+    host = HostFacts.from_host()
+    CliApp.build(host, clock, SecretsTokenSource(), Send2TrashTrash(clock), CancelFlag())()

@@ -56,6 +56,22 @@ _Avoid_: run config, run context, run settings
 One step of a Run, in the fixed order every Run passes; each holds the Run snapshot from its start.
 _Avoid_: step (that is a progress callback inside a Stage), node, phase
 
+**Pipeline event**:
+One structured record of a Run's event stream: the event name, the Stage it came from, the percent that Stage got to, its UTC time and the event's own fields.
+_Avoid_: log line, message
+
+**Event fan-out**:
+The one structlog logger of a Run's event stream that stamps every Pipeline event with the clock's UTC time and hands it to every Event sink; a Stage emits through it without knowing the sinks.
+_Avoid_: event bus, broker, dispatcher
+
+**Event sink**:
+One end of the Event fan-out that takes every Pipeline event: the `run.log` JSON lines file, the CLI printer, later the job websocket. A sink that fails is reported once and gets no further events; the Run and the other sinks go on.
+_Avoid_: handler, listener, subscriber
+
+**Cancel token**:
+What a Run asks at each cancel check whether it was asked to stop; the job manager holds the other end. A Run asked to stop ends at its next check and keeps its Run folder whole.
+_Avoid_: kill switch, abort flag, stop signal
+
 **Latest pointer**:
 The file in a Story's folder that names the run id of its newest Run.
 _Avoid_: current run, symlink

@@ -22,7 +22,6 @@ TEMP_ENV_VARS = ("TMPDIR", "TEMP", "TMP")
 FIXED_TEMP_ROOTS = (Path("/tmp"), Path("/var/tmp"))
 
 
-LOGGER_NAME = "pyrobardfx.workdir"
 STAGE_NAME = "working_directory_open"
 EVENT_CREATED = "working_directory_created"
 EVENT_OPENED = "working_directory_opened"

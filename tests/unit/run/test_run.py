@@ -1,21 +1,20 @@
 import errno
 import json
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner, Result
 
-from pyrobardfx.cli.app import CliApp
-from tests.builders.host_facts import HostFactsBuilder
+from tests.builders.cli_app import CliAppBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
-from tests.fakes.clock import FakeClock
+from tests.fakes.cancel import FakeCancelToken
+from tests.fakes.clock import START, FakeClock
 from tests.fakes.tokens import FixedTokenSource
 from tests.fakes.trash import FakeTrash
 
 STORY = "the-lighthouse"
 RUN_ID = "20261109T153000Z-a1b2"
-START = datetime(2026, 11, 9, 15, 30, 0, tzinfo=UTC)
 
 
 def run_story(
@@ -25,15 +24,14 @@ def run_story(
     working: WorkingDirectoryBuilder | None = None,
     tokens: FixedTokenSource | None = None,
     trash: FakeTrash | None = None,
+    cancel: FakeCancelToken | None = None,
 ) -> Result:
     root = (working or WorkingDirectoryBuilder(sandbox / "work")).story(STORY).build()
-    app = CliApp.build(
-        HostFactsBuilder(sandbox).build(),
-        clock,
-        tokens or FixedTokenSource("a1b2"),
-        trash or FakeTrash(clock, sandbox / "trash"),
+    app = CliAppBuilder(sandbox).clock(clock).tokens(tokens or FixedTokenSource("a1b2"))
+    app = app.trash(trash or FakeTrash(clock, sandbox / "trash")).cancel(
+        cancel or FakeCancelToken()
     )
-    return CliRunner().invoke(app, ["--working-dir", str(root), "run", story])
+    return CliRunner().invoke(app.build(), ["--working-dir", str(root), "run", story])
 
 
 def log_of(sandbox: Path) -> list[dict[str, object]]:
@@ -65,11 +63,12 @@ def test_a_run_folder_holds_the_snapshot_the_run_started_with(tmp_path: Path) ->
     assert (snapshot["story"], snapshot["run_id"], snapshot["runs_to_keep"]) == (STORY, RUN_ID, 5)
 
 
-def test_a_run_takes_its_story_through_every_stage_in_the_harness_order(tmp_path: Path) -> None:
+def test_a_run_prunes_then_passes_every_stage_in_the_harness_order(tmp_path: Path) -> None:
     run_story(tmp_path, FakeClock(START))
 
     finished = [event["stage"] for event in log_of(tmp_path) if event["event"] == "stage_finished"]
     assert finished == [
+        "prune_runs",
         "working_directory_open",
         "settings",
         "tagging_or_reconcile",
@@ -149,6 +148,17 @@ def test_a_run_still_starts_when_the_trash_refuses_an_old_run(tmp_path: Path) ->
     assert (result.exit_code, (runs_of(tmp_path) / "20261109T153500Z-a1b2").is_dir()) == (0, True)
 
 
+def test_a_run_cancelled_before_its_first_stage_trashes_no_old_run(tmp_path: Path) -> None:
+    clock = FakeClock(START)
+    for _ in range(5):
+        run_story(tmp_path, clock)
+        clock.advance(60)
+
+    run_story(tmp_path, clock, cancel=FakeCancelToken(cancel_at=1))
+
+    assert len(list(runs_of(tmp_path).iterdir())) == 6
+
+
 def test_a_folder_in_runs_that_is_not_a_run_folder_is_never_pruned(tmp_path: Path) -> None:
     run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work").run_folder(STORY, "0-draft"))
 
@@ -225,3 +235,62 @@ def test_a_run_whose_three_drawn_ids_are_all_taken_is_refused_with_its_reason(
     )
 
     assert "already has a Run folder" in result.output
+
+
+def test_a_cancelled_run_leaves_its_run_folder_whole(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START), cancel=FakeCancelToken(cancel_at=4))
+
+    assert sorted(path.name for path in (runs_of(tmp_path) / RUN_ID).iterdir()) == [
+        "run.log",
+        "snapshot.json",
+    ]
+
+
+def test_a_cancelled_run_passes_no_stage_after_the_one_that_stopped(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START), cancel=FakeCancelToken(cancel_at=4))
+
+    finished = [event["stage"] for event in log_of(tmp_path) if event["event"] == "stage_finished"]
+    assert finished == ["prune_runs", "working_directory_open", "settings"]
+
+
+def test_a_cancelled_run_logs_its_cancel_event_in_its_run_log(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START), cancel=FakeCancelToken(cancel_at=4))
+
+    cancelled = [event["stage"] for event in log_of(tmp_path) if event["event"] == "run_cancelled"]
+    assert cancelled == ["tagging_or_reconcile"]
+
+
+def test_a_cancelled_run_prints_that_it_was_cancelled(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START), cancel=FakeCancelToken(cancel_at=4))
+
+    assert f"Run {RUN_ID} cancelled" in result.stdout
+
+
+def test_a_cancelled_run_exits_with_the_cancelled_code(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START), cancel=FakeCancelToken(cancel_at=4))
+
+    assert result.exit_code == 130
+
+
+def test_every_run_log_line_carries_the_clock_time_in_utc(tmp_path: Path) -> None:
+    run_story(tmp_path, FakeClock(START))
+
+    assert {event["timestamp"] for event in log_of(tmp_path)} == {"2026-11-09T15:30:00Z"}
+
+
+def test_a_pruned_run_is_logged_in_the_new_runs_log_under_the_pruning_stage(
+    tmp_path: Path,
+) -> None:
+    run_six_times(tmp_path, WorkingDirectoryBuilder(tmp_path / "work"))
+
+    lines = (runs_of(tmp_path) / "20261109T153500Z-a1b2" / "run.log").read_text().splitlines()
+    trashed = [json.loads(line) for line in lines if "path_trashed" in line]
+    assert [(event["stage"], event["fields"]["path"]) for event in trashed] == [
+        ("prune_runs", str(runs_of(tmp_path) / RUN_ID))
+    ]
+
+
+def test_a_run_prints_its_stage_events_on_stderr(tmp_path: Path) -> None:
+    result = run_story(tmp_path, FakeClock(START))
+
+    assert "export_per_video 100% stage_finished" in result.stderr

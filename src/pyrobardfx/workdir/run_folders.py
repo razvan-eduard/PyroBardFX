@@ -8,6 +8,7 @@ from typing import TextIO
 
 from pydantic import BaseModel, ConfigDict
 
+from pyrobardfx.events.fan_out import StageEvents
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.store.constants import ENCODING, EXTRA_FORBID
@@ -64,8 +65,8 @@ class RunFolders:
         self._is_run_name = is_run_name
         self._trash = trash
 
-    def create(self, story: str, run_id: str, runs_to_keep: int) -> RunFolder:
-        """Create the Run folder, prune old runs so `runs_to_keep` remain, point `latest` at it.
+    def create(self, story: str, run_id: str) -> RunFolder:
+        """Create the Run folder and point the Story's `latest` at it.
 
         Touching nothing, raise `RefusedError` when the Story has no folder and
         `RunFolderTakenError` when the run id already has one.
@@ -79,7 +80,6 @@ class RunFolders:
             path.mkdir(parents=True)
         except FileExistsError as error:
             raise RunFolderTakenError(runs, run_id) from error
-        self._prune(runs, runs_to_keep)
         pointer = LatestPointer(run_id=run_id)
         JsonStore(story_folder / LATEST_POINTER_FILE, pointer).write(pointer)
         return RunFolder(run_id=run_id, path=path)
@@ -90,10 +90,12 @@ class RunFolders:
         parts = Path(story).parts
         return len(parts) == STORY_NAME_PARTS and parts[0] != PARENT_FOLDER_NAME
 
-    def _prune(self, runs: Path, keep: int) -> None:
-        old = sorted((folder for folder in runs.iterdir() if self._is_run(folder)), reverse=True)
-        for folder in old[keep:]:
-            self._trash.trash(folder)
+    def prune(self, folder: RunFolder, keep: int, events: StageEvents) -> None:
+        """Trash the oldest Run folders beside `folder` so `keep` remain; each emits its event."""
+        runs = folder.path.parent
+        old = sorted((path for path in runs.iterdir() if self._is_run(path)), reverse=True)
+        for path in old[keep:]:
+            self._trash.trash(path, events)
 
     def _is_run(self, folder: Path) -> bool:
         """Tell a Run folder from other things kept in `runs/`; pruning trashes only Run folders."""

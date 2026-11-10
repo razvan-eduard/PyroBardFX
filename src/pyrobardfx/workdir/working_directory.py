@@ -3,10 +3,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-import structlog
-from structlog.typing import FilteringBoundLogger
-
 from pyrobardfx.events.constants import PERCENT_DONE
+from pyrobardfx.events.fan_out import EventFanOut
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.workdir.constants import (
@@ -17,7 +15,6 @@ from pyrobardfx.workdir.constants import (
     EVENT_OPENED,
     HOME_OVERRIDE_ENV,
     LAYOUT,
-    LOGGER_NAME,
     STAGE_NAME,
     TEMP_ENV_VARS,
 )
@@ -61,9 +58,9 @@ class TempRoots:
 class WorkingDirectoryService:
     """Opens the working directory for a start: picks its place, refuses bad ones, lays it out."""
 
-    def __init__(self, host: HostFacts) -> None:
+    def __init__(self, host: HostFacts, events: EventFanOut) -> None:
         self._host = host
-        self._log: FilteringBoundLogger = structlog.get_logger(LOGGER_NAME)
+        self._events = events.at(STAGE_NAME)
 
     def open(self, override: Path | None) -> WorkingDirectory:
         """Return the laid-out working directory or raise `RefusedError`."""
@@ -73,7 +70,7 @@ class WorkingDirectoryService:
             raise RefusedError(RefusalReason.IN_TEMP, root, str(temp_root))
         event = EVENT_OPENED if root.exists() else EVENT_CREATED
         self._lay_out(root)
-        self._log.info(event, stage=STAGE_NAME, percent=PERCENT_DONE, path=str(root))
+        self._events.emit(event, PERCENT_DONE, path=str(root))
         return WorkingDirectory(root=root)
 
     @staticmethod
