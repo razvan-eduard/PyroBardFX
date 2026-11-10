@@ -7,8 +7,6 @@ from collections.abc import Iterable
 from pyrobardfx.script.constants import (
     BLANK,
     KIND_GROUP,
-    TAGS_HEADER,
-    TAGS_HEADER_REACH,
     TOKEN_PATTERN,
     UNSPOKEN_PREFIX,
     VALUE_GROUP,
@@ -42,7 +40,7 @@ class ScriptParser:
         spoken = self.spoken_starts(lines)
         tags = [self.tag_of(match, bisect_left(spoken, match.start())) for match in matches]
         return ParsedScript(
-            tags_present=TAGS_HEADER in text[:TAGS_HEADER_REACH],
+            tags_present=self.global_tags.header(text) is not None,
             global_tags=story_wide.tags,
             chapters=self.outline(lines, tags),
         )

@@ -117,6 +117,10 @@ ENGLISH_MARKER_WORDS = {
     MarkerKind.VIDEO: "video",
 }
 
+# A tag's brackets.
+TAG_OPEN = "["
+TAG_CLOSE = "]"
+
 # A script is tagged when its header stands in its first characters.
 TAGS_HEADER = "[TAGS-PRESENT]"
 TAGS_HEADER_REACH = 200
@@ -129,4 +133,7 @@ ENGLISH_GLOBAL_KIND_WORDS = {
 # A global tag stands alone on its line; so do the globals markers. A `\r` before the line end
 # stays outside the match, so a CRLF script reads as its LF form.
 GLOBAL_TAG_PATTERN = r"^[ \t]*\[\s*({words})\s*:\s*([^\]]*)\][ \t]*(?=\r?$)"
-GLOBALS_MARKER_PATTERN = r"^[ \t]*\[\s*GLOBALS-(?:START|END)\s*\][ \t]*(?=\r?$)"
+GLOBALS_MARKER_PATTERN = r"^[ \t]*\[\s*GLOBALS-(?P<edge>START|END)\s*\][ \t]*(?=\r?$)"
+# The globals marker's `edge` group: `START` opens the globals, where a new global tag goes.
+EDGE_GROUP = "edge"
+GLOBALS_START = "START"

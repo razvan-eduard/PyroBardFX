@@ -3,7 +3,6 @@
 from enum import StrEnum
 
 from pyrobardfx.locales.constants import Language
-from pyrobardfx.script.constants import GlobalTagKind
 
 SETTINGS_FILE = "settings.json"
 PRESETS_FILE = "presets.json"
@@ -24,11 +23,15 @@ GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language", "d
 # values apart as a tag's parts are.
 STAMP_TAG = "[{kind}:{values}]"
 STAMP_VALUE = " {name} {value}"
-SETTINGS_KIND = GlobalTagKind.SETTINGS
-# The blanks a global tag's line may hold around the tag.
-LINE_BLANKS = " \t"
-# What `str.find` returns when the text holds no match.
-NOT_FOUND = -1
+# A value that is not text is written as JSON without blanks: `true`, `{"a":1}`.
+COMPACT_JSON = (",", ":")
+# A written value holding a tag's closing bracket or a line break would end the stamp early.
+LINE_BREAKS = "\r\n"
+# A new stamp line ends as the script's lines do: `\r\n` in a script whose first line ends so.
+CRLF = "\r\n"
+UNWRITABLE_VALUE_MESSAGE = (
+    "the setting {name} has the value {text!r}, which a settings tag cannot hold"
+)
 
 DEFAULT_RUNS_TO_KEEP = 5
 MIN_RUNS_TO_KEEP = 1

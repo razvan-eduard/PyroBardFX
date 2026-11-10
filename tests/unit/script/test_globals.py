@@ -75,3 +75,21 @@ def test_a_global_sound_tag_keeps_its_content_id_as_an_inline_tag_does() -> None
     (tag,) = ScriptParser().parse("[ambience-all: rain.wav #3FA2C1, 0.3]\nFog.").global_tags
 
     assert (tag.value, tag.content_id, tag.volume) == ("rain.wav", "3fa2c1", 0.3)
+
+
+def test_a_header_after_the_first_200_characters_stays_text() -> None:
+    (chapter,) = ScriptParser().parse("word " * 40 + "[TAGS-PRESENT]").chapters
+
+    assert chapter.sections[0].paragraphs[0].text == "word " * 40 + "[TAGS-PRESENT]"
+
+
+def test_an_indented_global_tag_spans_its_brackets_only_and_its_line_stays_unspoken() -> None:
+    text = "  [settings: quality_preset best]\t\nFog."
+
+    script = ScriptParser().parse(text)
+
+    span = script.global_tags[0].span
+    assert (text[span.start : span.end], script.chapters[0].sections[0].paragraphs[0].text) == (
+        "[settings: quality_preset best]",
+        "Fog.",
+    )

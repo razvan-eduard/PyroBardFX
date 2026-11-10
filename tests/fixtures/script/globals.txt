@@ -2,7 +2,7 @@
 [GLOBALS-START]
 [scene-all: lsd | a foggy harbour]
 [ambience-all: rain.wav #3fa2c1, 0.3, fade long]
-[fx-all: grain 0.3, vignette 0.5]
+  [fx-all: grain 0.3, vignette 0.5]
 [settings: quality_preset best]
 [style-look: noir | dark, grainy]
 [GLOBALS-END]
