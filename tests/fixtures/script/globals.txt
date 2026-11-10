@@ -1,0 +1,11 @@
+[TAGS-PRESENT]
+[GLOBALS-START]
+[scene-all: lsd | a foggy harbour]
+[ambience-all: rain, 0.3, fade long]
+[fx-all: grain 0.3, vignette 0.5]
+[settings: pictures=section]
+[style-look: noir | dark, grainy]
+[GLOBALS-END]
+
+[ambiance-all: rain]
+The fog [fx-all: inline stays text] came in.

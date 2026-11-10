@@ -1,0 +1,14 @@
+[TAGS-PRESENT]
+She opened the door [sfx: door, 0.8] and stepped out.
+[ambience: forest, fade long]
+Rain began [Ambience: rain, fade short, 0.3] to fall.
+
+The ship [sfx: door/creak.wav #3fa2c1, 1.5] creaked. [sfx: hull, 3.5] [sfx: rope, creaky]
+[underscore: drone] [transition: impact] [music: main theme, 0.6, fade medium]
+
+[scene: lsd | a foggy harbour at night, 0.5]
+[visual: noir | the quay]
+[subject: datura]
+[fx: darken, 3, 0.8]
+[text: Act 2, the harbour]
+He said [hello: there] twice [sfx]. [ambience: none] [ambiance: rain]

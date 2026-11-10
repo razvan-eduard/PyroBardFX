@@ -1,0 +1,100 @@
+"""The tag parser: one script text in, one `ParsedScript` out."""
+
+import re
+from bisect import bisect_left
+from collections.abc import Iterable
+
+from pyrobardfx.script.constants import (
+    BLANK,
+    KIND_GROUP,
+    TAGS_HEADER,
+    TAGS_HEADER_REACH,
+    TOKEN_PATTERN,
+    UNSPOKEN_PREFIX,
+    VALUE_GROUP,
+    WHOLE_VALUE_KINDS,
+)
+from pyrobardfx.script.global_tags import GlobalTags
+from pyrobardfx.script.markers import Markers, ScriptLine
+from pyrobardfx.script.model import Chapter, ParsedScript, Span, Tag
+from pyrobardfx.script.outline import OutlineBuilder
+from pyrobardfx.script.tag_value import TagValue
+from pyrobardfx.script.tag_words import TAG_WORDS
+
+
+class ScriptParser:
+    """Reads a script as the predecessor's tag grammar and the Markdown structure markers."""
+
+    INLINE_TAG_RE = TAG_WORDS.inline_pattern()
+    TOKEN_RE = re.compile(TOKEN_PATTERN)
+
+    @classmethod
+    def parse(cls, text: str) -> ParsedScript:
+        """Return the script's global tags and its Chapters, Sections and Paragraphs."""
+        story_wide = GlobalTags.read(text)
+        unspoken = cls.blanked(text, story_wide.unspoken)
+        matches = list(cls.INLINE_TAG_RE.finditer(unspoken))
+        lines = Markers.lines(text, cls.blanked(unspoken, [m.span() for m in matches]))
+        spoken = cls.spoken_starts(lines)
+        tags = [cls.tag_of(match, bisect_left(spoken, match.start())) for match in matches]
+        return ParsedScript(
+            tags_present=TAGS_HEADER in text[:TAGS_HEADER_REACH],
+            global_tags=story_wide.tags,
+            chapters=cls.outline(lines, tags),
+        )
+
+    @classmethod
+    def spoken_starts(cls, lines: list[ScriptLine]) -> list[int]:
+        """The offset of each word a voice says: the tokens off marker lines with a letter or digit
+        that are not a `#` mark."""
+        return [
+            line.start + token.start()
+            for line in lines
+            if line.marker is None
+            for token in cls.TOKEN_RE.finditer(line.said)
+            if any(c.isalnum() for c in token.group())
+            and not token.group().startswith(UNSPOKEN_PREFIX)
+        ]
+
+    @staticmethod
+    def outline(lines: list[ScriptLine], tags: list[Tag]) -> tuple[Chapter, ...]:
+        """Walk the script's lines into its outline.
+
+        A blank line ends a Paragraph; a tag goes to the Paragraph of the next line that is not a
+        blank line or a marker.
+        """
+        builder, taken = OutlineBuilder(), 0
+        starts = [tag.span.start for tag in tags]
+        for line in lines:
+            if line.blank:
+                builder.end_paragraph()
+            elif line.marker:
+                builder.open(line.marker)
+            else:
+                last = bisect_left(starts, line.end)
+                builder.add_line(BLANK.join(line.said.split()), tags[taken:last])
+                taken = last
+        builder.add_line("", tags[taken:])
+        return builder.build()
+
+    @staticmethod
+    def blanked(text: str, spans: Iterable[tuple[int, int]]) -> str:
+        """The text with each span replaced by blanks of its length."""
+        for start, end in spans:
+            text = text[:start] + BLANK * (end - start) + text[end:]
+        return text
+
+    @staticmethod
+    def tag_of(match: re.Match[str], word: int) -> Tag:
+        kind = TAG_WORDS.kind(match.group(KIND_GROUP))
+        text = match.group(VALUE_GROUP) or ""
+        split = TagValue.whole(text) if kind in WHOLE_VALUE_KINDS else TagValue.split(text)
+        return Tag(
+            kind=kind,
+            value=split.value,
+            volume=split.volume,
+            fade=split.fade,
+            content_id=split.content_id,
+            word=word,
+            span=Span(start=match.start(), end=match.end()),
+        )

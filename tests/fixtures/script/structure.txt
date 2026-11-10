@@ -1,0 +1,37 @@
+Before any heading.
+
+# The Harbour
+Fog came in.
+
+## The Quay
+Ropes creaked.
+---
+A gull.
+***
+A bell.
+
+[section]
+Quiet.
+
+[section: The Market]
+Voices.
+
+[sectiune 2]
+Fish.
+
+[sectiunea a doua]
+Salt.
+
+[partea 3]
+Nets.
+
+[video]
+# The Bell [sfx: bell, 0.7]
+It rang.
+
+[chapter: The Lighthouse]
+[video]
+Light.
+
+[chapter]
+Dark.

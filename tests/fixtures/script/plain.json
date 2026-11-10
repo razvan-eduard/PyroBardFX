@@ -1,0 +1,27 @@
+{
+  "tags_present": false,
+  "global_tags": [],
+  "chapters": [
+    {
+      "title": null,
+      "marker": null,
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "The fog came in off the harbour.\nIt stayed until morning.",
+              "tags": []
+            },
+            {
+              "text": "The bell rang twice, then stopped.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
