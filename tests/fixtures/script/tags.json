@@ -15,7 +15,7 @@
               "text": "She opened the door and stepped out.\nRain began to fall.",
               "tags": [
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "door",
                   "volume": 0.8,
                   "fade": null,
@@ -56,7 +56,7 @@
               "text": "The ship creaked.",
               "tags": [
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "door/creak.wav",
                   "volume": 1.5,
                   "fade": null,
@@ -68,7 +68,7 @@
                   }
                 },
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "hull",
                   "volume": 2.0,
                   "fade": null,
@@ -80,7 +80,7 @@
                   }
                 },
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "rope, creaky",
                   "volume": null,
                   "fade": null,
@@ -193,7 +193,7 @@
                   }
                 },
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "",
                   "volume": null,
                   "fade": null,

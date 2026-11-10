@@ -4,7 +4,7 @@ from pyrobardfx.script.tag_words import TagWords
 
 # A tag language other than English, as a later one may fill the seam.
 OTHER = TagWords(
-    kinds={"sunet": TagKind.SFX, "zgomot": TagKind.SFX},
+    kinds={"sunet": TagKind.ONE_SHOT, "zgomot": TagKind.ONE_SHOT},
     global_kinds={"scena-toata": GlobalTagKind.VISUAL_ALL},
     markers={
         MarkerKind.CHAPTER: "capitol",
@@ -17,7 +17,10 @@ OTHER = TagWords(
 def test_a_tag_language_reads_its_own_kind_words_in_any_case_and_not_english_ones() -> None:
     found = OTHER.inline_pattern().findall("Door [Sunet: door] [ZGOMOT] [sfx: door]")
 
-    assert [OTHER.kind(match[KIND_GROUP - 1]) for match in found] == [TagKind.SFX, TagKind.SFX]
+    assert [OTHER.kind(match[KIND_GROUP - 1]) for match in found] == [
+        TagKind.ONE_SHOT,
+        TagKind.ONE_SHOT,
+    ]
 
 
 def test_a_tag_language_reads_its_own_global_kind_words_and_not_english_ones() -> None:

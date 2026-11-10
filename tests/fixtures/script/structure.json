@@ -132,7 +132,7 @@
               "text": "It rang.",
               "tags": [
                 {
-                  "kind": "sfx",
+                  "kind": "one-shot",
                   "value": "bell",
                   "volume": 0.7,
                   "fade": null,
@@ -228,6 +228,23 @@
           "paragraphs": [
             {
               "text": "Wind rose.",
+              "tags": []
+            },
+            {
+              "text": "Rain came.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": "The Squall",
+          "marker": {
+            "start": 440,
+            "end": 461
+          },
+          "paragraphs": [
+            {
+              "text": "Thunder.",
               "tags": []
             }
           ]
