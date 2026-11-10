@@ -8,6 +8,7 @@ SCRIPT = "# The Harbour\nFog [ambience: fog, 0.4] came in.\n"
 CRLF_FIXTURE = FIXTURES / "crlf.txt"
 CRLF = b"\r\n"
 LF = b"\n"
+OFFSETS = {"span", "marker"}
 
 
 def test_writing_the_fixtures_puts_the_parse_of_each_script_beside_it(tmp_path: Path) -> None:
@@ -26,7 +27,7 @@ def test_a_script_with_crlf_line_ends_is_parsed_with_its_line_ends_kept(tmp_path
 
     (script,) = fixtures.scripts()
 
-    assert fixtures.expected(script) == ScriptParser().parse(crlf).model_dump_json(indent=2) + "\n"
+    assert ParsedScript.model_validate_json(fixtures.expected(script)) == ScriptParser().parse(crlf)
 
 
 def test_every_shipped_fixture_holds_the_parse_of_its_script_as_the_parser_reads_it() -> None:
@@ -46,20 +47,13 @@ def test_the_crlf_fixture_ends_every_line_in_crlf_on_disk() -> None:
     assert [line for line in lines if not line.endswith(CRLF)] == []
 
 
-def outline(script: ParsedScript) -> list[object]:
-    """Everything of a parse that does not count characters: kinds, values, titles and texts."""
-    return [
-        [(t.kind, t.value) for t in script.global_tags],
-        [(c.title, c.video_break, [s.title for s in c.sections]) for c in script.chapters],
-        [p.text for c in script.chapters for s in c.sections for p in s.paragraphs],
-        [
-            (t.kind, t.value)
-            for c in script.chapters
-            for s in c.sections
-            for p in s.paragraphs
-            for t in p.tags
-        ],
-    ]
+def without_offsets(value: object) -> object:
+    """A dump of a parse with every `span` and `marker` taken out: all that counts no characters."""
+    if isinstance(value, dict):
+        return {key: without_offsets(item) for key, item in value.items() if key not in OFFSETS}
+    if isinstance(value, list | tuple):
+        return [without_offsets(item) for item in value]
+    return value
 
 
 def test_the_crlf_fixture_parses_as_its_lf_form_but_for_offsets() -> None:
@@ -68,4 +62,6 @@ def test_the_crlf_fixture_parses_as_its_lf_form_but_for_offsets() -> None:
     )
     lf = CRLF_FIXTURE.read_bytes().replace(CRLF, LF).decode("utf-8")
 
-    assert outline(shipped) == outline(ScriptParser().parse(lf))
+    assert without_offsets(shipped.model_dump()) == without_offsets(
+        ScriptParser().parse(lf).model_dump()
+    )

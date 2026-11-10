@@ -62,8 +62,6 @@ MLX_CORE_MODULE = "mlx.core"
 
 # The detail of a refusal for a runtime that declares none of the order's backends, best first.
 BACKEND_SEPARATOR = " > "
-# The placeholder of a refusal text that names the family, in the user's words.
-FAMILY_FIELD = "family"
 
 STT_LABEL_KEY = "adapters.family.stt"
 TTS_LABEL_KEY = "adapters.family.tts"

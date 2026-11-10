@@ -11,7 +11,6 @@ from pydantic import ValidationError
 from pyrobardfx.content_types.constants import (
     ANSWER_GAP_PATTERN,
     AUTO,
-    CHOICE_FIELD,
     DATA_FILE_PATTERN,
     ERROR_MESSAGE_KEY,
     LOCATION_SEPARATOR,
@@ -21,9 +20,9 @@ from pyrobardfx.content_types.constants import (
 from pyrobardfx.content_types.detector import ContentTypeDetector
 from pyrobardfx.content_types.model import ContentType
 from pyrobardfx.locales.labels import Labels
-from pyrobardfx.refusal.constants import RefusalReason
+from pyrobardfx.refusal.constants import CHOICE_FIELD, RefusalReason
 from pyrobardfx.refusal.error import RefusedError
-from pyrobardfx.store.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR
+from pyrobardfx.store.constants import ERROR_LOCATION_KEY, LIST_JOINER
 from pyrobardfx.store.json_store import JsonStore
 from pyrobardfx.workdir.constants import CONTENT_TYPES_FOLDER
 from pyrobardfx.workdir.working_directory import WorkingDirectory
@@ -109,8 +108,11 @@ class ContentTypes:
     def _refusal(
         self, reason: RefusalReason, literal: Mapping[str, str] | None = None
     ) -> RefusedError:
-        """A refusal of the choice, pointing at the own folder and listing every name."""
-        names = FIELD_SEPARATOR.join(self.names())
+        """A refusal of the choice, pointing at the own folder and listing every name.
+
+        `literal` maps each further placeholder of `reason`'s text to its value as it is.
+        """
+        names = LIST_JOINER.join(self.names())
         return RefusedError(reason, self._own, names, literal=literal)
 
     @staticmethod
@@ -118,7 +120,7 @@ class ContentTypes:
         """What is wrong with a file: each bad field, or the parser's words where there is none."""
         if not isinstance(error, ValidationError):
             return str(error)
-        return FIELD_SEPARATOR.join(
+        return LIST_JOINER.join(
             LOCATION_SEPARATOR.join(map(str, item[ERROR_LOCATION_KEY])) or item[ERROR_MESSAGE_KEY]
             for item in error.errors()
         )

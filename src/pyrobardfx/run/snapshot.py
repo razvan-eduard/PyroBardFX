@@ -8,7 +8,7 @@ from pyrobardfx.adapters.devices import BackendOrder
 from pyrobardfx.domain.run_id import RunId
 from pyrobardfx.run.constants import INVALID_SNAPSHOT_MESSAGE
 from pyrobardfx.settings.model import Settings
-from pyrobardfx.store.constants import ERROR_LOCATION_KEY, EXTRA_FORBID, FIELD_SEPARATOR
+from pyrobardfx.store.constants import ERROR_LOCATION_KEY, EXTRA_FORBID, LIST_JOINER
 
 
 class RunSnapshot(BaseModel):
@@ -26,7 +26,7 @@ class InvalidSnapshotError(Exception):
     """A snapshot builder was asked to build with a value unset or out of range."""
 
     def __init__(self, fields: tuple[str, ...]) -> None:
-        super().__init__(INVALID_SNAPSHOT_MESSAGE.format(fields=FIELD_SEPARATOR.join(fields)))
+        super().__init__(INVALID_SNAPSHOT_MESSAGE.format(fields=LIST_JOINER.join(fields)))
         self.fields = fields
 
 

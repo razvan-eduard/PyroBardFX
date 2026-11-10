@@ -20,7 +20,7 @@
   "content_types.drug_story.label": "Poveste despre droguri",
   "content_types.refused.auto_unresolved": "Tip de conținut auto refuzat: modelul nu a numit niciunul dintre {detail}. Introduceți un tip de conținut: unul dintre acestea sau al dumneavoastră ca fișier JSON în {path}.",
   "content_types.refused.invalid_file": "Fișierul de tip de conținut {path} a fost omis: nu este un tip de conținut valid ({detail}). Corectați fișierul pentru a-i folosi tipul de conținut; celelalte tipuri de conținut se încarcă în continuare.",
-  "content_types.refused.unknown": "Tip de conținut {choice} refuzat: niciunul cu acest nume nu este livrat și nici nu se află în {path}. Introduceți unul dintre {detail} sau adăugați-l pe al dumneavoastră ca fișier JSON în {path}.",
+  "content_types.refused.unknown": "Tip de conținut „{choice}” refuzat: niciunul cu acest nume nu este livrat și nici nu se află în {path}. Introduceți unul dintre {detail} sau adăugați-l pe al dumneavoastră ca fișier JSON în {path}.",
   "content_types.scary_story.label": "Poveste de groază",
   "events.sink_failed": "Receptorul de evenimente {sink} a eșuat și nu mai primește evenimente: {reason}",
   "run.cancelled": "Rularea {run_id} a fost anulată: {path}",

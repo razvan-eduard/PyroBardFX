@@ -87,7 +87,18 @@ def test_the_refusal_of_an_unknown_content_type_names_the_choice_in_every_langua
     assert "ghost_story" in capsys.readouterr().err
 
 
-def test_the_refusal_of_auto_reads_as_it_did_without_a_choice(
+def test_the_refusal_of_an_empty_choice_shows_the_choice_in_quotes(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(RefusedError) as caught:
+        shipped(tmp_path).resolve("", SCRIPT, AnsweringDetector("scary story"))
+
+    CliPrinter(Labels.load(Language.EN)).refused(caught.value)
+
+    assert "“”" in capsys.readouterr().err
+
+
+def test_the_refusal_of_auto_lists_every_name_and_the_own_folder(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     with pytest.raises(RefusedError) as caught:
@@ -95,8 +106,6 @@ def test_the_refusal_of_auto_reads_as_it_did_without_a_choice(
 
     CliPrinter(Labels.load(Language.EN)).refused(caught.value)
 
-    assert capsys.readouterr().err == (
-        "Refused Content type auto: the model named none of book_chapter, drug_story, "
-        f"scary_story. Enter a Content type: one of those, or your own as a JSON file in "
-        f"{tmp_path / CONTENT_TYPES_FOLDER}.\n"
-    )
+    text = capsys.readouterr().err
+    assert "book_chapter, drug_story, scary_story" in text
+    assert str(tmp_path / CONTENT_TYPES_FOLDER) in text

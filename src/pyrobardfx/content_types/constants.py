@@ -17,5 +17,3 @@ ANSWER_GAP_PATTERN = r"[\s-]+"
 # as broken JSON, which key of the validation error holds the parser's words.
 LOCATION_SEPARATOR = "."
 ERROR_MESSAGE_KEY = "msg"
-# The placeholder of the unknown Content type refusal that names the creator's choice as typed.
-CHOICE_FIELD = "choice"
