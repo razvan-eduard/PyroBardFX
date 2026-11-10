@@ -101,17 +101,23 @@ MARK_MARKER_PATTERNS = (
     (MarkerKind.SECTION, r"^#{2,}\s*(?P<title>.*)$"),
     (MarkerKind.SECTION, r"^(?:-{3,}|\*{3,})(?P<title>)$"),
 )
-# Each marker tag's pattern around its word; a section tag needs no colon before its title, but
-# its word ends at a word boundary. On a line with text a marker tag breaks the line there: the
-# text before ends its Paragraph and the text after starts the next (user rulings 2026-11-10).
-TITLED_MARKER_PATTERN = r"\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]"
-BREAKING_MARKER_PATTERNS = {
-    MarkerKind.CHAPTER: TITLED_MARKER_PATTERN,
-    MarkerKind.SECTION: r"\[\s*{word}\b\s*:?\s*(?P<title>[^\]]*)\]",
-    MarkerKind.VIDEO: TITLED_MARKER_PATTERN,
-}
+# A marker tag whose title, when it has one, follows a colon: `[chapter: X]`, `[section]`,
+# `[video]`.
+COLON_MARKER_PATTERN = r"\[\s*{word}\s*(?::\s*(?P<title>[^\]]*))?\]"
+# A section tag filling its whole line needs no colon before its title, but its word ends at a word
+# boundary: `[section 2]`.
+SECTION_LINE_PATTERN = r"\[\s*{word}\b\s*:?\s*(?P<title>[^\]]*)\]"
+# Each marker tag's pattern around its word, on a line with text: a marker tag breaks the line
+# there, the text before ends its Paragraph and the text after starts the next; mid-line a section
+# tag needs its colon (user rulings 2026-11-10).
+BREAKING_MARKER_PATTERNS = dict.fromkeys(MarkerKind, COLON_MARKER_PATTERN)
 # A marker tag filling its whole line.
-WORD_MARKER_PATTERNS = {kind: f"^{pattern}$" for kind, pattern in BREAKING_MARKER_PATTERNS.items()}
+WORD_MARKER_PATTERNS = {
+    kind: f"^{pattern}$"
+    for kind, pattern in (
+        BREAKING_MARKER_PATTERNS | {MarkerKind.SECTION: SECTION_LINE_PATTERN}
+    ).items()
+}
 # The English word of each marker tag.
 ENGLISH_MARKER_WORDS = {
     MarkerKind.CHAPTER: "chapter",

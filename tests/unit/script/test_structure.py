@@ -190,7 +190,11 @@ def test_no_word_of_a_marker_tag_on_a_line_with_text_is_spoken() -> None:
 
 @pytest.mark.parametrize(
     ("marker", "title"),
-    [("[section: The Quay]", "The Quay"), ("[Section]", None), ("[ section 2 ]", "2")],
+    [
+        ("[section: The Quay]", "The Quay"),
+        ("[Section]", None),
+        ("[ section : The Quay ]", "The Quay"),
+    ],
 )
 def test_a_section_tag_on_a_line_with_text_breaks_the_line_there(
     marker: str, title: str | None
@@ -207,6 +211,17 @@ def test_a_word_that_only_begins_with_section_on_a_line_with_text_stays_text() -
     section = only_section("Fog [sectional] rang.")
 
     assert [p.text for p in section.paragraphs] == ["Fog [sectional] rang."]
+
+
+@pytest.mark.parametrize(
+    "words", ["[section's end]", "[section-b]", "[section 4.2 of the log]", "[ section 2 ]"]
+)
+def test_a_section_tag_without_a_colon_before_its_title_on_a_line_with_text_stays_text(
+    words: str,
+) -> None:
+    section = only_section(f"Fog {words} rang.")
+
+    assert [p.text for p in section.paragraphs] == [f"Fog {words} rang."]
 
 
 def test_no_word_of_a_section_tag_on_a_line_with_text_is_spoken() -> None:
