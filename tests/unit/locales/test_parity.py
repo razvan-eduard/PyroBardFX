@@ -1,11 +1,14 @@
 import json
+import pkgutil
+from importlib import import_module
 from pathlib import Path
 from string import Formatter
+from types import ModuleType
 
 import pytest
 
-from pyrobardfx.cli import constants as cli_constants
-from pyrobardfx.events import constants as events_constants
+import pyrobardfx
+from pyrobardfx.content_types.constants import DATA_FILE_PATTERN, SHIPPED_FOLDER
 from pyrobardfx.locales.constants import LOCALE_FILE, LOCALES_FOLDER, Language
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.settings.definitions import SettingDefinitions
@@ -13,10 +16,28 @@ from pyrobardfx.settings.model import Settings
 
 SOURCE = Path(__file__).parents[3] / "src" / "pyrobardfx"
 LABEL_KEY_SUFFIX = "_LABEL_KEY"
+CONSTANTS_MODULE = ".constants"
 
 
 def texts_of(language: Language) -> dict[str, str]:
     return json.loads((LOCALES_FOLDER / language / LOCALE_FILE).read_text(encoding="utf-8"))
+
+
+def constants_modules() -> list[ModuleType]:
+    """Every `pyrobardfx.*.constants` module, found by walking the package."""
+    return [
+        import_module(info.name)
+        for info in pkgutil.walk_packages(pyrobardfx.__path__, f"{pyrobardfx.__name__}.")
+        if info.name.endswith(CONSTANTS_MODULE)
+    ]
+
+
+def shipped_content_type_label_keys() -> set[str]:
+    """The `label_key` of each shipped Content type data file."""
+    return {
+        json.loads(path.read_text(encoding="utf-8"))["label_key"]
+        for path in SHIPPED_FOLDER.glob(DATA_FILE_PATTERN)
+    }
 
 
 def every_key() -> set[str]:
@@ -49,8 +70,9 @@ def test_each_translation_keeps_the_placeholders_of_the_english_text(language: L
 
 def test_every_key_of_the_locale_files_is_used_by_the_code() -> None:
     source = "".join(path.read_text(encoding="utf-8") for path in SOURCE.rglob("*.py"))
+    unused = {key for key in every_key() if f'"{key}"' not in source}
 
-    assert {key for key in every_key() if f'"{key}"' not in source} == set()
+    assert unused - shipped_content_type_label_keys() == set()
 
 
 def test_the_english_locale_holds_every_refusal_and_settings_key_of_the_code() -> None:
@@ -61,13 +83,21 @@ def test_the_english_locale_holds_every_refusal_and_settings_key_of_the_code() -
     assert (settings | set(RefusalReason)) - texts_of(Language.EN).keys() == set()
 
 
-def test_the_english_locale_holds_every_locale_key_of_the_cli_and_events_constants() -> None:
+def test_the_english_locale_holds_every_locale_key_of_every_constants_module() -> None:
+    modules = constants_modules()
     keys = {
         value
-        for module in (cli_constants, events_constants)
+        for module in modules
         for name, value in vars(module).items()
         if name.endswith(LABEL_KEY_SUFFIX)
     }
 
-    assert keys
+    assert {"cli", "events", "adapters"} <= {module.__name__.split(".")[1] for module in modules}
+    assert keys - texts_of(Language.EN).keys() == set()
+
+
+def test_the_english_locale_holds_the_label_key_of_each_shipped_content_type() -> None:
+    keys = shipped_content_type_label_keys()
+
+    assert len(keys) == len(list(SHIPPED_FOLDER.glob(DATA_FILE_PATTERN)))
     assert keys - texts_of(Language.EN).keys() == set()

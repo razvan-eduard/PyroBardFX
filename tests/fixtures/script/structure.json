@@ -1,0 +1,238 @@
+{
+  "tags_present": false,
+  "global_tags": [],
+  "chapters": [
+    {
+      "title": null,
+      "marker": null,
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Before any heading.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Harbour",
+      "marker": {
+        "start": 21,
+        "end": 34
+      },
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Fog came in.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": "The Quay",
+          "marker": {
+            "start": 49,
+            "end": 60
+          },
+          "paragraphs": [
+            {
+              "text": "Ropes creaked.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 76,
+            "end": 79
+          },
+          "paragraphs": [
+            {
+              "text": "A gull.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 88,
+            "end": 91
+          },
+          "paragraphs": [
+            {
+              "text": "A bell.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 101,
+            "end": 110
+          },
+          "paragraphs": [
+            {
+              "text": "Quiet.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": "The Market",
+          "marker": {
+            "start": 119,
+            "end": 140
+          },
+          "paragraphs": [
+            {
+              "text": "Voices.",
+              "tags": []
+            },
+            {
+              "text": "[sectiune 2]\nFish.",
+              "tags": []
+            },
+            {
+              "text": "[sectiunea a doua]\nSalt.",
+              "tags": []
+            },
+            {
+              "text": "[partea 3]\nNets.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Bell",
+      "marker": {
+        "start": 222,
+        "end": 232
+      },
+      "video_break": true,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "It rang.",
+              "tags": [
+                {
+                  "kind": "sfx",
+                  "value": "bell",
+                  "volume": 0.7,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 24,
+                  "span": {
+                    "start": 233,
+                    "end": 249
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Lighthouse",
+      "marker": {
+        "start": 260,
+        "end": 285
+      },
+      "video_break": true,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Light.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": null,
+      "marker": {
+        "start": 302,
+        "end": 311
+      },
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Dark.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 319,
+            "end": 329
+          },
+          "paragraphs": [
+            {
+              "text": "Waves.",
+              "tags": []
+            },
+            {
+              "text": "[sectional]\nSpray.",
+              "tags": []
+            },
+            {
+              "text": "Night fell.",
+              "tags": []
+            },
+            {
+              "text": "The keeper slept.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Storm",
+      "marker": {
+        "start": 396,
+        "end": 416
+      },
+      "video_break": true,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Wind rose.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

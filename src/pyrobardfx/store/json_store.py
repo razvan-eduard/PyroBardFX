@@ -38,6 +38,14 @@ class JsonStore[M: BaseModel]:
             return cls(path, default)
         return cls(path, type(default).model_validate_json(path.read_text(encoding=ENCODING)))
 
+    @staticmethod
+    def listed(folder: Path, pattern: str) -> tuple[Path, ...]:
+        """The path of each file in `folder` whose name matches `pattern`, sorted.
+
+        A folder that is not there holds none.
+        """
+        return tuple(sorted(folder.glob(pattern)))
+
     @classmethod
     def open_or_set_aside(cls, path: Path, default: M, backup: Path) -> tuple[Self, Path | None]:
         """Open like `open`, but move a broken or invalid file to `backup` and hold `default`.

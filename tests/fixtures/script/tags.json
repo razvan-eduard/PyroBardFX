@@ -1,0 +1,226 @@
+{
+  "tags_present": true,
+  "global_tags": [],
+  "chapters": [
+    {
+      "title": null,
+      "marker": null,
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "She opened the door and stepped out.\nRain began to fall.",
+              "tags": [
+                {
+                  "kind": "sfx",
+                  "value": "door",
+                  "volume": 0.8,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 4,
+                  "span": {
+                    "start": 35,
+                    "end": 51
+                  }
+                },
+                {
+                  "kind": "ambience",
+                  "value": "forest",
+                  "volume": null,
+                  "fade": "long",
+                  "content_id": null,
+                  "word": 7,
+                  "span": {
+                    "start": 69,
+                    "end": 98
+                  }
+                },
+                {
+                  "kind": "ambience",
+                  "value": "rain",
+                  "volume": 0.3,
+                  "fade": "short",
+                  "content_id": null,
+                  "word": 9,
+                  "span": {
+                    "start": 110,
+                    "end": 143
+                  }
+                }
+              ]
+            },
+            {
+              "text": "The ship creaked.",
+              "tags": [
+                {
+                  "kind": "sfx",
+                  "value": "door/creak.wav",
+                  "volume": 1.5,
+                  "fade": null,
+                  "content_id": "3fa2c1",
+                  "word": 13,
+                  "span": {
+                    "start": 163,
+                    "end": 197
+                  }
+                },
+                {
+                  "kind": "sfx",
+                  "value": "hull",
+                  "volume": 2.0,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 207,
+                    "end": 223
+                  }
+                },
+                {
+                  "kind": "sfx",
+                  "value": "rope, creaky",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 224,
+                    "end": 243
+                  }
+                },
+                {
+                  "kind": "underscore",
+                  "value": "drone",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 244,
+                    "end": 263
+                  }
+                },
+                {
+                  "kind": "transition",
+                  "value": "impact",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 264,
+                    "end": 284
+                  }
+                },
+                {
+                  "kind": "music",
+                  "value": "main theme",
+                  "volume": 0.6,
+                  "fade": "medium",
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 285,
+                    "end": 322
+                  }
+                }
+              ]
+            },
+            {
+              "text": "He said [hello: there] twice . [ambiance: rain]",
+              "tags": [
+                {
+                  "kind": "visual",
+                  "value": "lsd | a foggy harbour at night, 0.5",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 324,
+                    "end": 368
+                  }
+                },
+                {
+                  "kind": "visual",
+                  "value": "noir | the quay",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 369,
+                    "end": 394
+                  }
+                },
+                {
+                  "kind": "subject",
+                  "value": "datura",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 395,
+                    "end": 412
+                  }
+                },
+                {
+                  "kind": "fx",
+                  "value": "darken, 3, 0.8",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 413,
+                    "end": 433
+                  }
+                },
+                {
+                  "kind": "text",
+                  "value": "Act 2, the harbour",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 14,
+                  "span": {
+                    "start": 434,
+                    "end": 460
+                  }
+                },
+                {
+                  "kind": "sfx",
+                  "value": "",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 19,
+                  "span": {
+                    "start": 490,
+                    "end": 495
+                  }
+                },
+                {
+                  "kind": "ambience",
+                  "value": "none",
+                  "volume": null,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 19,
+                  "span": {
+                    "start": 497,
+                    "end": 513
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

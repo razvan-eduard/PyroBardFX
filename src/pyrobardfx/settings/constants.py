@@ -18,6 +18,21 @@ EVENT_SET_ASIDE = "settings_file_set_aside"
 # The device belongs to the machine, not to a Story, so it is global too.
 GLOBAL_SETTINGS = frozenset({"runs_to_keep", "ui_language", "story_language", "device"})
 
+# The Settings stamp's text form in a script: `[settings: quality_preset best, name value]`, one
+# global tag of the kind `settings`, each non-default setting as its name and its value, the
+# values apart as a tag's parts are.
+STAMP_TAG = "[{kind}:{values}]"
+STAMP_VALUE = " {name} {value}"
+# A value that is not text is written as JSON without blanks: `true`, `{"a":1}`.
+COMPACT_JSON = (",", ":")
+# A written value holding a tag's closing bracket or a line break would end the stamp early.
+LINE_BREAKS = "\r\n"
+# A new stamp line ends as the script's lines do: `\r\n` in a script whose first line ends so.
+CRLF = "\r\n"
+UNWRITABLE_VALUE_MESSAGE = (
+    "the setting {name} has the value {text!r}, which a settings tag cannot hold"
+)
+
 DEFAULT_RUNS_TO_KEEP = 5
 MIN_RUNS_TO_KEEP = 1
 

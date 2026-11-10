@@ -9,6 +9,7 @@ DOCUMENTS_PLATFORMS = frozenset({"darwin", "win32"})
 STORIES_FOLDER = "stories"
 RUNS_FOLDER = "runs"
 CONFIG_FOLDER = "config"
+CONTENT_TYPES_FOLDER = "content_types"
 LAYOUT = (
     CONFIG_FOLDER,
     STORIES_FOLDER,
@@ -16,7 +17,7 @@ LAYOUT = (
     "models",
     "cache",
     "looks",
-    "content_types",
+    CONTENT_TYPES_FOLDER,
     "locales-override",
 )
 TEMP_ENV_VARS = ("TMPDIR", "TEMP", "TMP")

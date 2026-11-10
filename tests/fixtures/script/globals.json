@@ -1,0 +1,79 @@
+{
+  "tags_present": true,
+  "global_tags": [
+    {
+      "kind": "visual-all",
+      "value": "lsd | a foggy harbour",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 31,
+        "end": 65
+      }
+    },
+    {
+      "kind": "ambience-all",
+      "value": "rain.wav",
+      "volume": 0.3,
+      "fade": "long",
+      "content_id": "3fa2c1",
+      "span": {
+        "start": 66,
+        "end": 114
+      }
+    },
+    {
+      "kind": "fx-all",
+      "value": "grain 0.3, vignette 0.5",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 117,
+        "end": 150
+      }
+    },
+    {
+      "kind": "settings",
+      "value": "quality_preset best",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 151,
+        "end": 182
+      }
+    },
+    {
+      "kind": "style-look",
+      "value": "noir | dark, grainy",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 183,
+        "end": 216
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "title": null,
+      "marker": null,
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "[ambiance-all: rain]\nThe fog [fx-all: inline stays text] came in.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

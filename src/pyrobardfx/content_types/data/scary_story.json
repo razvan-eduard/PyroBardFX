@@ -1,0 +1,29 @@
+{
+  "label_key": "content_types.scary_story.label",
+  "quality": "masterpiece, best quality, highly detailed, cinematic horror atmosphere, film grain, volumetric fog, dramatic shadows, smooth motion",
+  "negative": "text, watermark, logo, letters, gore, blood, mutilation, nsfw, cartoon, bright cheerful colors, lowres, blurry, jpeg artifacts",
+  "styles": {
+    "calm before": "quiet empty room at dusk, still curtains, faint ticking clock mood, muted desaturated colors, subtle unease",
+    "creeping dread": "long dark corridor, flickering bulb, shadows stretching on walls, cold green tint, slow push forward",
+    "haunted house": "decaying victorian house interior, dust in moonlight beams, peeling wallpaper, creaking stairs, deep blue darkness",
+    "dark forest": "twisted black trees in thick fog, moonlight through branches, distant shapes between trunks, cold silver palette",
+    "abandoned hospital": "abandoned hospital ward, broken beds, flickering fluorescent light, stained tiles, sickly green and grey",
+    "storm night": "violent storm at night, lightning flashes over an old house, rain streaked windows, wind bending trees",
+    "something watching": "silhouette of a tall figure at the end of a hallway, backlit doorway, deep shadows, face hidden, unsettling stillness",
+    "underwater dread": "dark deep water, faint light from above, drifting particles, vast black depth below, claustrophobic",
+    "nightmare": "surreal melting room, impossible stretching doors, distorted perspective, red and black, dreamlike horror",
+    "jump scare": "sudden harsh white flash, extreme contrast, blurred motion, shattered darkness",
+    "aftermath": "grey dawn over a silent house, mist lifting, cold pale light, eerie calm"
+  },
+  "keywords": {
+    "en": {}
+  },
+  "default_look": "horror",
+  "sound_mix": {
+    "ambience": 0.65,
+    "atmosphere": 0.65,
+    "underscore": 0.52,
+    "effects": 0.8,
+    "transitions": 0.9
+  }
+}
