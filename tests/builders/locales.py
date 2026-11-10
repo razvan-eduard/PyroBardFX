@@ -1,4 +1,4 @@
-"""Builds a locales folder for a test, laid out as the repo's `locales/<lang>/main.json`."""
+"""Builds a locales folder for a test, laid out as `src/pyrobardfx/locales/<lang>/main.json`."""
 
 import json
 import shutil

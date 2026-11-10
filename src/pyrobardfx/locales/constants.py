@@ -19,8 +19,9 @@ class Language(StrEnum):
 
 # The language whose text stands in for a key another language lacks.
 FALLBACK_LANGUAGE = Language.EN
-# The one place the code finds the locales folder: `locales/` at the repo root.
-LOCALES_FOLDER = Path(__file__).parents[3] / "locales"
+# The one place the code finds the locales folder: this package's own folder,
+# `src/pyrobardfx/locales/`, so a checkout and an installed wheel find the same files.
+LOCALES_FOLDER = Path(__file__).parent
 LOCALE_FILE = "main.json"
 MISSING_LABEL_MESSAGE = (
     "the locale key {key} is missing from {language} and from the fallback {fallback}"
