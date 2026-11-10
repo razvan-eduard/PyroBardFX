@@ -1,0 +1,2 @@
+# The CRLF script fixture keeps its line ends on every checkout (story 27).
+tests/fixtures/script/crlf.txt -text

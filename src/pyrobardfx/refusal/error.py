@@ -16,7 +16,8 @@ class RefusedError(Exception):
 
     `path` is the file or folder the refusal concerns; a refusal about no path, such as a device
     choice, has none. `labelled` maps each further placeholder of the text to the label key of
-    its value, which the refusal's renderer resolves in the user's language.
+    its value, which the refusal's renderer resolves in the user's language; `literal` maps each
+    further placeholder to its value as it is, such as a name the user typed.
     """
 
     def __init__(
@@ -25,6 +26,7 @@ class RefusedError(Exception):
         path: Path | None,
         detail: str,
         labelled: Mapping[str, str] | None = None,
+        literal: Mapping[str, str] | None = None,
     ) -> None:
         message_format = REFUSED_WITHOUT_PATH_MESSAGE if path is None else REFUSED_MESSAGE
         super().__init__(message_format.format(reason=reason, path=path, detail=detail))
@@ -32,3 +34,4 @@ class RefusedError(Exception):
         self.path = path
         self.detail = detail
         self.labelled: Mapping[str, str] = MappingProxyType(dict(labelled or {}))
+        self.literal: Mapping[str, str] = MappingProxyType(dict(literal or {}))

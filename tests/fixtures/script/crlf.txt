@@ -1,0 +1,21 @@
+[TAGS-PRESENT]
+[GLOBALS-START]
+[scene-all: lsd | a foggy harbour]
+[ambience-all: rain, 0.3, fade long]
+[GLOBALS-END]
+Before any heading.
+
+# The Harbour
+Fog [ambience: fog, 0.4] came in.
+
+## The Quay
+Ropes creaked [sfx: rope, 0.6].
+---
+A gull.
+
+[section: The Market]
+Voices.
+
+[video]
+# The Bell
+It rang. [chapter: The Storm] Wind rose.

@@ -25,8 +25,12 @@ class ScriptFixtures:
         return sorted(self._folder.glob(f"*{SCRIPT_SUFFIX}"))
 
     def expected(self, script: Path) -> str:
-        """The parse of `script` as its fixture file holds it."""
-        parsed = ScriptParser().parse(script.read_text(encoding=ENCODING))
+        """The parse of `script` as its fixture file holds it.
+
+        The script is read as bytes, so a CRLF script keeps its line ends: `read_text` would turn
+        CRLF into LF, and the parse would lose the offsets of the CRLF text.
+        """
+        parsed = ScriptParser().parse(script.read_bytes().decode(ENCODING))
         return parsed.model_dump_json(indent=INDENT) + "\n"
 
     def write(self) -> list[Path]:

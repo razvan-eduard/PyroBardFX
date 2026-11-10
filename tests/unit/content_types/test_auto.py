@@ -2,7 +2,10 @@ from pathlib import Path
 
 import pytest
 
+from pyrobardfx.cli.printer import CliPrinter
 from pyrobardfx.content_types.catalogue import ContentTypes
+from pyrobardfx.locales.constants import Language
+from pyrobardfx.locales.labels import Labels
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.workdir.constants import CONTENT_TYPES_FOLDER
@@ -69,4 +72,31 @@ def test_auto_is_refused_when_the_answer_names_no_content_type(tmp_path: Path) -
         RefusalReason.AUTO_UNRESOLVED,
         tmp_path / CONTENT_TYPES_FOLDER,
         "book_chapter, drug_story, scary_story",
+    )
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_refusal_of_an_unknown_content_type_names_the_choice_in_every_language(
+    tmp_path: Path, language: Language, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(RefusedError) as caught:
+        shipped(tmp_path).resolve("ghost_story", SCRIPT, AnsweringDetector("scary story"))
+
+    CliPrinter(Labels.load(language)).refused(caught.value)
+
+    assert "ghost_story" in capsys.readouterr().err
+
+
+def test_the_refusal_of_auto_reads_as_it_did_without_a_choice(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(RefusedError) as caught:
+        shipped(tmp_path).resolve("auto", SCRIPT, AnsweringDetector("I cannot tell."))
+
+    CliPrinter(Labels.load(Language.EN)).refused(caught.value)
+
+    assert capsys.readouterr().err == (
+        "Refused Content type auto: the model named none of book_chapter, drug_story, "
+        f"scary_story. Enter a Content type: one of those, or your own as a JSON file in "
+        f"{tmp_path / CONTENT_TYPES_FOLDER}.\n"
     )

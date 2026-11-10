@@ -20,7 +20,7 @@
   "content_types.drug_story.label": "Drug story",
   "content_types.refused.auto_unresolved": "Refused Content type auto: the model named none of {detail}. Enter a Content type: one of those, or your own as a JSON file in {path}.",
   "content_types.refused.invalid_file": "Skipped Content type file {path}: it is not a valid Content type ({detail}). Correct the file to use its Content type; the other Content types still load.",
-  "content_types.refused.unknown": "Refused Content type: none of that name is shipped or in {path}. Enter one of {detail}, or add your own as a JSON file in {path}.",
+  "content_types.refused.unknown": "Refused Content type {choice}: none of that name is shipped or in {path}. Enter one of {detail}, or add your own as a JSON file in {path}.",
   "content_types.scary_story.label": "Scary story",
   "events.sink_failed": "Event sink {sink} failed and gets no further events: {reason}",
   "run.cancelled": "Run {run_id} cancelled: {path}",

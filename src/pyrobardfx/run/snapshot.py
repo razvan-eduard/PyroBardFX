@@ -6,9 +6,9 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from pyrobardfx.adapters.devices import BackendOrder
 from pyrobardfx.domain.run_id import RunId
-from pyrobardfx.run.constants import ERROR_LOCATION_KEY, FIELD_SEPARATOR, INVALID_SNAPSHOT_MESSAGE
+from pyrobardfx.run.constants import INVALID_SNAPSHOT_MESSAGE
 from pyrobardfx.settings.model import Settings
-from pyrobardfx.store.constants import EXTRA_FORBID
+from pyrobardfx.store.constants import ERROR_LOCATION_KEY, EXTRA_FORBID, FIELD_SEPARATOR
 
 
 class RunSnapshot(BaseModel):

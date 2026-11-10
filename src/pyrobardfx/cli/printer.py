@@ -30,6 +30,7 @@ class CliPrinter:
             detail=error.detail,
             option=WORKING_DIR_OPTION,
             env=HOME_OVERRIDE_ENV,
+            **error.literal,
             **labelled,
         )
         typer.echo(text, err=True)

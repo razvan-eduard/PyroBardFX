@@ -16,3 +16,8 @@ FIRST_NUMBERED_BACKUP = 2
 EXTRA_FORBID: Final = "forbid"
 # A model validator that runs on the built model, after its fields validated.
 VALIDATE_AFTER: Final = "after"
+# How a message joins a list, such as the bad fields of a validation error, and which key of
+# each of pydantic's validation errors holds the field's location. `run` and `content_types`
+# both import them from here: the store imports no other area, so no import cycle can form.
+FIELD_SEPARATOR = ", "
+ERROR_LOCATION_KEY = "loc"

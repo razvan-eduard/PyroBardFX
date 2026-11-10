@@ -1,0 +1,171 @@
+{
+  "tags_present": true,
+  "global_tags": [
+    {
+      "kind": "visual-all",
+      "value": "lsd | a foggy harbour",
+      "volume": null,
+      "fade": null,
+      "content_id": null,
+      "span": {
+        "start": 33,
+        "end": 67
+      }
+    },
+    {
+      "kind": "ambience-all",
+      "value": "rain",
+      "volume": 0.3,
+      "fade": "long",
+      "content_id": null,
+      "span": {
+        "start": 69,
+        "end": 105
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "title": null,
+      "marker": null,
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Before any heading.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Harbour",
+      "marker": {
+        "start": 145,
+        "end": 158
+      },
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Fog came in.",
+              "tags": [
+                {
+                  "kind": "ambience",
+                  "value": "fog",
+                  "volume": 0.4,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 4,
+                  "span": {
+                    "start": 164,
+                    "end": 184
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The Quay",
+          "marker": {
+            "start": 197,
+            "end": 208
+          },
+          "paragraphs": [
+            {
+              "text": "Ropes creaked .",
+              "tags": [
+                {
+                  "kind": "one-shot",
+                  "value": "rope",
+                  "volume": 0.6,
+                  "fade": null,
+                  "content_id": null,
+                  "word": 8,
+                  "span": {
+                    "start": 224,
+                    "end": 240
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": null,
+          "marker": {
+            "start": 243,
+            "end": 246
+          },
+          "paragraphs": [
+            {
+              "text": "A gull.",
+              "tags": []
+            }
+          ]
+        },
+        {
+          "title": "The Market",
+          "marker": {
+            "start": 259,
+            "end": 280
+          },
+          "paragraphs": [
+            {
+              "text": "Voices.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Bell",
+      "marker": {
+        "start": 302,
+        "end": 312
+      },
+      "video_break": true,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "It rang.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "The Storm",
+      "marker": {
+        "start": 323,
+        "end": 343
+      },
+      "video_break": false,
+      "sections": [
+        {
+          "title": null,
+          "marker": null,
+          "paragraphs": [
+            {
+              "text": "Wind rose.",
+              "tags": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
