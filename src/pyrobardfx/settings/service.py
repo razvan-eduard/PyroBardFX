@@ -1,5 +1,6 @@
 """The settings service: the one writer of the settings and the setup presets."""
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Self
 
@@ -47,24 +48,46 @@ class SettingChange(BaseModel):
         )
 
 
+class SetAsideFile(BaseModel):
+    """A broken store file the settings service moved aside at open, and where it went."""
+
+    model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
+
+    path: Path
+    backup: Path
+
+
 class SettingsService:
     """Holds the settings and setup presets of one working directory; reads come from memory."""
 
-    def __init__(self, settings: JsonStore[Settings], presets: JsonStore[SetupPresetsFile]) -> None:
+    def __init__(
+        self,
+        settings: JsonStore[Settings],
+        presets: JsonStore[SetupPresetsFile],
+        set_aside: Sequence[SetAsideFile] = (),
+    ) -> None:
         self._settings = settings
         self._presets = presets
+        self._set_aside = tuple(set_aside)
 
     @classmethod
     def open(cls, working: WorkingDirectory, clock: Clock, events: EventFanOut) -> Self:
         """Load the settings of `working`; without a settings file, start from the default preset.
 
         A broken or invalid file is moved aside under a dated name, the start settings are loaded
-        in its place and one event says where the file went.
+        in its place and one event says where the file went. The service keeps a record of each
+        file it set aside, in order, until `take_set_aside` hands them out.
         """
         opener = _StoreOpener(clock, events)
         config = working.root / CONFIG_FOLDER
         presets = opener.open(config / PRESETS_FILE, SetupPresetsFile())
-        return cls(opener.open(config / SETTINGS_FILE, presets.read().start_settings()), presets)
+        settings = opener.open(config / SETTINGS_FILE, presets.read().start_settings())
+        return cls(settings, presets, opener.set_aside)
+
+    def take_set_aside(self) -> tuple[SetAsideFile, ...]:
+        """Return the records of the files set aside at open, in order; a later call gets none."""
+        taken, self._set_aside = self._set_aside, ()
+        return taken
 
     def read(self) -> Settings:
         return self._settings.read()
@@ -138,11 +161,13 @@ class _StoreOpener:
     def __init__(self, clock: Clock, events: EventFanOut) -> None:
         self._clock = clock
         self._events = events.at(STAGE_NAME)
+        self.set_aside: list[SetAsideFile] = []
 
     def open[M: BaseModel](self, path: Path, default: M) -> JsonStore[M]:
         time = self._clock.utc_now().strftime(BACKUP_TIME_FORMAT)
         backup = path.with_name(BACKUP_NAME.format(stem=path.stem, time=time, suffix=path.suffix))
         store, set_aside = JsonStore.open_or_set_aside(path, default, backup)
         if set_aside is not None:
+            self.set_aside.append(SetAsideFile(path=path, backup=set_aside))
             self._events.emit(EVENT_SET_ASIDE, PERCENT_DONE, path=str(path), backup=str(set_aside))
         return store

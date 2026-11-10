@@ -87,3 +87,14 @@ def test_a_stage_that_stops_logs_one_cancel_event_with_its_stage_and_percent() -
 
     cancelled = [(e.stage, e.percent) for e in sink.events if e.event == "run_cancelled"]
     assert cancelled == [("render_in_chunks", 50.0)]
+
+
+def test_the_harness_pipeline_runs_a_given_stage_in_the_place_of_its_same_name_no_op() -> None:
+    sink = RecordingSink()
+    shared = dependencies(sink=sink)
+    stages = (FakeStage("prune_runs", shared), FakeStage("settings", shared))
+
+    value = Pipeline.harness(shared, *stages).run(())
+
+    started = [event.stage for event in sink.events if event.event == "stage_started"]
+    assert (value, started) == (("prune_runs", "settings"), ["prune_runs", *STAGE_ORDER])

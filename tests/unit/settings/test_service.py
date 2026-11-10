@@ -8,7 +8,7 @@ from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.settings.constants import QualityPresetName
 from pyrobardfx.settings.model import Settings
-from pyrobardfx.settings.service import SettingChange, SettingsService
+from pyrobardfx.settings.service import SetAsideFile, SettingChange, SettingsService
 from pyrobardfx.workdir.working_directory import WorkingDirectory
 from tests.fakes.clock import FakeClock
 from tests.fakes.events import RecordingSink
@@ -68,6 +68,26 @@ def test_a_broken_settings_file_opens_with_the_default_settings(tmp_path: Path) 
     broken_settings(tmp_path)
 
     assert open_settings(tmp_path).read() == Settings()
+
+
+def test_a_broken_settings_file_is_kept_as_one_record_of_its_path_and_backup(
+    tmp_path: Path,
+) -> None:
+    path = broken_settings(tmp_path)
+
+    settings = open_settings(tmp_path)
+
+    assert settings.take_set_aside() == (
+        SetAsideFile(path=path, backup=path.with_name("settings.broken-20261109T153000Z.json")),
+    )
+
+
+def test_the_set_aside_records_are_handed_out_once(tmp_path: Path) -> None:
+    broken_settings(tmp_path)
+    settings = open_settings(tmp_path)
+    settings.take_set_aside()
+
+    assert settings.take_set_aside() == ()
 
 
 def test_a_broken_settings_file_logs_one_set_aside_event_naming_the_backup(

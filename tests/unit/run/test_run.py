@@ -312,3 +312,25 @@ def test_a_run_start_prunes_down_to_the_keep_count_the_settings_hold(tmp_path: P
         "20261109T152000Z-0000",
         RUN_ID,
     ]
+
+
+def run_after_a_broken_settings_file(sandbox: Path) -> Result:
+    config = sandbox / "work" / "config"
+    config.mkdir(parents=True)
+    (config / "settings.json").write_text('{"runs_to_keep": "many"}', encoding="utf-8")
+    return run_story(sandbox, FakeClock(START))
+
+
+def test_a_run_after_a_broken_settings_file_logs_its_set_aside_inside_the_settings_stage(
+    tmp_path: Path,
+) -> None:
+    run_after_a_broken_settings_file(tmp_path)
+
+    events = [event["event"] for event in log_of(tmp_path) if event["stage"] == "settings"]
+    assert events == ["stage_started", "settings_file_set_aside", "stage_finished"]
+
+
+def test_a_run_after_a_broken_settings_file_prints_its_set_aside_once(tmp_path: Path) -> None:
+    result = run_after_a_broken_settings_file(tmp_path)
+
+    assert result.stderr.count("settings_file_set_aside") == 1

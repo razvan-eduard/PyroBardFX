@@ -8,10 +8,16 @@ from pyrobardfx.events.sinks import JsonLinesSink
 from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.refusal.error import RefusedError
 from pyrobardfx.run.cancel import CancelToken, RunCancelledError
-from pyrobardfx.run.constants import PRUNE_STAGE, RUN_ID_ATTEMPTS, SNAPSHOT_FILE
+from pyrobardfx.run.constants import (
+    PRUNE_STAGE,
+    RUN_ID_ATTEMPTS,
+    SETTINGS_STAGE,
+    SNAPSHOT_FILE,
+)
 from pyrobardfx.run.pipeline import Pipeline
 from pyrobardfx.run.pruning import PruneRunsStage
 from pyrobardfx.run.run_id import RunId
+from pyrobardfx.run.settings_stage import SettingsStage
 from pyrobardfx.run.snapshot import RunSnapshot, RunSnapshotBuilder
 from pyrobardfx.run.stage import StageDependencies
 from pyrobardfx.run.tokens import TokenSource
@@ -64,8 +70,9 @@ class RunService:
             events = self._events.with_sink(JsonLinesSink(handle))
             dependencies = StageDependencies(snapshot, events, self._clock, self._cancel)
             prune = PruneRunsStage(PRUNE_STAGE, dependencies, self._folders)
+            settings = SettingsStage(SETTINGS_STAGE, dependencies, self._settings)
             try:
-                Pipeline.harness(dependencies, prune).run(folder)
+                Pipeline.harness(dependencies, prune, settings).run(folder)
             except RunCancelledError:
                 return RunOutcome(folder, cancelled=True)
         return RunOutcome(folder, cancelled=False)

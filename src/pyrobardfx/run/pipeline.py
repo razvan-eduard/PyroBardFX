@@ -21,9 +21,15 @@ class Pipeline[Value]:
         self._stages = tuple(stages)
 
     @classmethod
-    def harness(cls, dependencies: StageDependencies, *first: Stage[Value, Value]) -> Self:
-        """Return the `first` stages, then the harness order, each a no-op until its ticket."""
-        harness = (NoOpStage[Value](name, dependencies) for name in STAGE_ORDER)
+    def harness(cls, dependencies: StageDependencies, *stages: Stage[Value, Value]) -> Self:
+        """Return `stages` placed into the harness order, each name without a stage a no-op.
+
+        A stage named in `STAGE_ORDER` takes the place of that name's no-op; the other `stages`
+        run first, in the order given.
+        """
+        built = {stage.name: stage for stage in stages if stage.name in STAGE_ORDER}
+        first = (stage for stage in stages if stage.name not in STAGE_ORDER)
+        harness = (built.get(name) or NoOpStage[Value](name, dependencies) for name in STAGE_ORDER)
         return cls((*first, *harness))
 
     def run(self, value: Value) -> Value:

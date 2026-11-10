@@ -70,7 +70,9 @@ class CliApp:
             working = ctx.find_object(WorkingDirectory)
             if working is None:
                 raise RuntimeError(NO_WORKING_DIRECTORY_MESSAGE)
-            settings = SettingsService.open(working, clock, events)
+            # The settings stage replays each set-aside event into the Run, which also logs it to
+            # `run.log`; opening on a fan-out without sinks makes that replay the only send.
+            settings = SettingsService.open(working, clock, EventFanOut(clock, ()))
             runs = RunService(working, clock, tokens, trash, events, cancel, settings)
             try:
                 outcome = runs.start(story)
