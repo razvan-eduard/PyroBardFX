@@ -10,6 +10,7 @@ from pyrobardfx.locales.constants import (
     FALLBACK_LANGUAGE,
     LOCALE_FILE,
     LOCALES_FOLDER,
+    MISSING_FALLBACK_LOCALE_MESSAGE,
     MISSING_LABEL_MESSAGE,
     Language,
 )
@@ -22,6 +23,10 @@ class LocaleFile(RootModel[dict[str, str]]):
 
 class MissingLabelError(LookupError):
     """A key is in neither the language's locale file nor the fallback's: a defect in the code."""
+
+
+class MissingFallbackLocaleError(FileNotFoundError):
+    """The fallback's own locale file is absent, so no label could stand in: a broken install."""
 
 
 class Labels:
@@ -44,8 +49,11 @@ class Labels:
 
     @classmethod
     def load(cls, language: Language, folder: Path = LOCALES_FOLDER) -> Self:
-        """Read the locale files of `language` and of the fallback from `folder`."""
-        fallback = cls._read(folder, FALLBACK_LANGUAGE)
+        """Read the locale files of `language` and of the fallback from `folder`.
+
+        A missing fallback file raises `MissingFallbackLocaleError` here, before any lookup.
+        """
+        fallback = cls._read_fallback(folder)
         texts = fallback if language == FALLBACK_LANGUAGE else cls._read(folder, language)
         return cls(language, folder, texts, fallback)
 
@@ -63,6 +71,14 @@ class Labels:
                 )
             )
         return text
+
+    @classmethod
+    def _read_fallback(cls, folder: Path) -> dict[str, str]:
+        """The texts of the fallback; unlike any other language, it must have its locale file."""
+        path = folder / FALLBACK_LANGUAGE / LOCALE_FILE
+        if not path.exists():
+            raise MissingFallbackLocaleError(MISSING_FALLBACK_LOCALE_MESSAGE.format(path=path))
+        return cls._read(folder, FALLBACK_LANGUAGE)
 
     @staticmethod
     def _read(folder: Path, language: Language) -> dict[str, str]:

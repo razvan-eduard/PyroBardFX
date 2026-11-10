@@ -26,6 +26,7 @@ LOCALE_FILE = "main.json"
 MISSING_LABEL_MESSAGE = (
     "the locale key {key} is missing from {language} and from the fallback {fallback}"
 )
+MISSING_FALLBACK_LOCALE_MESSAGE = "the fallback locale file {path} is missing"
 
 
 @dataclass(frozen=True)
