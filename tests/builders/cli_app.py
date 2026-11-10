@@ -12,7 +12,7 @@ from pyrobardfx.workdir.host import HostFacts
 from tests.builders.host_facts import HostFactsBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import START, FakeClock
-from tests.fakes.devices import FakeDeviceProbe
+from tests.fakes.devices import FakeBackendProbe
 from tests.fakes.events import RecordingSink
 from tests.fakes.tokens import FixedTokenSource
 from tests.fakes.trash import FakeTrash
@@ -30,7 +30,7 @@ class CliAppBuilder:
         self._cancel = FakeCancelToken()
         self._sinks: list[RecordingSink] = []
         self._labels: Labels | None = None
-        self._devices = FakeDeviceProbe()
+        self._probe = FakeBackendProbe()
 
     def host(self, host: HostFacts) -> Self:
         self._host = host
@@ -57,9 +57,9 @@ class CliAppBuilder:
         self._labels = labels
         return self
 
-    def devices(self, devices: FakeDeviceProbe) -> Self:
-        """Probe `devices` for backends; by default the machine offers the CPU alone."""
-        self._devices = devices
+    def probe(self, probe: FakeBackendProbe) -> Self:
+        """Ask `probe` for backends; by default the machine offers the CPU alone."""
+        self._probe = probe
         return self
 
     def sink(self, sink: RecordingSink) -> Self:
@@ -76,6 +76,6 @@ class CliAppBuilder:
             self._trash or FakeTrash(clock, self._sandbox / "trash"),
             self._cancel,
             self._labels or Labels.load(Language.EN),
-            self._devices,
+            self._probe,
             self._sinks,
         )

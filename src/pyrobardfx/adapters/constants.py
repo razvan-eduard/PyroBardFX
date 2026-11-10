@@ -1,6 +1,8 @@
 """Constants of the model adapters area: backends, dtypes, families and their events."""
 
+from collections.abc import Mapping
 from enum import StrEnum
+from types import MappingProxyType
 
 
 class Backend(StrEnum):
@@ -49,6 +51,8 @@ class AdapterFamily(StrEnum):
 # The accelerators the resolver tries, best first: Apple Silicon (MLX, then MPS), then CUDA.
 # The CPU closes every order, so a family that may run there always finds a backend.
 ACCELERATORS = (Backend.MLX, Backend.MPS, Backend.CUDA)
+# The Apple Silicon backends: naming one puts it first and keeps the other next, if found.
+APPLE_SILICON_TIER = (Backend.MLX, Backend.MPS)
 # The families that refuse the CPU even when they could run there: a CPU Run of theirs would
 # take many hours, so the user gets a clear refusal instead (story 13).
 CPU_REFUSING_FAMILIES = frozenset({AdapterFamily.DIFFUSION, AdapterFamily.SOUND_GENERATOR})
@@ -57,8 +61,33 @@ TORCH_MODULE = "torch"
 MLX_CORE_MODULE = "mlx.core"
 
 # The detail of a refusal for a runtime that declares none of the order's backends, best first.
-UNSUPPORTED_DETAIL = "{family}: {backends}"
 BACKEND_SEPARATOR = " > "
+# The placeholder of a refusal text that names the family, in the user's words.
+FAMILY_FIELD = "family"
+
+STT_LABEL_KEY = "adapters.family.stt"
+TTS_LABEL_KEY = "adapters.family.tts"
+LLM_LABEL_KEY = "adapters.family.llm"
+CLAP_LABEL_KEY = "adapters.family.clap"
+SOUND_GENERATOR_LABEL_KEY = "adapters.family.sound_generator"
+DIFFUSION_LABEL_KEY = "adapters.family.diffusion"
+STILL_LABEL_KEY = "adapters.family.still"
+GEOMETRY_LABEL_KEY = "adapters.family.geometry"
+UPSCALER_LABEL_KEY = "adapters.family.upscaler"
+# Each family's name in the user's words, as a refusal shows it.
+FAMILY_LABEL_KEYS: Mapping[AdapterFamily, str] = MappingProxyType(
+    {
+        AdapterFamily.STT: STT_LABEL_KEY,
+        AdapterFamily.TTS: TTS_LABEL_KEY,
+        AdapterFamily.LLM: LLM_LABEL_KEY,
+        AdapterFamily.CLAP: CLAP_LABEL_KEY,
+        AdapterFamily.SOUND_GENERATOR: SOUND_GENERATOR_LABEL_KEY,
+        AdapterFamily.DIFFUSION: DIFFUSION_LABEL_KEY,
+        AdapterFamily.STILL: STILL_LABEL_KEY,
+        AdapterFamily.GEOMETRY: GEOMETRY_LABEL_KEY,
+        AdapterFamily.UPSCALER: UPSCALER_LABEL_KEY,
+    }
+)
 
 EVENT_MODEL_LOADED = "model_loaded"
 EVENT_MODEL_RELEASED = "model_released"

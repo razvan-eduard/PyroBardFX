@@ -4,7 +4,7 @@ from collections.abc import Callable, Sequence
 from typing import Protocol
 
 from pyrobardfx.adapters.constants import DeviceChoice
-from pyrobardfx.adapters.devices import DeviceProbe, DeviceResolver
+from pyrobardfx.adapters.devices import BackendProbe, DeviceResolver
 from pyrobardfx.clock.base import Clock
 from pyrobardfx.domain.constants import StageName
 from pyrobardfx.domain.tokens import TokenSource
@@ -53,7 +53,7 @@ class ReadyRun[S: RunSpeaker]:
 class RunFactory:
     """Readies Runs over the app's adapters; each Run's events go to its speaker and `sinks`.
 
-    `devices` is asked which backends the machine offers, at each Run start.
+    `probe` is asked which backends the machine offers once per Run, at Run start.
     """
 
     def __init__(
@@ -63,7 +63,7 @@ class RunFactory:
         trash: Trash,
         cancel: CancelToken,
         labels: Labels,
-        devices: DeviceProbe,
+        probe: BackendProbe,
         sinks: Sequence[EventSink] = (),
     ) -> None:
         self._clock = clock
@@ -71,19 +71,19 @@ class RunFactory:
         self._trash = trash
         self._cancel = cancel
         self._labels = labels
-        self._devices = DeviceResolver(devices)
+        self._resolver = DeviceResolver(probe)
         self._sinks = tuple(sinks)
 
     def open[S: RunSpeaker](
         self,
         working: WorkingDirectory,
         speaker_for: Callable[[Labels], S],
-        device: DeviceChoice = DeviceChoice.AUTO,
+        device: DeviceChoice | None = None,
     ) -> ReadyRun[S]:
         """Open the settings of `working` and ready a Run whose speaker speaks their `ui_language`.
 
         `speaker_for` makes the speaker from the labels of that language, read from the locales
-        folder of the app's labels. `device` wins over the device setting unless it is `auto`.
+        folder of the app's labels. A given `device`, `auto` included, wins over the device setting.
         """
         # The settings stage replays each set-aside event into the Run, which also logs it to
         # `run.log`; opening on a fan-out without sinks makes a replay the only send.
@@ -100,7 +100,7 @@ class RunFactory:
             events,
             self._cancel,
             settings,
-            self._devices,
+            self._resolver,
             device,
         )
         return ReadyRun(speaker, runs, settings, events.at(StageName.SETTINGS))

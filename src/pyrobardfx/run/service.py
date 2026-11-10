@@ -42,8 +42,8 @@ class RunService:
     """Starts Runs in one working directory; each Run's events also go to its `run.log`.
 
     A Run reads the settings once, at its start, into its frozen snapshot (ADR 0002). Its
-    backend order is resolved then too, by `devices` from `device` (the `--device` flag) and the
-    device setting, and goes into the snapshot beside them.
+    backend order is resolved then too, once per Run, by `resolver` from `device` (the `--device`
+    flag, `None` when not given) and the device setting, and goes into the snapshot beside them.
     """
 
     def __init__(
@@ -55,8 +55,8 @@ class RunService:
         events: EventFanOut,
         cancel: CancelToken,
         settings: SettingsService,
-        devices: DeviceResolver,
-        device: DeviceChoice,
+        resolver: DeviceResolver,
+        device: DeviceChoice | None,
     ) -> None:
         self._folders = RunFolders(working, trash)
         self._clock = clock
@@ -64,7 +64,7 @@ class RunService:
         self._events = events
         self._cancel = cancel
         self._settings = settings
-        self._devices = devices
+        self._resolver = resolver
         self._device = device
 
     def start(self, story: str) -> RunOutcome:
@@ -88,21 +88,24 @@ class RunService:
         return RunOutcome(folder, cancelled=False)
 
     def _create(self, story: str) -> tuple[RunSnapshot, RunFolder]:
-        """Draw run ids until one has no Run folder yet; refuse after `RUN_ID_ATTEMPTS` draws."""
+        """Read the settings and pick the backends once, then draw run ids until one has no Run
+        folder yet; refuse after `RUN_ID_ATTEMPTS` draws."""
+        settings = self._settings.read()
+        order = self._resolver.pick(self._device, settings.device)
+        builder = RunSnapshotBuilder().story(story).settings(settings).backend_order(order)
         taken: RunFolderTakenError | None = None
         for _ in range(RUN_ID_ATTEMPTS):
             try:
-                return self._create_once(story)
+                return self._create_once(story, builder)
             except RunFolderTakenError as error:
                 taken = error
         if taken is None:
             raise RuntimeError(NO_RUN_ID_ATTEMPT_MESSAGE)
         raise RefusedError(RefusalReason.RUN_ID_TAKEN, taken.runs, taken.run_id) from taken
 
-    def _create_once(self, story: str) -> tuple[RunSnapshot, RunFolder]:
+    def _create_once(
+        self, story: str, builder: RunSnapshotBuilder
+    ) -> tuple[RunSnapshot, RunFolder]:
         run_id = RunId.draw(self._clock, self._tokens)
-        settings = self._settings.read()
-        order = self._devices.pick(self._device, settings.device)
-        builder = RunSnapshotBuilder().story(story).run_id(run_id).settings(settings)
-        snapshot = builder.backend_order(order).build()
+        snapshot = builder.run_id(run_id).build()
         return snapshot, self._folders.create(story, run_id)

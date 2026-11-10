@@ -230,15 +230,15 @@ _Avoid_: setting spec, field info
 ### Models
 
 **Adapter**:
-The one class a model sits behind. Each adapter family has one base class that owns the backend, dtype, load, release, timing, progress steps and cancel checks; each runtime is one subclass that declares the backends it runs on and its dtype on each, and each family has one fake.
+The one class an I/O call or a model call sits behind. Each adapter family (STT, TTS, LLM, CLAP, sound generator, diffusion, still, geometry, upscaler, media, net, trash and clock) has one base class and one fake. The model families share the `Adapter` base, which owns the backend, dtype, load, release, timing, progress steps and cancel checks; each runtime is one subclass that declares the backends it runs on and its dtype on each.
 _Avoid_: wrapper, driver, plugin
 
 **Backend**:
-Where a model runs: MPS or MLX on Apple Silicon, CUDA on NVIDIA, or the CPU. The device resolver orders the backends a machine offers, best first, once at startup; the CPU closes every order.
+Where a model runs: MPS or MLX on Apple Silicon, CUDA on NVIDIA, or the CPU. The device resolver orders the backends a machine offers, best first, once per Run, at Run start; the CPU closes every order.
 _Avoid_: platform (that is the operating system), runtime (that is the library behind an adapter)
 
 **Device**:
-The user's choice of Backend: `auto`, or one backend, given by the `--device` flag or the device setting; the flag wins. A named backend is the only one tried before the CPU.
+The user's choice of Backend: `auto`, or one backend, given by the `--device` flag or the device setting. A given flag wins, `auto` included; with no flag the setting decides. A named backend goes first; an Apple Silicon one (MPS or MLX) keeps its partner next when the machine has it, then the CPU.
 _Avoid_: GPU, hardware
 
 **Model slot**:

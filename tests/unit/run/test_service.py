@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from pyrobardfx.adapters.constants import DeviceChoice
+from pyrobardfx.adapters.constants import Backend, DeviceChoice
 from pyrobardfx.adapters.devices import DeviceResolver
 from pyrobardfx.run.service import RunService
 from pyrobardfx.settings.model import Settings
@@ -11,7 +11,7 @@ from tests.builders.fan_out import FanOutBuilder
 from tests.builders.working_directory import WorkingDirectoryBuilder
 from tests.fakes.cancel import FakeCancelToken
 from tests.fakes.clock import START, FakeClock
-from tests.fakes.devices import FakeDeviceProbe
+from tests.fakes.devices import FakeBackendProbe
 from tests.fakes.events import RecordingSink
 from tests.fakes.tokens import FixedTokenSource
 from tests.fakes.trash import FakeTrash
@@ -40,7 +40,7 @@ def test_a_settings_edit_during_a_run_leaves_that_run_on_its_start_settings(
         FanOutBuilder.over(clock, (sink,)),
         FakeCancelToken(),
         settings,
-        DeviceResolver(FakeDeviceProbe()),
+        DeviceResolver(FakeBackendProbe()),
         DeviceChoice.AUTO,
     )
 
@@ -53,3 +53,26 @@ def test_a_settings_edit_during_a_run_leaves_that_run_on_its_start_settings(
         2,
         ["20261109T152000Z-0000", RUN_ID],
     )
+
+
+def test_a_run_whose_first_drawn_id_is_taken_asks_the_probe_once_per_accelerator(
+    tmp_path: Path,
+) -> None:
+    root = WorkingDirectoryBuilder(tmp_path / "work").story(STORY).run_folder(STORY, RUN_ID).build()
+    clock = FakeClock(START)
+    probe = FakeBackendProbe()
+    runs = RunService(
+        WorkingDirectory(root=root),
+        clock,
+        FixedTokenSource("a1b2", "c3d4"),
+        FakeTrash(clock, tmp_path / "trash"),
+        FanOutBuilder.over(clock),
+        FakeCancelToken(),
+        SettingsService.open(WorkingDirectory(root=root), clock, FanOutBuilder.over(clock)),
+        DeviceResolver(probe),
+        None,
+    )
+
+    runs.start(STORY)
+
+    assert probe.asked == [Backend.MLX, Backend.MPS, Backend.CUDA]

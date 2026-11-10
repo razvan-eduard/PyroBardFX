@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 
 from pyrobardfx.adapters.constants import DeviceChoice
-from pyrobardfx.adapters.devices import DeviceProbe, SystemDeviceProbe
+from pyrobardfx.adapters.devices import BackendProbe, SystemBackendProbe
 from pyrobardfx.cli.constants import (
     APP_NAME,
     CANCELLED_EXIT_CODE,
@@ -50,7 +50,7 @@ class CliApp:
         trash: Trash,
         cancel: CancellableToken,
         labels: Labels,
-        devices: DeviceProbe,
+        probe: BackendProbe,
         sinks: Sequence[EventSink] = (),
     ) -> typer.Typer:
         """Build the app over the given adapters; each event goes to the CLI printer and `sinks`.
@@ -59,8 +59,9 @@ class CliApp:
         opens them speaks their `ui_language`, read from the locales folder of `labels`. The help
         is en, as it resolves here, before `--working-dir` says where the settings are.
 
-        `--device` is left in the context's meta under `DEVICE_META_KEY`; the `run` command hands
-        it to the device resolver, where it wins over the device setting. `devices` tells the
+        `--device` is left in the context's meta under `DEVICE_META_KEY`, `None` when not given;
+        the `run` command hands it to the device resolver, where a given one wins over the device
+        setting. `probe` tells the
         resolver which backends the machine offers.
         """
         app = typer.Typer(name=APP_NAME, add_completion=False)
@@ -77,9 +78,9 @@ class CliApp:
                 typer.Option(WORKING_DIR_OPTION, help=help_text.label(WORKING_DIR_HELP_LABEL_KEY)),
             ] = None,
             device: Annotated[
-                DeviceChoice,
+                DeviceChoice | None,
                 typer.Option(DEVICE_OPTION, help=help_text.label(DEVICE_HELP_LABEL_KEY)),
-            ] = DeviceChoice.AUTO,
+            ] = None,
         ) -> None:
             ctx.meta[DEVICE_META_KEY] = device
             try:
@@ -88,7 +89,7 @@ class CliApp:
                 printer.refused(error)
                 raise typer.Exit(code=REFUSED_EXIT_CODE) from error
 
-        runs = RunFactory(clock, tokens, trash, cancel, labels, devices, sinks)
+        runs = RunFactory(clock, tokens, trash, cancel, labels, probe, sinks)
         CliApp._add_run(app, help_text, runs, cancel)
         return app
 
@@ -134,5 +135,5 @@ def main() -> None:
         Send2TrashTrash(clock),
         ThreadCancelToken(),
         labels,
-        SystemDeviceProbe(),
+        SystemBackendProbe(),
     )()
