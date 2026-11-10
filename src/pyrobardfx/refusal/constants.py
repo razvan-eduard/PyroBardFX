@@ -19,3 +19,6 @@ class RefusalReason(StrEnum):
     DEVICE_UNAVAILABLE = "adapters.refused.device_unavailable"
     BACKEND_UNSUPPORTED = "adapters.refused.backend_unsupported"
     CPU_REFUSED = "adapters.refused.cpu"
+    CONTENT_TYPE_INVALID = "content_types.refused.invalid_file"
+    CONTENT_TYPE_UNKNOWN = "content_types.refused.unknown"
+    AUTO_UNRESOLVED = "content_types.refused.auto_unresolved"

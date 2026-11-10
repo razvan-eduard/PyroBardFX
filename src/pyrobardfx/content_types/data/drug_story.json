@@ -19,13 +19,13 @@
     "salvia": "reality folding like paper pages, flat planes peeling and rotating, zipper-like seams in space, sudden spinning tunnels, unsettling bright pastel",
     "stimulants": "sharp fractured glass shards, high contrast white strobe light, fast jagged lines, cold electric blue, tense restless energy",
     "crack": "brief blinding white flash then sudden darkness, harsh contrast, trembling sharp shapes, cold metallic light, craving emptiness",
-    "cathinones (etnobotanice)": "harsh flickering fluorescent light, twitching repeating shapes, sickly green and white, claustrophobic tight spaces, anxious restless energy",
+    "cathinones (bath salts)": "harsh flickering fluorescent light, twitching repeating shapes, sickly green and white, claustrophobic tight spaces, anxious restless energy",
     "alcohol": "blurred amber light, double vision, warm whiskey tones, smeared reflections, wobbling distorted lights",
     "opioids": "heavy slow melting shapes, warm sinking darkness, muted brown and gold, soft heavy fog, drowsy fading light",
     "benzodiazepines": "soft blurred edges, foggy pastel blue, slow motion drifting, memory fragments fading out, quiet muffled calm",
     "ghb": "warm wobbling liquid light, slippery soft focus, sudden dimming darkness, pink and blue haze, unsteady swaying",
     "kratom": "muted earthy green leaves, slow warm haze, calm dull light, gentle heavy drift",
-    "inhalants (aurolac)": "smeared chemical rainbow film, oily distorted reflections, ringing tunnel vision, dirty yellow light, choking haze",
+    "inhalants (glue)": "smeared chemical rainbow film, oily distorted reflections, ringing tunnel vision, dirty yellow light, choking haze",
     "synthetic cannabinoids (spice)": "harsh green distortion, looping panicky repetitions, warped heavy shapes, dark flickering, uneasy paranoia",
     "danger / overdose": "desaturated cold palette, flickering red warning light, fragmented distorted shapes, heavy shadows, unsettling stillness",
     "comedown": "grey washed out colors, cracked textures, dim flickering light, empty rooms of fog, slow decay",
@@ -123,7 +123,7 @@
       "crack": [
         "crack"
       ],
-      "cathinones (etnobotanice)": [
+      "cathinones (bath salts)": [
         "mephedron*",
         "cathinon*",
         "bath salts",
@@ -159,7 +159,7 @@
         "hash",
         "thc"
       ],
-      "inhalants (aurolac)": [
+      "inhalants (glue)": [
         "glue",
         "solvent*",
         "thinner*",

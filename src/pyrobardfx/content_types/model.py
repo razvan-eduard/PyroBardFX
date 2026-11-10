@@ -11,11 +11,13 @@ class ContentType(BaseModel):
     `styles` maps each style's name to its picture prompt wording. `keywords` maps a story language
     to each style's match words, a trailing `*` matching any ending; a new language is a new key.
     `sound_mix` maps a layer kind's name to the level it plays at in this Content type.
+    `label_key` keys the Content type's name in the locales; a creator's own type may leave it out
+    and be named by its file's stem.
     """
 
     model_config = ConfigDict(frozen=True, extra=EXTRA_FORBID)
 
-    label_key: str
+    label_key: str | None = None
     quality: str
     negative: str
     styles: dict[str, str]

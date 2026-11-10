@@ -1,9 +1,13 @@
+import json
 from pathlib import Path
+
+import pytest
 
 from pyrobardfx.content_types.catalogue import ContentTypes
 from pyrobardfx.content_types.model import ContentType
 from pyrobardfx.locales.constants import Language
 from pyrobardfx.locales.labels import Labels
+from pyrobardfx.refusal.constants import RefusalReason
 from pyrobardfx.workdir.constants import CONTENT_TYPES_FOLDER
 from pyrobardfx.workdir.working_directory import WorkingDirectory
 
@@ -88,6 +92,49 @@ def test_each_shipped_content_type_is_named_from_the_locales(tmp_path: Path) -> 
     content_types = ContentTypes.load(WorkingDirectory(root=tmp_path))
     labels = Labels.load(Language.EN)
 
-    named = {labels.label(content_types.get(name).label_key) for name in content_types.names()}
+    named = {content_types.label(name, labels) for name in content_types.names()}
 
     assert named == {"Book chapter", "Drug story", "Scary story"}
+
+
+def test_the_drug_story_names_its_cathinone_and_inhalant_styles_in_english(
+    tmp_path: Path,
+) -> None:
+    drug = ContentTypes.load(WorkingDirectory(root=tmp_path)).get("drug_story")
+
+    named = {name for name in drug.styles if name.startswith(("cathinones", "inhalants"))}
+
+    assert named == {"cathinones (bath salts)", "inhalants (glue)"}
+
+
+@pytest.mark.parametrize("text", [b'{"quality": 3}', b"not json", b"\xff\xfe"])
+def test_an_invalid_content_type_file_is_skipped_with_a_refusal_naming_it(
+    tmp_path: Path, text: bytes
+) -> None:
+    write_own(tmp_path, "ghost_story", "calm", {"en": {}})
+    broken = tmp_path / CONTENT_TYPES_FOLDER / "broken.json"
+    broken.write_bytes(text)
+
+    content_types = ContentTypes.load(WorkingDirectory(root=tmp_path))
+
+    refused = [(error.reason, error.path) for error in content_types.refused]
+    assert content_types.names() == ("book_chapter", "drug_story", "ghost_story", "scary_story")
+    assert refused == [(RefusalReason.CONTENT_TYPE_INVALID, broken)]
+
+
+def test_a_content_type_with_no_label_key_is_named_by_its_file_stem(tmp_path: Path) -> None:
+    unlabelled = {
+        "quality": "",
+        "negative": "",
+        "styles": {},
+        "keywords": {"en": {}},
+        "default_look": "calm",
+        "sound_mix": {},
+    }
+    folder = tmp_path / CONTENT_TYPES_FOLDER
+    folder.mkdir()
+    (folder / "ghost_story.json").write_text(json.dumps(unlabelled), encoding="utf-8")
+
+    content_types = ContentTypes.load(WorkingDirectory(root=tmp_path))
+
+    assert content_types.label("ghost_story", Labels.load(Language.EN)) == "ghost_story"

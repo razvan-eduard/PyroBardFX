@@ -7,16 +7,13 @@ from pathlib import Path
 SHIPPED_FOLDER = Path(__file__).parent / "data"
 DATA_FILE_PATTERN = "*.json"
 
-# The locale key of each shipped Content type's name; its data file's `label_key` names it.
-BOOK_CHAPTER_LABEL_KEY = "content_types.book_chapter.label"
-DRUG_STORY_LABEL_KEY = "content_types.drug_story.label"
-SCARY_STORY_LABEL_KEY = "content_types.scary_story.label"
-
 # The Content type choice that lets the model pick, and the locale key of its name.
 AUTO = "auto"
 AUTO_LABEL_KEY = "content_types.auto.label"
 # A model's answer names a Content type with its words apart: `Scary Story` is `scary_story`.
 NAME_WORD_SEPARATOR = "_"
 ANSWER_GAP_PATTERN = r"[\s-]+"
-# The Content type `auto` takes when the model's answer names none: the predecessor's first one.
-FALLBACK_CONTENT_TYPE = "drug_story"
+# How a skipped file's refusal names a bad field, `styles.fog`, and, for a field-less error such
+# as broken JSON, which key of the validation error holds the parser's words.
+LOCATION_SEPARATOR = "."
+ERROR_MESSAGE_KEY = "msg"
